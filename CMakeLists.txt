@@ -136,7 +136,7 @@ if (JPH_MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
 endif ()
 
 # Search for local JoltPhysics first
-if(EXISTS "${CMAKE_SOURCE_DIR}/JoltPhysics/Build/CMakeLists.txt")
+if(JPH_MASTER_PROJECT AND EXISTS "${CMAKE_SOURCE_DIR}/JoltPhysics/Build/CMakeLists.txt")
     message(STATUS "Using local JoltPhysics from ${CMAKE_SOURCE_DIR}/JoltPhysics")
 
     FetchContent_Declare(
@@ -144,7 +144,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/JoltPhysics/Build/CMakeLists.txt")
         SOURCE_DIR "${CMAKE_SOURCE_DIR}/JoltPhysics"
         SOURCE_SUBDIR "Build"
     )
-elseif(EXISTS "${CMAKE_SOURCE_DIR}/../JoltPhysics/Build/CMakeLists.txt")
+elseif(JPH_MASTER_PROJECT AND EXISTS "${CMAKE_SOURCE_DIR}/../JoltPhysics/Build/CMakeLists.txt")
     message(STATUS "Using local JoltPhysics from ${CMAKE_SOURCE_DIR}/../JoltPhysics")
 
     FetchContent_Declare(
@@ -307,7 +307,6 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/include/joltc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc_assert.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/joltc.c
 )
 
 if (JPH_BUILD_SHARED)

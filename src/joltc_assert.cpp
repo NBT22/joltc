@@ -1,44 +1,20 @@
 // Copyright (c) Amer Koleci and Contributors.
 // Licensed under the MIT License (MIT). See LICENSE in the repository root for more information.
 
-#include "joltc.h"
-
-#ifdef _MSC_VER
-__pragma(warning(push, 0))
-#endif
-
 #include "Jolt/Jolt.h"
-#include "Jolt/RegisterTypes.h"
-#include "Jolt/Core/Factory.h"
-#include "Jolt/Core/TempAllocator.h"
-#include "Jolt/Core/JobSystemThreadPool.h"
-#include "Jolt/Physics/PhysicsSettings.h"
-#include "Jolt/Physics/PhysicsSystem.h"
-#include "Jolt/Physics/Collision/CollideShape.h"
-#include "Jolt/Physics/Collision/Shape/BoxShape.h"
-#include "Jolt/Physics/Collision/Shape/SphereShape.h"
-#include "Jolt/Physics/Collision/Shape/TriangleShape.h"
-#include "Jolt/Physics/Collision/Shape/CapsuleShape.h"
-#include "Jolt/Physics/Collision/Shape/TaperedCapsuleShape.h"
-#include "Jolt/Physics/Collision/Shape/CylinderShape.h"
-#include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
-#include "Jolt/Physics/Collision/CastResult.h"
 #include "Jolt/Physics/Body/BodyCreationSettings.h"
-#include "Jolt/Physics/Body/BodyActivationListener.h"
-#include "Jolt/Physics/Body/AllowedDOFs.h"
-#include "Jolt/Physics/Constraints/SixDOFConstraint.h"
 #include "Jolt/Physics/Character/CharacterBase.h"
 #include "Jolt/Physics/Character/CharacterID.h"
+#include "Jolt/Physics/Collision/CollideShape.h"
 #include "Jolt/Physics/Collision/Shape/MeshShape.h"
+#include "Jolt/Physics/Constraints/SixDOFConstraint.h"
+#include "Jolt/Physics/PhysicsSystem.h"
 #include "Jolt/Physics/Vehicle/VehicleTransmission.h"
+#include "joltc.h"
 
 #ifdef JPH_DEBUG_RENDERER
 #include <Jolt/Renderer/DebugRendererSimple.h>
 #endif // JPH_DEBUG_RENDERER
-
-#ifdef _MSC_VER
-__pragma(warning(pop))
-#endif
 
 #define ENSURE_SIZE_ALIGN(type0, type1) \
     static_assert(sizeof(type0) == sizeof(type1)); \
@@ -55,161 +31,179 @@ static_assert(sizeof(JPH::CharacterID) == sizeof(JPH_CharacterID));
 static_assert(sizeof(JPH::CollisionGroup::GroupID) == sizeof(JPH_CollisionGroupID));
 static_assert(sizeof(JPH::CollisionGroup::SubGroupID) == sizeof(JPH_CollisionSubGroupID));
 
-static_assert(JPH_INVALID_COLLISION_GROUP_ID == (int)JPH::CollisionGroup::cInvalidGroup);
-static_assert(JPH_INVALID_COLLISION_SUBGROUP_ID == (int)JPH::CollisionGroup::cInvalidSubGroup);
+static_assert(JPH_DEFAULT_COLLISION_TOLERANCE == JPH::cDefaultCollisionTolerance);
+static_assert(JPH_DEFAULT_PENETRATION_TOLERANCE == JPH::cDefaultPenetrationTolerance);
+static_assert(JPH_DEFAULT_CONVEX_RADIUS == JPH::cDefaultConvexRadius);
+static_assert(JPH_CAPSULE_PROJECTION_SLOP == JPH::cCapsuleProjectionSlop);
+static_assert(JPH_MAX_PHYSICS_JOBS == JPH::cMaxPhysicsJobs);
+static_assert(JPH_MAX_PHYSICS_BARRIERS == JPH::cMaxPhysicsBarriers);
+static_assert(JPH_INVALID_COLLISION_GROUP_ID == JPH::CollisionGroup::cInvalidGroup);
+static_assert(JPH_INVALID_COLLISION_SUBGROUP_ID == JPH::CollisionGroup::cInvalidSubGroup);
 
 
 // EPhysicsUpdateError
 static_assert(sizeof(JPH_PhysicsUpdateError) == sizeof(JPH::EPhysicsUpdateError));
-static_assert(JPH_PhysicsUpdateError_None == (int)JPH::EPhysicsUpdateError::None);
-static_assert(JPH_PhysicsUpdateError_ManifoldCacheFull == (int)JPH::EPhysicsUpdateError::ManifoldCacheFull);
-static_assert(JPH_PhysicsUpdateError_BodyPairCacheFull == (int)JPH::EPhysicsUpdateError::BodyPairCacheFull);
-static_assert(JPH_PhysicsUpdateError_ContactConstraintsFull == (int)JPH::EPhysicsUpdateError::ContactConstraintsFull);
+static_assert(JPH_PhysicsUpdateError_None == static_cast<int>(JPH::EPhysicsUpdateError::None));
+static_assert(JPH_PhysicsUpdateError_ManifoldCacheFull ==
+              static_cast<int>(JPH::EPhysicsUpdateError::ManifoldCacheFull));
+static_assert(JPH_PhysicsUpdateError_BodyPairCacheFull ==
+              static_cast<int>(JPH::EPhysicsUpdateError::BodyPairCacheFull));
+static_assert(JPH_PhysicsUpdateError_ContactConstraintsFull ==
+              static_cast<int>(JPH::EPhysicsUpdateError::ContactConstraintsFull));
 
 // EBodyType
-static_assert(JPH_BodyType_Rigid == (int)JPH::EBodyType::RigidBody);
-static_assert(JPH_BodyType_Soft == (int)JPH::EBodyType::SoftBody);
+static_assert(JPH_BodyType_Rigid == static_cast<int>(JPH::EBodyType::RigidBody));
+static_assert(JPH_BodyType_Soft == static_cast<int>(JPH::EBodyType::SoftBody));
 
 // EMotionType
-static_assert(JPH_MotionType_Static == (int)JPH::EMotionType::Static);
-static_assert(JPH_MotionType_Kinematic == (int)JPH::EMotionType::Kinematic);
-static_assert(JPH_MotionType_Dynamic == (int)JPH::EMotionType::Dynamic);
+static_assert(JPH_MotionType_Static == static_cast<int>(JPH::EMotionType::Static));
+static_assert(JPH_MotionType_Kinematic == static_cast<int>(JPH::EMotionType::Kinematic));
+static_assert(JPH_MotionType_Dynamic == static_cast<int>(JPH::EMotionType::Dynamic));
 
 // EActivation
 static_assert(sizeof(JPH::EActivation) == sizeof(JPH_Activation));
-static_assert(JPH_Activation_Activate == (int)JPH::EActivation::Activate);
-static_assert(JPH_Activation_DontActivate == (int)JPH::EActivation::DontActivate);
+static_assert(JPH_Activation_Activate == static_cast<int>(JPH::EActivation::Activate));
+static_assert(JPH_Activation_DontActivate == static_cast<int>(JPH::EActivation::DontActivate));
 
 // EActivation
 static_assert(sizeof(JPH::ValidateResult) == sizeof(JPH_ValidateResult));
-static_assert(JPH_ValidateResult_AcceptAllContactsForThisBodyPair == (int)JPH::ValidateResult::AcceptAllContactsForThisBodyPair);
-static_assert(JPH_ValidateResult_AcceptContact == (int)JPH::ValidateResult::AcceptContact);
-static_assert(JPH_ValidateResult_RejectContact == (int)JPH::ValidateResult::RejectContact);
-static_assert(JPH_ValidateResult_RejectAllContactsForThisBodyPair == (int)JPH::ValidateResult::RejectAllContactsForThisBodyPair);
+static_assert(JPH_ValidateResult_AcceptAllContactsForThisBodyPair ==
+              static_cast<int>(JPH::ValidateResult::AcceptAllContactsForThisBodyPair));
+static_assert(JPH_ValidateResult_AcceptContact == static_cast<int>(JPH::ValidateResult::AcceptContact));
+static_assert(JPH_ValidateResult_RejectContact == static_cast<int>(JPH::ValidateResult::RejectContact));
+static_assert(JPH_ValidateResult_RejectAllContactsForThisBodyPair ==
+              static_cast<int>(JPH::ValidateResult::RejectAllContactsForThisBodyPair));
 
 // EShapeType
-static_assert(JPH_ShapeType_Convex == (int)JPH::EShapeType::Convex);
-static_assert(JPH_ShapeType_Compound == (int)JPH::EShapeType::Compound);
-static_assert(JPH_ShapeType_Decorated == (int)JPH::EShapeType::Decorated);
-static_assert(JPH_ShapeType_Mesh == (int)JPH::EShapeType::Mesh);
-static_assert(JPH_ShapeType_HeightField == (int)JPH::EShapeType::HeightField);
-static_assert(JPH_ShapeType_SoftBody == (int)JPH::EShapeType::SoftBody);
-static_assert(JPH_ShapeType_User1 == (int)JPH::EShapeType::User1);
-static_assert(JPH_ShapeType_User2 == (int)JPH::EShapeType::User2);
-static_assert(JPH_ShapeType_User3 == (int)JPH::EShapeType::User3);
-static_assert(JPH_ShapeType_User4 == (int)JPH::EShapeType::User4);
+static_assert(JPH_ShapeType_Convex == static_cast<int>(JPH::EShapeType::Convex));
+static_assert(JPH_ShapeType_Compound == static_cast<int>(JPH::EShapeType::Compound));
+static_assert(JPH_ShapeType_Decorated == static_cast<int>(JPH::EShapeType::Decorated));
+static_assert(JPH_ShapeType_Mesh == static_cast<int>(JPH::EShapeType::Mesh));
+static_assert(JPH_ShapeType_HeightField == static_cast<int>(JPH::EShapeType::HeightField));
+static_assert(JPH_ShapeType_SoftBody == static_cast<int>(JPH::EShapeType::SoftBody));
+static_assert(JPH_ShapeType_User1 == static_cast<int>(JPH::EShapeType::User1));
+static_assert(JPH_ShapeType_User2 == static_cast<int>(JPH::EShapeType::User2));
+static_assert(JPH_ShapeType_User3 == static_cast<int>(JPH::EShapeType::User3));
+static_assert(JPH_ShapeType_User4 == static_cast<int>(JPH::EShapeType::User4));
 
 // EShapeSubType
-static_assert(JPH_ShapeSubType_Sphere == (int)JPH::EShapeSubType::Sphere);
-static_assert(JPH_ShapeSubType_Box == (int)JPH::EShapeSubType::Box);
-static_assert(JPH_ShapeSubType_Triangle == (int)JPH::EShapeSubType::Triangle);
-static_assert(JPH_ShapeSubType_Capsule == (int)JPH::EShapeSubType::Capsule);
-static_assert(JPH_ShapeSubType_TaperedCapsule == (int)JPH::EShapeSubType::TaperedCapsule);
-static_assert(JPH_ShapeSubType_Cylinder == (int)JPH::EShapeSubType::Cylinder);
-static_assert(JPH_ShapeSubType_ConvexHull == (int)JPH::EShapeSubType::ConvexHull);
-static_assert(JPH_ShapeSubType_StaticCompound == (int)JPH::EShapeSubType::StaticCompound);
-static_assert(JPH_ShapeSubType_MutableCompound == (int)JPH::EShapeSubType::MutableCompound);
-static_assert(JPH_ShapeSubType_RotatedTranslated == (int)JPH::EShapeSubType::RotatedTranslated);
-static_assert(JPH_ShapeSubType_Scaled == (int)JPH::EShapeSubType::Scaled);
-static_assert(JPH_ShapeSubType_OffsetCenterOfMass == (int)JPH::EShapeSubType::OffsetCenterOfMass);
-static_assert(JPH_ShapeSubType_Mesh == (int)JPH::EShapeSubType::Mesh);
-static_assert(JPH_ShapeSubType_HeightField == (int)JPH::EShapeSubType::HeightField);
-static_assert(JPH_ShapeSubType_SoftBody == (int)JPH::EShapeSubType::SoftBody);
+static_assert(JPH_ShapeSubType_Sphere == static_cast<int>(JPH::EShapeSubType::Sphere));
+static_assert(JPH_ShapeSubType_Box == static_cast<int>(JPH::EShapeSubType::Box));
+static_assert(JPH_ShapeSubType_Triangle == static_cast<int>(JPH::EShapeSubType::Triangle));
+static_assert(JPH_ShapeSubType_Capsule == static_cast<int>(JPH::EShapeSubType::Capsule));
+static_assert(JPH_ShapeSubType_TaperedCapsule == static_cast<int>(JPH::EShapeSubType::TaperedCapsule));
+static_assert(JPH_ShapeSubType_Cylinder == static_cast<int>(JPH::EShapeSubType::Cylinder));
+static_assert(JPH_ShapeSubType_ConvexHull == static_cast<int>(JPH::EShapeSubType::ConvexHull));
+static_assert(JPH_ShapeSubType_StaticCompound == static_cast<int>(JPH::EShapeSubType::StaticCompound));
+static_assert(JPH_ShapeSubType_MutableCompound == static_cast<int>(JPH::EShapeSubType::MutableCompound));
+static_assert(JPH_ShapeSubType_RotatedTranslated == static_cast<int>(JPH::EShapeSubType::RotatedTranslated));
+static_assert(JPH_ShapeSubType_Scaled == static_cast<int>(JPH::EShapeSubType::Scaled));
+static_assert(JPH_ShapeSubType_OffsetCenterOfMass == static_cast<int>(JPH::EShapeSubType::OffsetCenterOfMass));
+static_assert(JPH_ShapeSubType_Mesh == static_cast<int>(JPH::EShapeSubType::Mesh));
+static_assert(JPH_ShapeSubType_HeightField == static_cast<int>(JPH::EShapeSubType::HeightField));
+static_assert(JPH_ShapeSubType_SoftBody == static_cast<int>(JPH::EShapeSubType::SoftBody));
 
 // EConstraintType
-static_assert(JPH_ConstraintType_Constraint == (int)JPH::EConstraintType::Constraint);
-static_assert(JPH_ConstraintType_TwoBodyConstraint == (int)JPH::EConstraintType::TwoBodyConstraint);
+static_assert(JPH_ConstraintType_Constraint == static_cast<int>(JPH::EConstraintType::Constraint));
+static_assert(JPH_ConstraintType_TwoBodyConstraint == static_cast<int>(JPH::EConstraintType::TwoBodyConstraint));
 
 // EConstraintSubType
-static_assert(JPH_ConstraintSubType_Fixed == (int)JPH::EConstraintSubType::Fixed);
-static_assert(JPH_ConstraintSubType_Point == (int)JPH::EConstraintSubType::Point);
-static_assert(JPH_ConstraintSubType_Hinge == (int)JPH::EConstraintSubType::Hinge);
-static_assert(JPH_ConstraintSubType_Slider == (int)JPH::EConstraintSubType::Slider);
-static_assert(JPH_ConstraintSubType_Distance == (int)JPH::EConstraintSubType::Distance);
-static_assert(JPH_ConstraintSubType_Cone == (int)JPH::EConstraintSubType::Cone);
-static_assert(JPH_ConstraintSubType_SwingTwist == (int)JPH::EConstraintSubType::SwingTwist);
-static_assert(JPH_ConstraintSubType_SixDOF == (int)JPH::EConstraintSubType::SixDOF);
-static_assert(JPH_ConstraintSubType_Path  == (int)JPH::EConstraintSubType::Path);
-static_assert(JPH_ConstraintSubType_Vehicle == (int)JPH::EConstraintSubType::Vehicle);
-static_assert(JPH_ConstraintSubType_RackAndPinion == (int)JPH::EConstraintSubType::RackAndPinion);
-static_assert(JPH_ConstraintSubType_Gear == (int)JPH::EConstraintSubType::Gear);
-static_assert(JPH_ConstraintSubType_Pulley == (int)JPH::EConstraintSubType::Pulley);
+static_assert(JPH_ConstraintSubType_Fixed == static_cast<int>(JPH::EConstraintSubType::Fixed));
+static_assert(JPH_ConstraintSubType_Point == static_cast<int>(JPH::EConstraintSubType::Point));
+static_assert(JPH_ConstraintSubType_Hinge == static_cast<int>(JPH::EConstraintSubType::Hinge));
+static_assert(JPH_ConstraintSubType_Slider == static_cast<int>(JPH::EConstraintSubType::Slider));
+static_assert(JPH_ConstraintSubType_Distance == static_cast<int>(JPH::EConstraintSubType::Distance));
+static_assert(JPH_ConstraintSubType_Cone == static_cast<int>(JPH::EConstraintSubType::Cone));
+static_assert(JPH_ConstraintSubType_SwingTwist == static_cast<int>(JPH::EConstraintSubType::SwingTwist));
+static_assert(JPH_ConstraintSubType_SixDOF == static_cast<int>(JPH::EConstraintSubType::SixDOF));
+static_assert(JPH_ConstraintSubType_Path == static_cast<int>(JPH::EConstraintSubType::Path));
+static_assert(JPH_ConstraintSubType_Vehicle == static_cast<int>(JPH::EConstraintSubType::Vehicle));
+static_assert(JPH_ConstraintSubType_RackAndPinion == static_cast<int>(JPH::EConstraintSubType::RackAndPinion));
+static_assert(JPH_ConstraintSubType_Gear == static_cast<int>(JPH::EConstraintSubType::Gear));
+static_assert(JPH_ConstraintSubType_Pulley == static_cast<int>(JPH::EConstraintSubType::Pulley));
 
-static_assert(JPH_ConstraintSubType_User1 == (int)JPH::EConstraintSubType::User1);
-static_assert(JPH_ConstraintSubType_User2 == (int)JPH::EConstraintSubType::User2);
-static_assert(JPH_ConstraintSubType_User3 == (int)JPH::EConstraintSubType::User3);
-static_assert(JPH_ConstraintSubType_User4 == (int)JPH::EConstraintSubType::User4);
+static_assert(JPH_ConstraintSubType_User1 == static_cast<int>(JPH::EConstraintSubType::User1));
+static_assert(JPH_ConstraintSubType_User2 == static_cast<int>(JPH::EConstraintSubType::User2));
+static_assert(JPH_ConstraintSubType_User3 == static_cast<int>(JPH::EConstraintSubType::User3));
+static_assert(JPH_ConstraintSubType_User4 == static_cast<int>(JPH::EConstraintSubType::User4));
 
 // EActivation
 static_assert(sizeof(JPH::EConstraintSpace) == sizeof(JPH_ConstraintSpace));
-static_assert(JPH_ConstraintSpace_LocalToBodyCOM == (int)JPH::EConstraintSpace::LocalToBodyCOM);
-static_assert(JPH_ConstraintSpace_WorldSpace == (int)JPH::EConstraintSpace::WorldSpace);
+static_assert(JPH_ConstraintSpace_LocalToBodyCOM == static_cast<int>(JPH::EConstraintSpace::LocalToBodyCOM));
+static_assert(JPH_ConstraintSpace_WorldSpace == static_cast<int>(JPH::EConstraintSpace::WorldSpace));
 
 // EMotionQuality
-static_assert(JPH_MotionQuality_Discrete == (int)JPH::EMotionQuality::Discrete);
-static_assert(JPH_MotionQuality_LinearCast == (int)JPH::EMotionQuality::LinearCast);
+static_assert(JPH_MotionQuality_Discrete == static_cast<int>(JPH::EMotionQuality::Discrete));
+static_assert(JPH_MotionQuality_LinearCast == static_cast<int>(JPH::EMotionQuality::LinearCast));
 
 // EOverrideMassProperties
 static_assert(sizeof(JPH_OverrideMassProperties) == sizeof(uint32_t));
 static_assert(sizeof(JPH::EOverrideMassProperties) == sizeof(uint8_t));
-static_assert(JPH_OverrideMassProperties_CalculateMassAndInertia == (int)JPH::EOverrideMassProperties::CalculateMassAndInertia);
-static_assert(JPH_OverrideMassProperties_CalculateInertia == (int)JPH::EOverrideMassProperties::CalculateInertia);
-static_assert(JPH_OverrideMassProperties_MassAndInertiaProvided == (int)JPH::EOverrideMassProperties::MassAndInertiaProvided);
+static_assert(JPH_OverrideMassProperties_CalculateMassAndInertia ==
+              static_cast<int>(JPH::EOverrideMassProperties::CalculateMassAndInertia));
+static_assert(JPH_OverrideMassProperties_CalculateInertia ==
+              static_cast<int>(JPH::EOverrideMassProperties::CalculateInertia));
+static_assert(JPH_OverrideMassProperties_MassAndInertiaProvided ==
+              static_cast<int>(JPH::EOverrideMassProperties::MassAndInertiaProvided));
 
 // EAllowedDOFs
 static_assert(sizeof(JPH_AllowedDOFs) == sizeof(uint32_t));
-static_assert(JPH_AllowedDOFs_All == (int)JPH::EAllowedDOFs::All);
-static_assert(JPH_AllowedDOFs_TranslationX == (int)JPH::EAllowedDOFs::TranslationX);
-static_assert(JPH_AllowedDOFs_TranslationY == (int)JPH::EAllowedDOFs::TranslationY);
-static_assert(JPH_AllowedDOFs_TranslationZ == (int)JPH::EAllowedDOFs::TranslationZ);
-static_assert(JPH_AllowedDOFs_RotationX == (int)JPH::EAllowedDOFs::RotationX);
-static_assert(JPH_AllowedDOFs_RotationY == (int)JPH::EAllowedDOFs::RotationY);
-static_assert(JPH_AllowedDOFs_RotationZ == (int)JPH::EAllowedDOFs::RotationZ);
-static_assert(JPH_AllowedDOFs_Plane2D == (int)JPH::EAllowedDOFs::Plane2D);
+static_assert(JPH_AllowedDOFs_All == static_cast<int>(JPH::EAllowedDOFs::All));
+static_assert(JPH_AllowedDOFs_TranslationX == static_cast<int>(JPH::EAllowedDOFs::TranslationX));
+static_assert(JPH_AllowedDOFs_TranslationY == static_cast<int>(JPH::EAllowedDOFs::TranslationY));
+static_assert(JPH_AllowedDOFs_TranslationZ == static_cast<int>(JPH::EAllowedDOFs::TranslationZ));
+static_assert(JPH_AllowedDOFs_RotationX == static_cast<int>(JPH::EAllowedDOFs::RotationX));
+static_assert(JPH_AllowedDOFs_RotationY == static_cast<int>(JPH::EAllowedDOFs::RotationY));
+static_assert(JPH_AllowedDOFs_RotationZ == static_cast<int>(JPH::EAllowedDOFs::RotationZ));
+static_assert(JPH_AllowedDOFs_Plane2D == static_cast<int>(JPH::EAllowedDOFs::Plane2D));
 
 // JPH_MotorState
 static_assert(sizeof(JPH_MotorState) == sizeof(uint32_t));
-static_assert(JPH_MotorState_Off == (int)JPH::EMotorState::Off);
-static_assert(JPH_MotorState_Velocity == (int)JPH::EMotorState::Velocity);
-static_assert(JPH_MotorState_Position == (int)JPH::EMotorState::Position);
+static_assert(JPH_MotorState_Off == static_cast<int>(JPH::EMotorState::Off));
+static_assert(JPH_MotorState_Velocity == static_cast<int>(JPH::EMotorState::Velocity));
+static_assert(JPH_MotorState_Position == static_cast<int>(JPH::EMotorState::Position));
 
 // JPH_SwingType
 static_assert(sizeof(JPH_SwingType) == sizeof(uint32_t));
-static_assert(JPH_SwingType_Cone == (int)JPH::ESwingType::Cone);
-static_assert(JPH_SwingType_Pyramid == (int)JPH::ESwingType::Pyramid);
+static_assert(JPH_SwingType_Cone == static_cast<int>(JPH::ESwingType::Cone));
+static_assert(JPH_SwingType_Pyramid == static_cast<int>(JPH::ESwingType::Pyramid));
 
 // JPH_SixDOFConstraintAxis
 static_assert(sizeof(JPH_SixDOFConstraintAxis) == sizeof(uint32_t));
-static_assert(JPH_SixDOFConstraintAxis_TranslationX == (int)JPH::SixDOFConstraintSettings::EAxis::TranslationX);
-static_assert(JPH_SixDOFConstraintAxis_TranslationY == (int)JPH::SixDOFConstraintSettings::EAxis::TranslationY);
-static_assert(JPH_SixDOFConstraintAxis_TranslationZ == (int)JPH::SixDOFConstraintSettings::EAxis::TranslationZ);
-static_assert(JPH_SixDOFConstraintAxis_RotationX == (int)JPH::SixDOFConstraintSettings::EAxis::RotationX);
-static_assert(JPH_SixDOFConstraintAxis_RotationY == (int)JPH::SixDOFConstraintSettings::EAxis::RotationY);
-static_assert(JPH_SixDOFConstraintAxis_RotationZ == (int)JPH::SixDOFConstraintSettings::EAxis::RotationZ);
+static_assert(JPH_SixDOFConstraintAxis_TranslationX ==
+              static_cast<int>(JPH::SixDOFConstraintSettings::EAxis::TranslationX));
+static_assert(JPH_SixDOFConstraintAxis_TranslationY ==
+              static_cast<int>(JPH::SixDOFConstraintSettings::EAxis::TranslationY));
+static_assert(JPH_SixDOFConstraintAxis_TranslationZ ==
+              static_cast<int>(JPH::SixDOFConstraintSettings::EAxis::TranslationZ));
+static_assert(JPH_SixDOFConstraintAxis_RotationX == static_cast<int>(JPH::SixDOFConstraintSettings::EAxis::RotationX));
+static_assert(JPH_SixDOFConstraintAxis_RotationY == static_cast<int>(JPH::SixDOFConstraintSettings::EAxis::RotationY));
+static_assert(JPH_SixDOFConstraintAxis_RotationZ == static_cast<int>(JPH::SixDOFConstraintSettings::EAxis::RotationZ));
 
 // JPH_SpringMode
 static_assert(sizeof(JPH_SpringMode) == sizeof(uint32_t));
-static_assert(JPH_SpringMode_FrequencyAndDamping == (int)JPH::ESpringMode::FrequencyAndDamping);
-static_assert(JPH_SpringMode_StiffnessAndDamping == (int)JPH::ESpringMode::StiffnessAndDamping);
+static_assert(JPH_SpringMode_FrequencyAndDamping == static_cast<int>(JPH::ESpringMode::FrequencyAndDamping));
+static_assert(JPH_SpringMode_StiffnessAndDamping == static_cast<int>(JPH::ESpringMode::StiffnessAndDamping));
 
 // EGroundState
 static_assert(sizeof(JPH::CharacterBase::EGroundState) == sizeof(JPH_GroundState));
-static_assert(JPH_GroundState_OnGround == (int)JPH::CharacterBase::EGroundState::OnGround);
-static_assert(JPH_GroundState_OnSteepGround == (int)JPH::CharacterBase::EGroundState::OnSteepGround);
-static_assert(JPH_GroundState_NotSupported == (int)JPH::CharacterBase::EGroundState::NotSupported);
-static_assert(JPH_GroundState_InAir == (int)JPH::CharacterBase::EGroundState::InAir);
+static_assert(JPH_GroundState_OnGround == static_cast<int>(JPH::CharacterBase::EGroundState::OnGround));
+static_assert(JPH_GroundState_OnSteepGround == static_cast<int>(JPH::CharacterBase::EGroundState::OnSteepGround));
+static_assert(JPH_GroundState_NotSupported == static_cast<int>(JPH::CharacterBase::EGroundState::NotSupported));
+static_assert(JPH_GroundState_InAir == static_cast<int>(JPH::CharacterBase::EGroundState::InAir));
 
 // EBackFaceMode
-static_assert(JPH_BackFaceMode_IgnoreBackFaces == (int)JPH::EBackFaceMode::IgnoreBackFaces);
-static_assert(JPH_BackFaceMode_CollideWithBackFaces == (int)JPH::EBackFaceMode::CollideWithBackFaces);
+static_assert(JPH_BackFaceMode_IgnoreBackFaces == static_cast<int>(JPH::EBackFaceMode::IgnoreBackFaces));
+static_assert(JPH_BackFaceMode_CollideWithBackFaces == static_cast<int>(JPH::EBackFaceMode::CollideWithBackFaces));
 
 // EActiveEdgeMode
-static_assert(JPH_ActiveEdgeMode_CollideOnlyWithActive == (int)JPH::EActiveEdgeMode::CollideOnlyWithActive);
-static_assert(JPH_ActiveEdgeMode_CollideWithAll == (int)JPH::EActiveEdgeMode::CollideWithAll);
+static_assert(JPH_ActiveEdgeMode_CollideOnlyWithActive ==
+              static_cast<int>(JPH::EActiveEdgeMode::CollideOnlyWithActive));
+static_assert(JPH_ActiveEdgeMode_CollideWithAll == static_cast<int>(JPH::EActiveEdgeMode::CollideWithAll));
 
 // ECollectFacesMode
-static_assert(JPH_CollectFacesMode_CollectFaces == (int)JPH::ECollectFacesMode::CollectFaces);
-static_assert(JPH_CollectFacesMode_NoFaces == (int)JPH::ECollectFacesMode::NoFaces);
+static_assert(JPH_CollectFacesMode_CollectFaces == static_cast<int>(JPH::ECollectFacesMode::CollectFaces));
+static_assert(JPH_CollectFacesMode_NoFaces == static_cast<int>(JPH::ECollectFacesMode::NoFaces));
 
 static_assert(sizeof(JPH::SubShapeIDPair) == sizeof(JPH_SubShapeIDPair));
 static_assert(alignof(JPH::SubShapeIDPair) == alignof(JPH_SubShapeIDPair));
@@ -217,33 +211,42 @@ static_assert(alignof(JPH::SubShapeIDPair) == alignof(JPH_SubShapeIDPair));
 #ifdef JPH_DEBUG_RENDERER
 
 // ESoftBodyConstraintColor
-static_assert(JPH_SoftBodyConstraintColor_ConstraintType == (int)JPH::ESoftBodyConstraintColor::ConstraintType);
-static_assert(JPH_SoftBodyConstraintColor_ConstraintGroup == (int)JPH::ESoftBodyConstraintColor::ConstraintGroup);
-static_assert(JPH_SoftBodyConstraintColor_ConstraintOrder == (int)JPH::ESoftBodyConstraintColor::ConstraintOrder);
+static_assert(JPH_SoftBodyConstraintColor_ConstraintType ==
+              static_cast<int>(JPH::ESoftBodyConstraintColor::ConstraintType));
+static_assert(JPH_SoftBodyConstraintColor_ConstraintGroup ==
+              static_cast<int>(JPH::ESoftBodyConstraintColor::ConstraintGroup));
+static_assert(JPH_SoftBodyConstraintColor_ConstraintOrder ==
+              static_cast<int>(JPH::ESoftBodyConstraintColor::ConstraintOrder));
 
 // BodyManager::EShapeColor
-static_assert(JPH_BodyManager_ShapeColor_InstanceColor == (int)JPH::BodyManager::EShapeColor::InstanceColor);
-static_assert(JPH_BodyManager_ShapeColor_ShapeTypeColor == (int)JPH::BodyManager::EShapeColor::ShapeTypeColor);
-static_assert(JPH_BodyManager_ShapeColor_MotionTypeColor == (int)JPH::BodyManager::EShapeColor::MotionTypeColor);
-static_assert(JPH_BodyManager_ShapeColor_SleepColor == (int)JPH::BodyManager::EShapeColor::SleepColor);
-static_assert(JPH_BodyManager_ShapeColor_IslandColor == (int)JPH::BodyManager::EShapeColor::IslandColor);
-static_assert(JPH_BodyManager_ShapeColor_MaterialColor == (int)JPH::BodyManager::EShapeColor::MaterialColor);
+static_assert(JPH_BodyManager_ShapeColor_InstanceColor ==
+              static_cast<int>(JPH::BodyManager::EShapeColor::InstanceColor));
+static_assert(JPH_BodyManager_ShapeColor_ShapeTypeColor ==
+              static_cast<int>(JPH::BodyManager::EShapeColor::ShapeTypeColor));
+static_assert(JPH_BodyManager_ShapeColor_MotionTypeColor ==
+              static_cast<int>(JPH::BodyManager::EShapeColor::MotionTypeColor));
+static_assert(JPH_BodyManager_ShapeColor_SleepColor == static_cast<int>(JPH::BodyManager::EShapeColor::SleepColor));
+static_assert(JPH_BodyManager_ShapeColor_IslandColor == static_cast<int>(JPH::BodyManager::EShapeColor::IslandColor));
+static_assert(JPH_BodyManager_ShapeColor_MaterialColor ==
+              static_cast<int>(JPH::BodyManager::EShapeColor::MaterialColor));
 
 // DebugRenderer::ECastShadow
-static_assert(JPH_DebugRenderer_CastShadow_On == (int)JPH::DebugRenderer::ECastShadow::On);
-static_assert(JPH_DebugRenderer_CastShadow_Off == (int)JPH::DebugRenderer::ECastShadow::Off);
+static_assert(JPH_DebugRenderer_CastShadow_On == static_cast<int>(JPH::DebugRenderer::ECastShadow::On));
+static_assert(JPH_DebugRenderer_CastShadow_Off == static_cast<int>(JPH::DebugRenderer::ECastShadow::Off));
 
 // DebugRenderer::EDrawMode
-static_assert(JPH_DebugRenderer_DrawMode_Solid == (int)JPH::DebugRenderer::EDrawMode::Solid);
-static_assert(JPH_DebugRenderer_DrawMode_Wireframe == (int)JPH::DebugRenderer::EDrawMode::Wireframe);
+static_assert(JPH_DebugRenderer_DrawMode_Solid == static_cast<int>(JPH::DebugRenderer::EDrawMode::Solid));
+static_assert(JPH_DebugRenderer_DrawMode_Wireframe == static_cast<int>(JPH::DebugRenderer::EDrawMode::Wireframe));
 
 // MeshShapeSettings::EBuildQuality
-static_assert(JPH_Mesh_Shape_BuildQuality_FavorRuntimePerformance == (int)JPH::MeshShapeSettings::EBuildQuality::FavorRuntimePerformance);
-static_assert(JPH_Mesh_Shape_BuildQuality_FavorBuildSpeed == (int)JPH::MeshShapeSettings::EBuildQuality::FavorBuildSpeed);
+static_assert(JPH_Mesh_Shape_BuildQuality_FavorRuntimePerformance ==
+              static_cast<int>(JPH::MeshShapeSettings::EBuildQuality::FavorRuntimePerformance));
+static_assert(JPH_Mesh_Shape_BuildQuality_FavorBuildSpeed ==
+              static_cast<int>(JPH::MeshShapeSettings::EBuildQuality::FavorBuildSpeed));
 
 // MeshShapeSettings::EBuildQuality
-static_assert(JPH_TransmissionMode_Auto == (int)JPH::ETransmissionMode::Auto);
-static_assert(JPH_TransmissionMode_Manual == (int)JPH::ETransmissionMode::Manual);
+static_assert(JPH_TransmissionMode_Auto == static_cast<int>(JPH::ETransmissionMode::Auto));
+static_assert(JPH_TransmissionMode_Manual == static_cast<int>(JPH::ETransmissionMode::Manual));
 
 
 #endif
