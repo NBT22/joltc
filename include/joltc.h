@@ -4,6 +4,7 @@
 // ReSharper disable CppVariableCanBeMadeConstexpr
 #ifndef JOLTC_H
 #define JOLTC_H
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -378,6 +379,7 @@ typedef struct JPH_Vec3
 
 static const JPH_Vec3 JPH_Vec3_Zero = {0.0f, 0.0f, 0.0f};
 static const JPH_Vec3 JPH_Vec3_One = {1.0f, 1.0f, 1.0f};
+static const JPH_Vec3 JPH_Vec3_NaN = {NAN, NAN, NAN};
 static const JPH_Vec3 JPH_Vec3_AxisX = {1.0f, 0.0f, 0.0f};
 static const JPH_Vec3 JPH_Vec3_AxisY = {0.0f, 1.0f, 0.0f};
 static const JPH_Vec3 JPH_Vec3_AxisZ = {0.0f, 0.0f, 1.0f};
@@ -390,6 +392,10 @@ typedef struct JPH_Vec4
         float w;
 } JPH_Vec4;
 
+static const JPH_Vec4 JPH_Vec4_Zero = {0.0f, 0.0f, 0.0f, 0.0f};
+static const JPH_Vec4 JPH_Vec4_One = {1.0f, 1.0f, 1.0f, 1.0f};
+static const JPH_Vec4 JPH_Vec4_NaN = {NAN, NAN, NAN, NAN};
+
 typedef struct JPH_Quat
 {
         float x;
@@ -397,6 +403,9 @@ typedef struct JPH_Quat
         float z;
         float w;
 } JPH_Quat;
+
+static const JPH_Quat JPH_Quat_Zero = {0.0f, 0.0f, 0.0f, 0.0f};
+static const JPH_Quat JPH_Quat_Identity = {0.0f, 0.0f, 0.0f, 1.0f};
 
 typedef struct JPH_Plane
 {
