@@ -681,9 +681,9 @@ class JobSystemCallback final: public JPH::JobSystemWithBarrier
         JPH_JobSystemConfig mConfig;
 };
 
-JPH_JobSystem *JPH_JobSystemThreadPool_Create(const JobSystemThreadPoolConfig *config)
+JPH_JobSystem *JPH_JobSystemThreadPool_Create(const JPH_JobSystemThreadPoolConfig *config)
 {
-    JobSystemThreadPoolConfig createConfig{};
+    JPH_JobSystemThreadPoolConfig createConfig{};
     if (config != nullptr)
     {
         createConfig = *config;
@@ -722,7 +722,7 @@ bool JPH_Init()
     JPH::RegisterTypes();
 
     // Init temp allocator
-    s_TempAllocator = new JPH::TempAllocatorImplWithMallocFallback(8 * 1024 * 1024);
+    s_TempAllocator = new JPH::TempAllocatorImplWithMallocFallback(32 * 1024 * 1024);
 
     return true;
 }
@@ -1294,12 +1294,12 @@ void JPH_ShapeFilter_Destroy(JPH_ShapeFilter *filter)
     }
 }
 
-JPH_BodyID JPH_ShapeFilter_GetBodyID2(JPH_ShapeFilter *filter)
+JPH_BodyId JPH_ShapeFilter_GetBodyID2(JPH_ShapeFilter *filter)
 {
     return reinterpret_cast<ManagedShapeFilter *>(filter)->mBodyID2.GetIndexAndSequenceNumber();
 }
 
-void JPH_ShapeFilter_SetBodyID2(JPH_ShapeFilter *filter, const JPH_BodyID id)
+void JPH_ShapeFilter_SetBodyID2(JPH_ShapeFilter *filter, const JPH_BodyId id)
 {
     reinterpret_cast<ManagedShapeFilter *>(filter)->mBodyID2 = JPH::BodyID(id);
 }
@@ -1440,18 +1440,17 @@ float JPH_Quat_GetRotationAngle(const JPH_Quat *quat, const JPH_Vec3 *axis)
     return ToJolt(quat).GetRotationAngle(ToJolt(axis));
 }
 
-void JPH_Quat_Multiply(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
+void JPH_Quat_Rotation(const JPH_Vec3 *inAxis, float inAngle, JPH_Quat *result)
 {
-    JPH_ASSERT(q1 && q2 && result);
-    FromJolt(ToJolt(q1) * ToJolt(q2), result);
+    JPH_ASSERT(inAxis && result);
+    FromJolt(JPH::Quat::sRotation(ToJolt(inAxis), inAngle), result);
 }
 
-void JPH_Quat_MultiplyScalar(const JPH_Quat *q, float scalar, JPH_Quat *result)
+void JPH_Quat_FromEulerAngles(const JPH_Vec3 *angles, JPH_Quat *result)
 {
-    JPH_ASSERT(q && result);
-    FromJolt(ToJolt(q) * scalar, result);
+    JPH_ASSERT(angles && result);
+    FromJolt(JPH::Quat::sEulerAngles(ToJolt(angles)), result);
 }
-
 void JPH_Quat_Add(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
 {
     JPH_ASSERT(q1 && q2 && result);
@@ -1462,6 +1461,18 @@ void JPH_Quat_Subtract(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
 {
     JPH_ASSERT(q1 && q2 && result);
     FromJolt(ToJolt(q1) - ToJolt(q2), result);
+}
+
+void JPH_Quat_Multiply(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
+{
+    JPH_ASSERT(q1 && q2 && result);
+    FromJolt(ToJolt(q1) * ToJolt(q2), result);
+}
+
+void JPH_Quat_MultiplyScalar(const JPH_Quat *q, float scalar, JPH_Quat *result)
+{
+    JPH_ASSERT(q && result);
+    FromJolt(ToJolt(q) * scalar, result);
 }
 
 void JPH_Quat_DivideScalar(const JPH_Quat *q, float scalar, JPH_Quat *result)
@@ -1523,12 +1534,6 @@ void JPH_Quat_InverseRotate(const JPH_Quat *quat, const JPH_Vec3 *vec, JPH_Vec3 
     FromJolt(ToJolt(quat).InverseRotate(ToJolt(vec)), result);
 }
 
-void JPH_Quat_FromEulerAngles(const JPH_Vec3 *angles, JPH_Quat *result)
-{
-    JPH_ASSERT(angles && result);
-    FromJolt(JPH::Quat::sEulerAngles(ToJolt(angles)), result);
-}
-
 bool JPH_Vec3_IsClose(const JPH_Vec3 *v1, const JPH_Vec3 *v2, float maxDistSq)
 {
     JPH_ASSERT(v1 != nullptr);
@@ -1537,11 +1542,11 @@ bool JPH_Vec3_IsClose(const JPH_Vec3 *v1, const JPH_Vec3 *v2, float maxDistSq)
     return ToJolt(v1).IsClose(ToJolt(v2), maxDistSq);
 }
 
-bool JPH_Vec3_IsNearZero(const JPH_Vec3 *v, float maxDistSq)
+bool JPH_Vec3_IsNearZero(const JPH_Vec3 *vector, float maxDistSq)
 {
-    JPH_ASSERT(v != nullptr);
+    JPH_ASSERT(vector != nullptr);
 
-    return ToJolt(v).IsNearZero(maxDistSq);
+    return ToJolt(vector).IsNearZero(maxDistSq);
 }
 
 bool JPH_Vec3_IsNormalized(const JPH_Vec3 *v, float tolerance)
@@ -1684,16 +1689,6 @@ void JPH_Matrix4x4_MultiplyScalar(const JPH_Matrix4x4 *m, float scalar, JPH_Matr
 {
     JPH_ASSERT(m && result);
     FromJolt(ToJolt(m) * scalar, result);
-}
-
-void JPH_Matrix4x4_Zero(JPH_Matrix4x4 *result)
-{
-    FromJolt(JPH::Mat44::sZero(), result);
-}
-
-void JPH_Matrix4x4_Identity(JPH_Matrix4x4 *result)
-{
-    FromJolt(JPH::Mat44::sIdentity(), result);
 }
 
 void JPH_Matrix4x4_Rotation(JPH_Matrix4x4 *result, const JPH_Quat *rotation)
@@ -1865,22 +1860,22 @@ JPH_GroupFilterTable *JPH_GroupFilterTable_Create(const uint32_t numSubGroups)
 }
 
 void JPH_GroupFilterTable_DisableCollision(JPH_GroupFilterTable *table,
-                                           const JPH_CollisionSubGroupID subGroup1,
-                                           const JPH_CollisionSubGroupID subGroup2)
+                                           const JPH_CollisionSubGroupId subGroup1,
+                                           const JPH_CollisionSubGroupId subGroup2)
 {
     AsGroupFilterTable(table)->DisableCollision(subGroup1, subGroup2);
 }
 
 void JPH_GroupFilterTable_EnableCollision(JPH_GroupFilterTable *table,
-                                          const JPH_CollisionSubGroupID subGroup1,
-                                          const JPH_CollisionSubGroupID subGroup2)
+                                          const JPH_CollisionSubGroupId subGroup1,
+                                          const JPH_CollisionSubGroupId subGroup2)
 {
     AsGroupFilterTable(table)->EnableCollision(subGroup1, subGroup2);
 }
 
 bool JPH_GroupFilterTable_IsCollisionEnabled(JPH_GroupFilterTable *table,
-                                             const JPH_CollisionSubGroupID subGroup1,
-                                             const JPH_CollisionSubGroupID subGroup2)
+                                             const JPH_CollisionSubGroupId subGroup1,
+                                             const JPH_CollisionSubGroupId subGroup2)
 {
     return AsGroupFilterTable(table)->IsCollisionEnabled(subGroup1, subGroup2);
 }
@@ -1972,8 +1967,8 @@ void JPH_Shape_GetMassProperties(const JPH_Shape *shape, JPH_MassProperties *res
 }
 
 const JPH_Shape *JPH_Shape_GetLeafShape(const JPH_Shape *shape,
-                                        const JPH_SubShapeID subShapeID,
-                                        JPH_SubShapeID *remainder)
+                                        const JPH_SubShapeId subShapeID,
+                                        JPH_SubShapeId *remainder)
 {
     JPH::SubShapeID joltSubShapeID = JPH::SubShapeID();
     joltSubShapeID.SetValue(subShapeID);
@@ -1983,7 +1978,7 @@ const JPH_Shape *JPH_Shape_GetLeafShape(const JPH_Shape *shape,
     return reinterpret_cast<const JPH_Shape *>(leaf);
 }
 
-const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, const JPH_SubShapeID subShapeID)
+const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, const JPH_SubShapeId subShapeID)
 {
     JPH::SubShapeID joltSubShapeID = JPH::SubShapeID();
     joltSubShapeID.SetValue(subShapeID);
@@ -1991,7 +1986,7 @@ const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, const J
 }
 
 void JPH_Shape_GetSurfaceNormal(const JPH_Shape *shape,
-                                const JPH_SubShapeID subShapeID,
+                                const JPH_SubShapeId subShapeID,
                                 const JPH_Vec3 *localPosition,
                                 JPH_Vec3 *normal)
 {
@@ -2002,7 +1997,7 @@ void JPH_Shape_GetSurfaceNormal(const JPH_Shape *shape,
 }
 
 void JPH_Shape_GetSupportingFace(const JPH_Shape *shape,
-                                 const JPH_SubShapeID subShapeID,
+                                 const JPH_SubShapeId subShapeID,
                                  const JPH_Vec3 *direction,
                                  const JPH_Vec3 *scale,
                                  const JPH_Matrix4x4 *centerOfMassTransform,
@@ -2757,7 +2752,7 @@ JPH_MeshShape *JPH_MeshShapeSettings_CreateShape(const JPH_MeshShapeSettings *se
     return const_cast<JPH_MeshShape *>(reinterpret_cast<const JPH_MeshShape *>(shape));
 }
 
-uint32_t JPH_MeshShape_GetTriangleUserData(const JPH_MeshShape *shape, const JPH_SubShapeID id)
+uint32_t JPH_MeshShape_GetTriangleUserData(const JPH_MeshShape *shape, const JPH_SubShapeId id)
 {
     JPH::SubShapeID joltSubShapeID = JPH::SubShapeID();
     joltSubShapeID.SetValue(id);
@@ -2855,7 +2850,7 @@ bool JPH_HeightFieldShape_IsNoCollision(const JPH_HeightFieldShape *shape, const
 bool JPH_HeightFieldShape_ProjectOntoSurface(const JPH_HeightFieldShape *shape,
                                              const JPH_Vec3 *localPosition,
                                              JPH_Vec3 *outSurfacePosition,
-                                             JPH_SubShapeID *outSubShapeID)
+                                             JPH_SubShapeId *outSubShapeID)
 {
     JPH_ASSERT(outSurfacePosition);
     JPH_ASSERT(outSubShapeID);
@@ -2979,8 +2974,8 @@ void JPH_CompoundShape_GetSubShape(const JPH_CompoundShape *shape,
 }
 
 uint32_t JPH_CompoundShape_GetSubShapeIndexFromID(const JPH_CompoundShape *shape,
-                                                  JPH_SubShapeID id,
-                                                  JPH_SubShapeID *remainder)
+                                                  JPH_SubShapeId id,
+                                                  JPH_SubShapeId *remainder)
 {
     JPH_ASSERT(shape);
     const JPH::CompoundShape *joltShape = reinterpret_cast<const JPH::CompoundShape *>(shape);
@@ -3729,7 +3724,7 @@ void JPH_Constraint_SetUserData(JPH_Constraint *constraint, const uint64_t userD
     AsConstraint(constraint)->SetUserData(userData);
 }
 
-void JPH_Constraint_NotifyShapeChanged(JPH_Constraint *constraint, const JPH_BodyID bodyID, const JPH_Vec3 *deltaCOM)
+void JPH_Constraint_NotifyShapeChanged(JPH_Constraint *constraint, const JPH_BodyId bodyID, const JPH_Vec3 *deltaCOM)
 {
     AsConstraint(constraint)->NotifyShapeChanged(JPH::BodyID(bodyID), ToJolt(deltaCOM));
 }
@@ -5210,7 +5205,7 @@ void JPH_PhysicsSystem_SetSimShapeFilter(JPH_PhysicsSystem *system, JPH_SimShape
     system->physicsSystem->SetSimShapeFilter(joltFilter);
 }
 
-bool JPH_PhysicsSystem_WereBodiesInContact(const JPH_PhysicsSystem *system, JPH_BodyID body1, JPH_BodyID body2)
+bool JPH_PhysicsSystem_WereBodiesInContact(const JPH_PhysicsSystem *system, JPH_BodyId body1, JPH_BodyId body2)
 {
     JPH_ASSERT(system);
 
@@ -5328,7 +5323,7 @@ void JPH_PhysicsSystem_RemoveStepListener(JPH_PhysicsSystem *system, JPH_Physics
     system->physicsSystem->RemoveStepListener(AsPhysicsStepListener(listener));
 }
 
-void JPH_PhysicsSystem_GetBodies(const JPH_PhysicsSystem *system, JPH_BodyID *ids, uint32_t count)
+void JPH_PhysicsSystem_GetBodies(const JPH_PhysicsSystem *system, JPH_BodyId *ids, uint32_t count)
 {
     JPH_ASSERT(system);
     JPH_ASSERT(ids);
@@ -5468,7 +5463,7 @@ JPH_Body *JPH_BodyInterface_CreateBody(JPH_BodyInterface *interface, const JPH_B
 }
 
 JPH_Body *JPH_BodyInterface_CreateBodyWithID(JPH_BodyInterface *interface,
-                                             const JPH_BodyID bodyID,
+                                             const JPH_BodyId bodyID,
                                              const JPH_BodyCreationSettings *settings)
 {
     return ToBody(AsBodyInterface(interface)->CreateBodyWithID(JPH::BodyID(bodyID), *AsBodyCreationSettings(settings)));
@@ -5489,17 +5484,17 @@ bool JPH_BodyInterface_AssignBodyID(JPH_BodyInterface *interface, JPH_Body *body
     return AsBodyInterface(interface)->AssignBodyID(AsBody(body));
 }
 
-bool JPH_BodyInterface_AssignBodyID2(JPH_BodyInterface *interface, JPH_Body *body, const JPH_BodyID bodyID)
+bool JPH_BodyInterface_AssignBodyID2(JPH_BodyInterface *interface, JPH_Body *body, const JPH_BodyId bodyID)
 {
     return AsBodyInterface(interface)->AssignBodyID(AsBody(body), JPH::BodyID(bodyID));
 }
 
-JPH_Body *JPH_BodyInterface_UnassignBodyID(JPH_BodyInterface *interface, const JPH_BodyID bodyID)
+JPH_Body *JPH_BodyInterface_UnassignBodyID(JPH_BodyInterface *interface, const JPH_BodyId bodyID)
 {
     return ToBody(AsBodyInterface(interface)->UnassignBodyID(JPH::BodyID(bodyID)));
 }
 
-JPH_BodyID JPH_BodyInterface_CreateAndAddBody(JPH_BodyInterface *interface,
+JPH_BodyId JPH_BodyInterface_CreateAndAddBody(JPH_BodyInterface *interface,
                                               const JPH_BodyCreationSettings *settings,
                                               JPH_Activation activationMode)
 {
@@ -5511,7 +5506,7 @@ JPH_BodyID JPH_BodyInterface_CreateAndAddBody(JPH_BodyInterface *interface,
     return bodyID.GetIndexAndSequenceNumber();
 }
 
-void JPH_BodyInterface_DestroyBody(JPH_BodyInterface *interface, const JPH_BodyID bodyID)
+void JPH_BodyInterface_DestroyBody(JPH_BodyInterface *interface, const JPH_BodyId bodyID)
 {
     AsBodyInterface(interface)->DestroyBody(JPH::BodyID(bodyID));
 }
@@ -5523,7 +5518,7 @@ JPH_Body *JPH_BodyInterface_CreateSoftBody(JPH_BodyInterface *interface, const J
 }
 
 JPH_Body *JPH_BodyInterface_CreateSoftBodyWithID(JPH_BodyInterface *interface,
-                                                 const JPH_BodyID bodyID,
+                                                 const JPH_BodyId bodyID,
                                                  const JPH_SoftBodyCreationSettings *settings)
 {
     JPH::Body *body = AsBodyInterface(interface)->CreateSoftBodyWithID(JPH::BodyID(bodyID),
@@ -5538,7 +5533,7 @@ JPH_Body *JPH_BodyInterface_CreateSoftBodyWithoutID(JPH_BodyInterface *interface
     return ToBody(body);
 }
 
-JPH_BodyID JPH_BodyInterface_CreateAndAddSoftBody(JPH_BodyInterface *interface,
+JPH_BodyId JPH_BodyInterface_CreateAndAddSoftBody(JPH_BodyInterface *interface,
                                                   const JPH_SoftBodyCreationSettings *settings,
                                                   JPH_Activation activationMode)
 {
@@ -5548,7 +5543,7 @@ JPH_BodyID JPH_BodyInterface_CreateAndAddSoftBody(JPH_BodyInterface *interface,
     return bodyID.GetIndexAndSequenceNumber();
 }
 
-void JPH_BodyInterface_AddBody(JPH_BodyInterface *interface, JPH_BodyID bodyID, JPH_Activation activationMode)
+void JPH_BodyInterface_AddBody(JPH_BodyInterface *interface, JPH_BodyId bodyID, JPH_Activation activationMode)
 {
     const JPH::BodyID joltBodyID(bodyID);
     JPH_ASSERT(!joltBodyID.IsInvalid());
@@ -5556,7 +5551,7 @@ void JPH_BodyInterface_AddBody(JPH_BodyInterface *interface, JPH_BodyID bodyID, 
     AsBodyInterface(interface)->AddBody(joltBodyID, static_cast<JPH::EActivation>(activationMode));
 }
 
-void JPH_BodyInterface_RemoveBody(JPH_BodyInterface *interface, JPH_BodyID bodyID)
+void JPH_BodyInterface_RemoveBody(JPH_BodyInterface *interface, JPH_BodyId bodyID)
 {
     const JPH::BodyID joltBodyID(bodyID);
     JPH_ASSERT(!joltBodyID.IsInvalid());
@@ -5564,7 +5559,7 @@ void JPH_BodyInterface_RemoveBody(JPH_BodyInterface *interface, JPH_BodyID bodyI
     AsBodyInterface(interface)->RemoveBody(joltBodyID);
 }
 
-void JPH_BodyInterface_RemoveAndDestroyBody(JPH_BodyInterface *interface, JPH_BodyID bodyID)
+void JPH_BodyInterface_RemoveAndDestroyBody(JPH_BodyInterface *interface, JPH_BodyId bodyID)
 {
     const JPH::BodyID joltBodyID(bodyID);
     JPH_ASSERT(!joltBodyID.IsInvalid());
@@ -5573,47 +5568,47 @@ void JPH_BodyInterface_RemoveAndDestroyBody(JPH_BodyInterface *interface, JPH_Bo
     AsBodyInterface(interface)->DestroyBody(joltBodyID);
 }
 
-bool JPH_BodyInterface_IsActive(JPH_BodyInterface *interface, const JPH_BodyID bodyID)
+bool JPH_BodyInterface_IsActive(JPH_BodyInterface *interface, const JPH_BodyId bodyID)
 {
     return AsBodyInterface(interface)->IsActive(JPH::BodyID(bodyID));
 }
 
-bool JPH_BodyInterface_IsAdded(JPH_BodyInterface *interface, const JPH_BodyID bodyID)
+bool JPH_BodyInterface_IsAdded(JPH_BodyInterface *interface, const JPH_BodyId bodyID)
 {
     return AsBodyInterface(interface)->IsAdded(JPH::BodyID(bodyID));
 }
 
-JPH_BodyType JPH_BodyInterface_GetBodyType(JPH_BodyInterface *interface, const JPH_BodyID bodyID)
+JPH_BodyType JPH_BodyInterface_GetBodyType(JPH_BodyInterface *interface, const JPH_BodyId bodyID)
 {
     return static_cast<JPH_BodyType>(AsBodyInterface(interface)->GetBodyType(JPH::BodyID(bodyID)));
 }
 
 void JPH_BodyInterface_SetLinearVelocity(JPH_BodyInterface *interface,
-                                         const JPH_BodyID bodyID,
+                                         const JPH_BodyId bodyID,
                                          const JPH_Vec3 *velocity)
 {
     AsBodyInterface(interface)->SetLinearVelocity(JPH::BodyID(bodyID), ToJolt(velocity));
 }
 
-void JPH_BodyInterface_GetLinearVelocity(JPH_BodyInterface *interface, const JPH_BodyID bodyID, JPH_Vec3 *velocity)
+void JPH_BodyInterface_GetLinearVelocity(JPH_BodyInterface *interface, const JPH_BodyId bodyID, JPH_Vec3 *velocity)
 {
     FromJolt(AsBodyInterface(interface)->GetLinearVelocity(JPH::BodyID(bodyID)), velocity);
 }
 
 void JPH_BodyInterface_GetCenterOfMassPosition(JPH_BodyInterface *interface,
-                                               const JPH_BodyID bodyID,
+                                               const JPH_BodyId bodyID,
                                                JPH_RVec3 *position)
 {
     FromJolt(AsBodyInterface(interface)->GetCenterOfMassPosition(JPH::BodyID(bodyID)), position);
 }
 
-JPH_MotionType JPH_BodyInterface_GetMotionType(JPH_BodyInterface *interface, const JPH_BodyID bodyID)
+JPH_MotionType JPH_BodyInterface_GetMotionType(JPH_BodyInterface *interface, const JPH_BodyId bodyID)
 {
     return static_cast<JPH_MotionType>(AsBodyInterface(interface)->GetMotionType(JPH::BodyID(bodyID)));
 }
 
 void JPH_BodyInterface_SetMotionType(JPH_BodyInterface *interface,
-                                     const JPH_BodyID bodyID,
+                                     const JPH_BodyId bodyID,
                                      JPH_MotionType motionType,
                                      JPH_Activation activationMode)
 {
@@ -5622,28 +5617,28 @@ void JPH_BodyInterface_SetMotionType(JPH_BodyInterface *interface,
                                               static_cast<JPH::EActivation>(activationMode));
 }
 
-float JPH_BodyInterface_GetRestitution(const JPH_BodyInterface *interface, const JPH_BodyID bodyID)
+float JPH_BodyInterface_GetRestitution(const JPH_BodyInterface *interface, const JPH_BodyId bodyID)
 {
     return AsBodyInterface(interface)->GetRestitution(JPH::BodyID(bodyID));
 }
 
-void JPH_BodyInterface_SetRestitution(JPH_BodyInterface *interface, const JPH_BodyID bodyID, const float restitution)
+void JPH_BodyInterface_SetRestitution(JPH_BodyInterface *interface, const JPH_BodyId bodyID, const float restitution)
 {
     AsBodyInterface(interface)->SetRestitution(JPH::BodyID(bodyID), restitution);
 }
 
-float JPH_BodyInterface_GetFriction(const JPH_BodyInterface *interface, const JPH_BodyID bodyID)
+float JPH_BodyInterface_GetFriction(const JPH_BodyInterface *interface, const JPH_BodyId bodyID)
 {
     return AsBodyInterface(interface)->GetFriction(JPH::BodyID(bodyID));
 }
 
-void JPH_BodyInterface_SetFriction(JPH_BodyInterface *interface, const JPH_BodyID bodyID, const float friction)
+void JPH_BodyInterface_SetFriction(JPH_BodyInterface *interface, const JPH_BodyId bodyID, const float friction)
 {
     AsBodyInterface(interface)->SetFriction(JPH::BodyID(bodyID), friction);
 }
 
 void JPH_BodyInterface_SetPosition(JPH_BodyInterface *interface,
-                                   const JPH_BodyID bodyId,
+                                   const JPH_BodyId bodyId,
                                    const JPH_RVec3 *position,
                                    JPH_Activation activationMode)
 {
@@ -5652,13 +5647,13 @@ void JPH_BodyInterface_SetPosition(JPH_BodyInterface *interface,
                                             static_cast<JPH::EActivation>(activationMode));
 }
 
-void JPH_BodyInterface_GetPosition(JPH_BodyInterface *interface, const JPH_BodyID bodyId, JPH_RVec3 *result)
+void JPH_BodyInterface_GetPosition(JPH_BodyInterface *interface, const JPH_BodyId bodyId, JPH_RVec3 *result)
 {
     FromJolt(AsBodyInterface(interface)->GetPosition(JPH::BodyID(bodyId)), result);
 }
 
 void JPH_BodyInterface_SetRotation(JPH_BodyInterface *interface,
-                                   const JPH_BodyID bodyId,
+                                   const JPH_BodyId bodyId,
                                    const JPH_Quat *rotation,
                                    JPH_Activation activationMode)
 {
@@ -5667,13 +5662,13 @@ void JPH_BodyInterface_SetRotation(JPH_BodyInterface *interface,
                                             static_cast<JPH::EActivation>(activationMode));
 }
 
-void JPH_BodyInterface_GetRotation(JPH_BodyInterface *interface, const JPH_BodyID bodyId, JPH_Quat *result)
+void JPH_BodyInterface_GetRotation(JPH_BodyInterface *interface, const JPH_BodyId bodyId, JPH_Quat *result)
 {
     FromJolt(AsBodyInterface(interface)->GetRotation(JPH::BodyID(bodyId)), result);
 }
 
 void JPH_BodyInterface_SetPositionAndRotation(JPH_BodyInterface *interface,
-                                              const JPH_BodyID bodyId,
+                                              const JPH_BodyId bodyId,
                                               const JPH_RVec3 *position,
                                               const JPH_Quat *rotation,
                                               JPH_Activation activationMode)
@@ -5685,7 +5680,7 @@ void JPH_BodyInterface_SetPositionAndRotation(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_SetPositionAndRotationWhenChanged(JPH_BodyInterface *interface,
-                                                         const JPH_BodyID bodyId,
+                                                         const JPH_BodyId bodyId,
                                                          const JPH_RVec3 *position,
                                                          const JPH_Quat *rotation,
                                                          JPH_Activation activationMode)
@@ -5697,7 +5692,7 @@ void JPH_BodyInterface_SetPositionAndRotationWhenChanged(JPH_BodyInterface *inte
 }
 
 void JPH_BodyInterface_GetPositionAndRotation(JPH_BodyInterface *interface,
-                                              const JPH_BodyID bodyId,
+                                              const JPH_BodyId bodyId,
                                               JPH_RVec3 *position,
                                               JPH_Quat *rotation)
 {
@@ -5709,7 +5704,7 @@ void JPH_BodyInterface_GetPositionAndRotation(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_SetPositionRotationAndVelocity(JPH_BodyInterface *interface,
-                                                      const JPH_BodyID bodyId,
+                                                      const JPH_BodyId bodyId,
                                                       const JPH_RVec3 *position,
                                                       const JPH_Quat *rotation,
                                                       const JPH_Vec3 *linearVelocity,
@@ -5723,27 +5718,27 @@ void JPH_BodyInterface_SetPositionRotationAndVelocity(JPH_BodyInterface *interfa
 }
 
 void JPH_BodyInterface_GetCollisionGroup(JPH_BodyInterface *interface,
-                                         const JPH_BodyID bodyId,
+                                         const JPH_BodyId bodyId,
                                          JPH_CollisionGroup *result)
 {
     FromJolt(AsBodyInterface(interface)->GetCollisionGroup(JPH::BodyID(bodyId)), result);
 }
 
 void JPH_BodyInterface_SetCollisionGroup(JPH_BodyInterface *interface,
-                                         const JPH_BodyID bodyId,
+                                         const JPH_BodyId bodyId,
                                          const JPH_CollisionGroup *group)
 {
     AsBodyInterface(interface)->SetCollisionGroup(JPH::BodyID(bodyId), ToJolt(group));
 }
 
-const JPH_Shape *JPH_BodyInterface_GetShape(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+const JPH_Shape *JPH_BodyInterface_GetShape(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     const JPH::Shape *shape = AsBodyInterface(interface)->GetShape(JPH::BodyID(bodyId)).GetPtr();
     return ToShape(shape);
 }
 
 void JPH_BodyInterface_SetShape(JPH_BodyInterface *interface,
-                                const JPH_BodyID bodyId,
+                                const JPH_BodyId bodyId,
                                 const JPH_Shape *shape,
                                 const bool updateMassProperties,
                                 JPH_Activation activationMode)
@@ -5755,7 +5750,7 @@ void JPH_BodyInterface_SetShape(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_NotifyShapeChanged(JPH_BodyInterface *interface,
-                                          const JPH_BodyID bodyId,
+                                          const JPH_BodyId bodyId,
                                           const JPH_Vec3 *previousCenterOfMass,
                                           const bool updateMassProperties,
                                           JPH_Activation activationMode)
@@ -5766,36 +5761,36 @@ void JPH_BodyInterface_NotifyShapeChanged(JPH_BodyInterface *interface,
                                                    static_cast<JPH::EActivation>(activationMode));
 }
 
-void JPH_BodyInterface_ActivateBody(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+void JPH_BodyInterface_ActivateBody(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     AsBodyInterface(interface)->ActivateBody(JPH::BodyID(bodyId));
 }
 
-void JPH_BodyInterface_DeactivateBody(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+void JPH_BodyInterface_DeactivateBody(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     AsBodyInterface(interface)->DeactivateBody(JPH::BodyID(bodyId));
 }
 
-JPH_ObjectLayer JPH_BodyInterface_GetObjectLayer(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+JPH_ObjectLayer JPH_BodyInterface_GetObjectLayer(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     return AsBodyInterface(interface)->GetObjectLayer(JPH::BodyID(bodyId));
 }
 
 void JPH_BodyInterface_SetObjectLayer(JPH_BodyInterface *interface,
-                                      const JPH_BodyID bodyId,
+                                      const JPH_BodyId bodyId,
                                       const JPH_ObjectLayer layer)
 {
     AsBodyInterface(interface)->SetObjectLayer(JPH::BodyID(bodyId), layer);
 }
 
-void JPH_BodyInterface_GetWorldTransform(JPH_BodyInterface *interface, const JPH_BodyID bodyId, JPH_RMatrix4x4 *result)
+void JPH_BodyInterface_GetWorldTransform(JPH_BodyInterface *interface, const JPH_BodyId bodyId, JPH_RMatrix4x4 *result)
 {
     const JPH::RMat44 &mat = AsBodyInterface(interface)->GetWorldTransform(JPH::BodyID(bodyId));
     FromJolt(mat, result);
 }
 
 void JPH_BodyInterface_GetCenterOfMassTransform(JPH_BodyInterface *interface,
-                                                const JPH_BodyID bodyId,
+                                                const JPH_BodyId bodyId,
                                                 JPH_RMatrix4x4 *result)
 {
     const JPH::RMat44 &mat = AsBodyInterface(interface)->GetCenterOfMassTransform(JPH::BodyID(bodyId));
@@ -5803,7 +5798,7 @@ void JPH_BodyInterface_GetCenterOfMassTransform(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_MoveKinematic(JPH_BodyInterface *interface,
-                                     const JPH_BodyID bodyId,
+                                     const JPH_BodyId bodyId,
                                      const JPH_RVec3 *targetPosition,
                                      const JPH_Quat *targetRotation,
                                      const float deltaTime)
@@ -5815,7 +5810,7 @@ void JPH_BodyInterface_MoveKinematic(JPH_BodyInterface *interface,
 }
 
 bool JPH_BodyInterface_ApplyBuoyancyImpulse(JPH_BodyInterface *interface,
-                                            const JPH_BodyID bodyId,
+                                            const JPH_BodyId bodyId,
                                             const JPH_RVec3 *surfacePosition,
                                             const JPH_Vec3 *surfaceNormal,
                                             const float buoyancy,
@@ -5837,7 +5832,7 @@ bool JPH_BodyInterface_ApplyBuoyancyImpulse(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_SetLinearAndAngularVelocity(JPH_BodyInterface *interface,
-                                                   const JPH_BodyID bodyId,
+                                                   const JPH_BodyId bodyId,
                                                    const JPH_Vec3 *linearVelocity,
                                                    const JPH_Vec3 *angularVelocity)
 {
@@ -5847,7 +5842,7 @@ void JPH_BodyInterface_SetLinearAndAngularVelocity(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_GetLinearAndAngularVelocity(JPH_BodyInterface *interface,
-                                                   const JPH_BodyID bodyId,
+                                                   const JPH_BodyId bodyId,
                                                    JPH_Vec3 *linearVelocity,
                                                    JPH_Vec3 *angularVelocity)
 {
@@ -5859,14 +5854,14 @@ void JPH_BodyInterface_GetLinearAndAngularVelocity(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_AddLinearVelocity(JPH_BodyInterface *interface,
-                                         const JPH_BodyID bodyId,
+                                         const JPH_BodyId bodyId,
                                          const JPH_Vec3 *linearVelocity)
 {
     AsBodyInterface(interface)->AddLinearVelocity(JPH::BodyID(bodyId), ToJolt(linearVelocity));
 }
 
 void JPH_BodyInterface_AddLinearAndAngularVelocity(JPH_BodyInterface *interface,
-                                                   const JPH_BodyID bodyId,
+                                                   const JPH_BodyId bodyId,
                                                    const JPH_Vec3 *linearVelocity,
                                                    const JPH_Vec3 *angularVelocity)
 {
@@ -5876,14 +5871,14 @@ void JPH_BodyInterface_AddLinearAndAngularVelocity(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_SetAngularVelocity(JPH_BodyInterface *interface,
-                                          const JPH_BodyID bodyId,
+                                          const JPH_BodyId bodyId,
                                           const JPH_Vec3 *angularVelocity)
 {
     AsBodyInterface(interface)->SetAngularVelocity(JPH::BodyID(bodyId), ToJolt(angularVelocity));
 }
 
 void JPH_BodyInterface_GetAngularVelocity(JPH_BodyInterface *interface,
-                                          const JPH_BodyID bodyId,
+                                          const JPH_BodyId bodyId,
                                           JPH_Vec3 *angularVelocity)
 {
     const JPH::Vec3 result = AsBodyInterface(interface)->GetAngularVelocity(JPH::BodyID(bodyId));
@@ -5891,7 +5886,7 @@ void JPH_BodyInterface_GetAngularVelocity(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_GetPointVelocity(JPH_BodyInterface *interface,
-                                        const JPH_BodyID bodyId,
+                                        const JPH_BodyId bodyId,
                                         const JPH_RVec3 *point,
                                         JPH_Vec3 *velocity)
 {
@@ -5899,39 +5894,39 @@ void JPH_BodyInterface_GetPointVelocity(JPH_BodyInterface *interface,
     FromJolt(result, velocity);
 }
 
-void JPH_BodyInterface_AddForce(JPH_BodyInterface *interface, const JPH_BodyID bodyId, const JPH_Vec3 *force)
+void JPH_BodyInterface_AddForce(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const JPH_Vec3 *force)
 {
     AsBodyInterface(interface)->AddForce(JPH::BodyID(bodyId), ToJolt(force));
 }
 
 void JPH_BodyInterface_AddForce2(JPH_BodyInterface *interface,
-                                 const JPH_BodyID bodyId,
+                                 const JPH_BodyId bodyId,
                                  const JPH_Vec3 *force,
                                  const JPH_RVec3 *point)
 {
     AsBodyInterface(interface)->AddForce(JPH::BodyID(bodyId), ToJolt(force), ToJolt(point));
 }
 
-void JPH_BodyInterface_AddTorque(JPH_BodyInterface *interface, const JPH_BodyID bodyId, const JPH_Vec3 *torque)
+void JPH_BodyInterface_AddTorque(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const JPH_Vec3 *torque)
 {
     AsBodyInterface(interface)->AddTorque(JPH::BodyID(bodyId), ToJolt(torque));
 }
 
 void JPH_BodyInterface_AddForceAndTorque(JPH_BodyInterface *interface,
-                                         const JPH_BodyID bodyId,
+                                         const JPH_BodyId bodyId,
                                          const JPH_Vec3 *force,
                                          const JPH_Vec3 *torque)
 {
     AsBodyInterface(interface)->AddForceAndTorque(JPH::BodyID(bodyId), ToJolt(force), ToJolt(torque));
 }
 
-void JPH_BodyInterface_AddImpulse(JPH_BodyInterface *interface, const JPH_BodyID bodyId, const JPH_Vec3 *impulse)
+void JPH_BodyInterface_AddImpulse(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const JPH_Vec3 *impulse)
 {
     AsBodyInterface(interface)->AddImpulse(JPH::BodyID(bodyId), ToJolt(impulse));
 }
 
 void JPH_BodyInterface_AddImpulse2(JPH_BodyInterface *interface,
-                                   const JPH_BodyID bodyId,
+                                   const JPH_BodyId bodyId,
                                    const JPH_Vec3 *impulse,
                                    const JPH_RVec3 *point)
 {
@@ -5939,70 +5934,70 @@ void JPH_BodyInterface_AddImpulse2(JPH_BodyInterface *interface,
 }
 
 void JPH_BodyInterface_AddAngularImpulse(JPH_BodyInterface *interface,
-                                         const JPH_BodyID bodyId,
+                                         const JPH_BodyId bodyId,
                                          const JPH_Vec3 *angularImpulse)
 {
     AsBodyInterface(interface)->AddAngularImpulse(JPH::BodyID(bodyId), ToJolt(angularImpulse));
 }
 
 void JPH_BodyInterface_SetMotionQuality(JPH_BodyInterface *interface,
-                                        const JPH_BodyID bodyId,
+                                        const JPH_BodyId bodyId,
                                         JPH_MotionQuality quality)
 {
     AsBodyInterface(interface)->SetMotionQuality(JPH::BodyID(bodyId), static_cast<JPH::EMotionQuality>(quality));
 }
 
-JPH_MotionQuality JPH_BodyInterface_GetMotionQuality(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+JPH_MotionQuality JPH_BodyInterface_GetMotionQuality(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     return static_cast<JPH_MotionQuality>(AsBodyInterface(interface)->GetMotionQuality(JPH::BodyID(bodyId)));
 }
 
-void JPH_BodyInterface_GetInverseInertia(JPH_BodyInterface *interface, const JPH_BodyID bodyId, JPH_Matrix4x4 *result)
+void JPH_BodyInterface_GetInverseInertia(JPH_BodyInterface *interface, const JPH_BodyId bodyId, JPH_Matrix4x4 *result)
 {
     const JPH::Mat44 &mat = AsBodyInterface(interface)->GetInverseInertia(JPH::BodyID(bodyId));
     FromJolt(mat, result);
 }
 
-void JPH_BodyInterface_SetGravityFactor(JPH_BodyInterface *interface, const JPH_BodyID bodyId, const float value)
+void JPH_BodyInterface_SetGravityFactor(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const float value)
 {
     AsBodyInterface(interface)->SetGravityFactor(JPH::BodyID(bodyId), value);
 }
 
-float JPH_BodyInterface_GetGravityFactor(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+float JPH_BodyInterface_GetGravityFactor(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     return AsBodyInterface(interface)->GetGravityFactor(JPH::BodyID(bodyId));
 }
 
-void JPH_BodyInterface_SetUseManifoldReduction(JPH_BodyInterface *interface, const JPH_BodyID bodyId, const bool value)
+void JPH_BodyInterface_SetUseManifoldReduction(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const bool value)
 {
     AsBodyInterface(interface)->SetUseManifoldReduction(JPH::BodyID(bodyId), value);
 }
 
-bool JPH_BodyInterface_GetUseManifoldReduction(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+bool JPH_BodyInterface_GetUseManifoldReduction(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     return AsBodyInterface(interface)->GetUseManifoldReduction(JPH::BodyID(bodyId));
 }
 
-void JPH_BodyInterface_SetUserData(JPH_BodyInterface *interface, const JPH_BodyID bodyId, const uint64_t userData)
+void JPH_BodyInterface_SetUserData(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const uint64_t userData)
 {
     AsBodyInterface(interface)->SetUserData(JPH::BodyID(bodyId), userData);
 }
 
-uint64_t JPH_BodyInterface_GetUserData(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+uint64_t JPH_BodyInterface_GetUserData(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     return AsBodyInterface(interface)->GetUserData(JPH::BodyID(bodyId));
 }
 
 const JPH_PhysicsMaterial *JPH_BodyInterface_GetMaterial(JPH_BodyInterface *interface,
-                                                         const JPH_BodyID bodyId,
-                                                         const JPH_SubShapeID subShapeID)
+                                                         const JPH_BodyId bodyId,
+                                                         const JPH_SubShapeId subShapeID)
 {
     JPH::SubShapeID joltSubShapeID = JPH::SubShapeID();
     joltSubShapeID.SetValue(subShapeID);
     return FromJolt(AsBodyInterface(interface)->GetMaterial(JPH::BodyID(bodyId), joltSubShapeID));
 }
 
-void JPH_BodyInterface_InvalidateContactCache(JPH_BodyInterface *interface, const JPH_BodyID bodyId)
+void JPH_BodyInterface_InvalidateContactCache(JPH_BodyInterface *interface, const JPH_BodyId bodyId)
 {
     AsBodyInterface(interface)->InvalidateContactCache(JPH::BodyID(bodyId));
 }
@@ -6011,7 +6006,7 @@ void JPH_BodyInterface_InvalidateContactCache(JPH_BodyInterface *interface, cons
 // JPH_BodyLockInterface
 //--------------------------------------------------------------------------------------------------
 void JPH_BodyLockInterface_LockRead(const JPH_BodyLockInterface *lockInterface,
-                                    JPH_BodyID bodyID,
+                                    JPH_BodyId bodyID,
                                     JPH_BodyLockRead *outLock)
 {
     JPH_ASSERT(outLock != nullptr);
@@ -6030,7 +6025,7 @@ void JPH_BodyLockInterface_UnlockRead(const JPH_BodyLockInterface *lockInterface
 }
 
 void JPH_BodyLockInterface_LockWrite(const JPH_BodyLockInterface *lockInterface,
-                                     JPH_BodyID bodyID,
+                                     JPH_BodyId bodyID,
                                      JPH_BodyLockWrite *outLock)
 {
     JPH_ASSERT(outLock != nullptr);
@@ -6050,7 +6045,7 @@ void JPH_BodyLockInterface_UnlockWrite(const JPH_BodyLockInterface *lockInterfac
 }
 
 JPH_BodyLockMultiRead *JPH_BodyLockInterface_LockMultiRead(const JPH_BodyLockInterface *lockInterface,
-                                                           const JPH_BodyID *bodyIDs,
+                                                           const JPH_BodyId *bodyIDs,
                                                            const int count)
 {
     const JPH::BodyLockInterface *const joltBodyLockInterface = AsBodyLockInterface(lockInterface);
@@ -6083,7 +6078,7 @@ const JPH_Body *JPH_BodyLockMultiRead_GetBody(JPH_BodyLockMultiRead *ioLock, con
 }
 
 JPH_BodyLockMultiWrite *JPH_BodyLockInterface_LockMultiWrite(const JPH_BodyLockInterface *lockInterface,
-                                                             const JPH_BodyID *bodyIDs,
+                                                             const JPH_BodyId *bodyIDs,
                                                              const int count)
 {
     const JPH::BodyLockInterface *const joltBodyLockInterface = AsBodyLockInterface(lockInterface);
@@ -7098,7 +7093,7 @@ bool JPH_NarrowPhaseQuery_CastShape2(const JPH_NarrowPhaseQuery *query,
 }
 
 /* Body */
-JPH_BodyID JPH_Body_GetID(const JPH_Body *body)
+JPH_BodyId JPH_Body_GetID(const JPH_Body *body)
 {
     return AsBody(body)->GetID().GetIndexAndSequenceNumber();
 }
@@ -7451,7 +7446,7 @@ void JPH_Body_GetWorldSpaceBounds(const JPH_Body *body, JPH_AABox *result)
 }
 
 void JPH_Body_GetWorldSpaceSurfaceNormal(const JPH_Body *body,
-                                         const JPH_SubShapeID subShapeID,
+                                         const JPH_SubShapeId subShapeID,
                                          const JPH_RVec3 *position,
                                          JPH_Vec3 *normal)
 {
@@ -7490,10 +7485,7 @@ JPH_Body *JPH_Body_GetFixedToWorldBody()
 class ManagedContactListener final: public JPH::ContactListener
 {
     public:
-        static const JPH_ContactListener_Procs *s_Procs;
-        void *userData = nullptr;
-
-        explicit ManagedContactListener(void *userData_): userData(userData_) {}
+        const JPH_ContactListener_Procs *s_Procs = nullptr;
 
         JPH::ValidateResult OnContactValidate(const JPH::Body &inBody1,
                                               const JPH::Body &inBody2,
@@ -7509,8 +7501,7 @@ class ManagedContactListener final: public JPH::ContactListener
                 const JPH_CollideShapeResult collideShapeResult = FromJolt(inCollisionResult);
 
                 const JPH_ValidateResult
-                        result = s_Procs->OnContactValidate(userData,
-                                                            reinterpret_cast<const JPH_Body *>(&inBody1),
+                        result = s_Procs->OnContactValidate(reinterpret_cast<const JPH_Body *>(&inBody1),
                                                             reinterpret_cast<const JPH_Body *>(&inBody2),
                                                             &baseOffset,
                                                             &collideShapeResult);
@@ -7531,8 +7522,7 @@ class ManagedContactListener final: public JPH::ContactListener
 
             if (s_Procs != nullptr && s_Procs->OnContactAdded != nullptr)
             {
-                s_Procs->OnContactAdded(userData,
-                                        reinterpret_cast<const JPH_Body *>(&inBody1),
+                s_Procs->OnContactAdded(reinterpret_cast<const JPH_Body *>(&inBody1),
                                         reinterpret_cast<const JPH_Body *>(&inBody2),
                                         ToContactManifold(&inManifold),
                                         reinterpret_cast<JPH_ContactSettings *>(&ioSettings));
@@ -7549,8 +7539,7 @@ class ManagedContactListener final: public JPH::ContactListener
 
             if (s_Procs != nullptr && s_Procs->OnContactPersisted != nullptr)
             {
-                s_Procs->OnContactPersisted(userData,
-                                            reinterpret_cast<const JPH_Body *>(&inBody1),
+                s_Procs->OnContactPersisted(reinterpret_cast<const JPH_Body *>(&inBody1),
                                             reinterpret_cast<const JPH_Body *>(&inBody2),
                                             ToContactManifold(&inManifold),
                                             reinterpret_cast<JPH_ContactSettings *>(&ioSettings));
@@ -7561,21 +7550,19 @@ class ManagedContactListener final: public JPH::ContactListener
         {
             if (s_Procs != nullptr && s_Procs->OnContactRemoved != nullptr)
             {
-                s_Procs->OnContactRemoved(userData, reinterpret_cast<const JPH_SubShapeIDPair *>(&inSubShapePair));
+                s_Procs->OnContactRemoved(reinterpret_cast<const JPH_SubShapeIDPair *>(&inSubShapePair));
             }
         }
 };
 
-const JPH_ContactListener_Procs *ManagedContactListener::s_Procs = nullptr;
-
-void JPH_ContactListener_SetProcs(const JPH_ContactListener_Procs *procs)
+void JPH_ContactListener_SetProcs(JPH_ContactListener *listener, const JPH_ContactListener_Procs *procs)
 {
-    ManagedContactListener::s_Procs = procs;
+    reinterpret_cast<ManagedContactListener *>(listener)->s_Procs = procs;
 }
 
-JPH_ContactListener *JPH_ContactListener_Create(void *userData)
+JPH_ContactListener *JPH_ContactListener_Create()
 {
-    ManagedContactListener *const listener = new ManagedContactListener(userData);
+    ManagedContactListener *const listener = new ManagedContactListener();
     return reinterpret_cast<JPH_ContactListener *>(listener);
 }
 
@@ -7645,12 +7632,12 @@ float JPH_ContactManifold_GetPenetrationDepth(const JPH_ContactManifold *manifol
     return AsContactManifold(manifold)->mPenetrationDepth;
 }
 
-JPH_SubShapeID JPH_ContactManifold_GetSubShapeID1(const JPH_ContactManifold *manifold)
+JPH_SubShapeId JPH_ContactManifold_GetSubShapeID1(const JPH_ContactManifold *manifold)
 {
     return AsContactManifold(manifold)->mSubShapeID1.GetValue();
 }
 
-JPH_SubShapeID JPH_ContactManifold_GetSubShapeID2(const JPH_ContactManifold *manifold)
+JPH_SubShapeId JPH_ContactManifold_GetSubShapeID2(const JPH_ContactManifold *manifold)
 {
     return AsContactManifold(manifold)->mSubShapeID2.GetValue();
 }
@@ -7769,19 +7756,30 @@ void JPH_ContactSettings_SetRelativeAngularSurfaceVelocity(JPH_ContactSettings *
 void JPH_CharacterBaseSettings_Init(const JPH::CharacterBaseSettings &joltSettings, JPH_CharacterBaseSettings *settings)
 {
     // Copy defaults from jolt
-    FromJolt(joltSettings.mUp, &settings->up);
-    FromJolt(joltSettings.mSupportingVolume, &settings->supportingVolume);
-    settings->maxSlopeAngle = joltSettings.mMaxSlopeAngle;
-    settings->enhancedInternalEdgeRemoval = joltSettings.mEnhancedInternalEdgeRemoval;
-    if (joltSettings.mShape != nullptr)
+    if (JPH_Vec3_IsNearZero(&settings->up, 1.0e-12f))
     {
-        settings->shape = ToShape(joltSettings.mShape.GetPtr());
-    } else
+        FromJolt(joltSettings.mUp, &settings->up);
+    }
+    if (settings->supportingVolume.distance == 0 && JPH_Vec3_IsNearZero(&settings->supportingVolume.normal, 1.0e-12f))
     {
-        constexpr JPH_Vec3 vec = {0.0f, 0.0f, 0.0f};
-        const JPH_EmptyShapeSettings *empty_shape_settings = JPH_EmptyShapeSettings_Create(&vec);
-        const JPH_EmptyShape *shape = JPH_EmptyShapeSettings_CreateShape(empty_shape_settings);
-        settings->shape = reinterpret_cast<const JPH_Shape *>(shape);
+        FromJolt(joltSettings.mSupportingVolume, &settings->supportingVolume);
+    }
+    if (settings->maxSlopeAngle == 0)
+    {
+        settings->maxSlopeAngle = joltSettings.mMaxSlopeAngle;
+    }
+    if (settings->shape == nullptr)
+    {
+        if (joltSettings.mShape != nullptr)
+        {
+            settings->shape = ToShape(joltSettings.mShape.GetPtr());
+        } else
+        {
+            constexpr JPH_Vec3 vec = {0.0f, 0.0f, 0.0f};
+            const JPH_EmptyShapeSettings *empty_shape_settings = JPH_EmptyShapeSettings_Create(&vec);
+            const JPH_EmptyShape *shape = JPH_EmptyShapeSettings_CreateShape(empty_shape_settings);
+            settings->shape = reinterpret_cast<const JPH_Shape *>(shape);
+        }
     }
 }
 
@@ -7869,13 +7867,13 @@ const JPH_PhysicsMaterial *JPH_CharacterBase_GetGroundMaterial(JPH_CharacterBase
     return reinterpret_cast<const JPH_PhysicsMaterial *>(joltCharacter->GetGroundMaterial());
 }
 
-JPH_BodyID JPH_CharacterBase_GetGroundBodyId(JPH_CharacterBase *character)
+JPH_BodyId JPH_CharacterBase_GetGroundBodyId(JPH_CharacterBase *character)
 {
     const JPH::CharacterBase *const joltCharacter = reinterpret_cast<JPH::CharacterBase *>(character);
     return joltCharacter->GetGroundBodyID().GetIndexAndSequenceNumber();
 }
 
-JPH_SubShapeID JPH_CharacterBase_GetGroundSubShapeId(JPH_CharacterBase *character)
+JPH_SubShapeId JPH_CharacterBase_GetGroundSubShapeId(JPH_CharacterBase *character)
 {
     const JPH::CharacterBase *const joltCharacter = reinterpret_cast<JPH::CharacterBase *>(character);
     return joltCharacter->GetGroundSubShapeID().GetValue();
@@ -7989,7 +7987,7 @@ void JPH_Character_AddImpulse(JPH_Character *character, const JPH_Vec3 *value, c
     AsCharacter(character)->AddImpulse(ToJolt(value), lockBodies);
 }
 
-JPH_BodyID JPH_Character_GetBodyID(const JPH_Character *character)
+JPH_BodyId JPH_Character_GetBodyID(const JPH_Character *character)
 {
     return AsCharacter(character)->GetBodyID().GetIndexAndSequenceNumber();
 }
@@ -8077,28 +8075,43 @@ void JPH_CharacterVirtualSettings_Init(JPH_CharacterVirtualSettings *settings)
 {
     // Copy defaults from jolt
     const JPH::CharacterVirtualSettings joltSettings;
+
     JPH_CharacterBaseSettings_Init(joltSettings, &settings->base);
 
-    settings->ID = joltSettings.mID.GetValue();
-    settings->mass = joltSettings.mMass;
-    settings->maxStrength = joltSettings.mMaxStrength;
-    settings->shapeOffset = FromJolt(joltSettings.mShapeOffset);
-    settings->backFaceMode = static_cast<JPH_BackFaceMode>(joltSettings.mBackFaceMode);
-    settings->predictiveContactDistance = joltSettings.mPredictiveContactDistance;
-    settings->maxCollisionIterations = joltSettings.mMaxCollisionIterations;
-    settings->maxConstraintIterations = joltSettings.mMaxConstraintIterations;
-    settings->minTimeRemaining = joltSettings.mMinTimeRemaining;
-    settings->collisionTolerance = joltSettings.mCollisionTolerance;
-    settings->characterPadding = joltSettings.mCharacterPadding;
-    settings->maxNumHits = joltSettings.mMaxNumHits;
-    settings->hitReductionCosMaxAngle = joltSettings.mHitReductionCosMaxAngle;
-    settings->penetrationRecoverySpeed = joltSettings.mPenetrationRecoverySpeed;
-    if (joltSettings.mInnerBodyShape != nullptr)
+    settings->ID = settings->ID == 0 ? joltSettings.mID.GetValue() : settings->ID;
+    settings->mass = settings->mass == 0 ? joltSettings.mMass : settings->mass;
+    settings->maxStrength = settings->maxStrength == 0 ? joltSettings.mMaxStrength : settings->maxStrength;
+    settings->shapeOffset = JPH_Vec3_IsNearZero(&settings->shapeOffset, 1.0e-12f) ? FromJolt(joltSettings.mShapeOffset)
+                                                                                  : settings->shapeOffset;
+    settings->backFaceMode = settings->backFaceMode == 0 ? static_cast<JPH_BackFaceMode>(joltSettings.mBackFaceMode)
+                                                         : settings->backFaceMode;
+    settings->predictiveContactDistance = settings->predictiveContactDistance == 0
+                                                  ? joltSettings.mPredictiveContactDistance
+                                                  : settings->predictiveContactDistance;
+    settings->maxCollisionIterations = settings->maxCollisionIterations == 0 ? joltSettings.mMaxCollisionIterations
+                                                                             : settings->maxCollisionIterations;
+    settings->maxConstraintIterations = settings->maxConstraintIterations == 0 ? joltSettings.mMaxConstraintIterations
+                                                                               : settings->maxConstraintIterations;
+    settings->minTimeRemaining = settings->minTimeRemaining == 0 ? joltSettings.mMinTimeRemaining
+                                                                 : settings->minTimeRemaining;
+    settings->collisionTolerance = settings->collisionTolerance == 0 ? joltSettings.mCollisionTolerance
+                                                                     : settings->collisionTolerance;
+    settings->characterPadding = settings->characterPadding == 0 ? joltSettings.mCharacterPadding
+                                                                 : settings->characterPadding;
+    settings->maxNumHits = settings->maxNumHits == 0 ? joltSettings.mMaxNumHits : settings->maxNumHits;
+    settings->hitReductionCosMaxAngle = settings->hitReductionCosMaxAngle == 0 ? joltSettings.mHitReductionCosMaxAngle
+                                                                               : settings->hitReductionCosMaxAngle;
+    settings->penetrationRecoverySpeed = settings->penetrationRecoverySpeed == 0
+                                                 ? joltSettings.mPenetrationRecoverySpeed
+                                                 : settings->penetrationRecoverySpeed;
+    if (settings->innerBodyShape == nullptr && joltSettings.mInnerBodyShape != nullptr)
     {
         settings->innerBodyShape = reinterpret_cast<const JPH_Shape *>(joltSettings.mInnerBodyShape.GetPtr());
     }
-    settings->innerBodyIDOverride = joltSettings.mInnerBodyIDOverride.GetIndexAndSequenceNumber();
-    settings->innerBodyLayer = joltSettings.mInnerBodyLayer;
+    settings->innerBodyIDOverride = settings->innerBodyIDOverride == 0
+                                            ? joltSettings.mInnerBodyIDOverride.GetIndexAndSequenceNumber()
+                                            : settings->innerBodyIDOverride;
+    settings->innerBodyLayer = settings->innerBodyLayer == 0 ? joltSettings.mInnerBodyLayer : settings->innerBodyLayer;
 }
 
 /* CharacterVirtual */
@@ -8165,7 +8178,7 @@ JPH_CharacterVirtual *JPH_CharacterVirtual_Create(const JPH_CharacterVirtualSett
     return ToCharacterVirtual(joltCharacter);
 }
 
-JPH_CharacterID JPH_CharacterVirtual_GetID(const JPH_CharacterVirtual *character)
+JPH_CharacterId JPH_CharacterVirtual_GetID(const JPH_CharacterVirtual *character)
 {
     return AsCharacterVirtual(character)->GetID().GetValue();
 }
@@ -8331,7 +8344,7 @@ void JPH_CharacterVirtual_SetUserData(JPH_CharacterVirtual *character, const uin
     AsCharacterVirtual(character)->SetUserData(value);
 }
 
-JPH_BodyID JPH_CharacterVirtual_GetInnerBodyID(const JPH_CharacterVirtual *character)
+JPH_BodyId JPH_CharacterVirtual_GetInnerBodyID(const JPH_CharacterVirtual *character)
 {
     return AsCharacterVirtual(character)->GetInnerBodyID().GetIndexAndSequenceNumber();
 }
@@ -8495,12 +8508,12 @@ void JPH_CharacterVirtual_GetActiveContact(JPH_CharacterVirtual *character,
     FromJolt(AsCharacterVirtual(character)->GetActiveContacts().at(index), result);
 }
 
-bool JPH_CharacterVirtual_HasCollidedWithBody(JPH_CharacterVirtual *character, const JPH_BodyID body)
+bool JPH_CharacterVirtual_HasCollidedWithBody(JPH_CharacterVirtual *character, const JPH_BodyId body)
 {
     return AsCharacterVirtual(character)->HasCollidedWith(JPH::BodyID(body));
 }
 
-bool JPH_CharacterVirtual_HasCollidedWith(JPH_CharacterVirtual *character, const JPH_CharacterID other)
+bool JPH_CharacterVirtual_HasCollidedWith(JPH_CharacterVirtual *character, const JPH_CharacterId other)
 {
     return AsCharacterVirtual(character)->HasCollidedWith(JPH::CharacterID(other));
 }
@@ -8514,10 +8527,7 @@ bool JPH_CharacterVirtual_HasCollidedWithCharacter(JPH_CharacterVirtual *charact
 class ManagedCharacterContactListener final: public JPH::CharacterContactListener
 {
     public:
-        static const JPH_CharacterContactListener_Procs *s_Procs;
-        void *userData = nullptr;
-
-        explicit ManagedCharacterContactListener(void *userData_): userData(userData_) {}
+        const JPH_CharacterContactListener_Procs *s_Procs = nullptr;
 
         void OnAdjustBodyVelocity(const JPH::CharacterVirtual *inCharacter,
                                   const JPH::Body &inBody2,
@@ -8531,8 +8541,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
 
             if (s_Procs != nullptr && s_Procs->OnAdjustBodyVelocity != nullptr)
             {
-                s_Procs->OnAdjustBodyVelocity(userData,
-                                              ToCharacterVirtual(inCharacter),
+                s_Procs->OnAdjustBodyVelocity(ToCharacterVirtual(inCharacter),
                                               ToBody(&inBody2),
                                               &linearVelocity,
                                               &angularVelocity);
@@ -8548,8 +8557,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
         {
             if (s_Procs != nullptr && s_Procs->OnContactValidate != nullptr)
             {
-                return s_Procs->OnContactValidate(userData,
-                                                  ToCharacterVirtual(inCharacter),
+                return s_Procs->OnContactValidate(ToCharacterVirtual(inCharacter),
                                                   inBodyID2.GetIndexAndSequenceNumber(),
                                                   inSubShapeID2.GetValue());
             }
@@ -8563,8 +8571,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
         {
             if (s_Procs != nullptr && s_Procs->OnCharacterContactValidate != nullptr)
             {
-                return s_Procs->OnCharacterContactValidate(userData,
-                                                           ToCharacterVirtual(inCharacter),
+                return s_Procs->OnCharacterContactValidate(ToCharacterVirtual(inCharacter),
                                                            ToCharacterVirtual(inOtherCharacter),
                                                            inSubShapeID2.GetValue());
             }
@@ -8591,8 +8598,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 settings.canPushCharacter = ioSettings.mCanPushCharacter;
                 settings.canReceiveImpulses = ioSettings.mCanReceiveImpulses;
 
-                s_Procs->OnContactAdded(userData,
-                                        ToCharacterVirtual(inCharacter),
+                s_Procs->OnContactAdded(ToCharacterVirtual(inCharacter),
                                         inBodyID2.GetIndexAndSequenceNumber(),
                                         inSubShapeID2.GetValue(),
                                         &contactPosition,
@@ -8623,8 +8629,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 settings.canPushCharacter = ioSettings.mCanPushCharacter;
                 settings.canReceiveImpulses = ioSettings.mCanReceiveImpulses;
 
-                s_Procs->OnContactPersisted(userData,
-                                            ToCharacterVirtual(inCharacter),
+                s_Procs->OnContactPersisted(ToCharacterVirtual(inCharacter),
                                             inBodyID2.GetIndexAndSequenceNumber(),
                                             inSubShapeID2.GetValue(),
                                             &contactPosition,
@@ -8642,8 +8647,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
         {
             if (s_Procs != nullptr && s_Procs->OnContactRemoved != nullptr)
             {
-                s_Procs->OnContactRemoved(userData,
-                                          ToCharacterVirtual(inCharacter),
+                s_Procs->OnContactRemoved(ToCharacterVirtual(inCharacter),
                                           inBodyID2.GetIndexAndSequenceNumber(),
                                           inSubShapeID2.GetValue());
             }
@@ -8668,8 +8672,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 settings.canPushCharacter = ioSettings.mCanPushCharacter;
                 settings.canReceiveImpulses = ioSettings.mCanReceiveImpulses;
 
-                s_Procs->OnCharacterContactAdded(userData,
-                                                 ToCharacterVirtual(inCharacter),
+                s_Procs->OnCharacterContactAdded(ToCharacterVirtual(inCharacter),
                                                  ToCharacterVirtual(inOtherCharacter),
                                                  inSubShapeID2.GetValue(),
                                                  &contactPosition,
@@ -8700,8 +8703,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 settings.canPushCharacter = ioSettings.mCanPushCharacter;
                 settings.canReceiveImpulses = ioSettings.mCanReceiveImpulses;
 
-                s_Procs->OnCharacterContactPersisted(userData,
-                                                     ToCharacterVirtual(inCharacter),
+                s_Procs->OnCharacterContactPersisted(ToCharacterVirtual(inCharacter),
                                                      ToCharacterVirtual(inOtherCharacter),
                                                      inSubShapeID2.GetValue(),
                                                      &contactPosition,
@@ -8719,8 +8721,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
         {
             if (s_Procs != nullptr && s_Procs->OnCharacterContactRemoved != nullptr)
             {
-                s_Procs->OnCharacterContactRemoved(userData,
-                                                   ToCharacterVirtual(inCharacter),
+                s_Procs->OnCharacterContactRemoved(ToCharacterVirtual(inCharacter),
                                                    inOtherCharacterID.GetValue(),
                                                    inSubShapeID2.GetValue());
             }
@@ -8750,8 +8751,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 FromJolt(inCharacterVelocity, &characterVelocity);
                 FromJolt(ioNewCharacterVelocity, &newCharacterVelocity);
 
-                s_Procs->OnContactSolve(userData,
-                                        ToCharacterVirtual(inCharacter),
+                s_Procs->OnContactSolve(ToCharacterVirtual(inCharacter),
                                         inBodyID2.GetIndexAndSequenceNumber(),
                                         inSubShapeID2.GetValue(),
                                         &contactPosition,
@@ -8789,8 +8789,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 FromJolt(inCharacterVelocity, &characterVelocity);
                 FromJolt(ioNewCharacterVelocity, &newCharacterVelocity);
 
-                s_Procs->OnCharacterContactSolve(userData,
-                                                 ToCharacterVirtual(inCharacter),
+                s_Procs->OnCharacterContactSolve(ToCharacterVirtual(inCharacter),
                                                  ToCharacterVirtual(inOtherCharacter),
                                                  inSubShapeID2.GetValue(),
                                                  &contactPosition,
@@ -8805,16 +8804,15 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
         }
 };
 
-const JPH_CharacterContactListener_Procs *ManagedCharacterContactListener::s_Procs = nullptr;
-
-void JPH_CharacterContactListener_SetProcs(const JPH_CharacterContactListener_Procs *procs)
+void JPH_CharacterContactListener_SetProcs(JPH_CharacterContactListener *listener,
+                                           const JPH_CharacterContactListener_Procs *procs)
 {
-    ManagedCharacterContactListener::s_Procs = procs;
+    reinterpret_cast<ManagedCharacterContactListener *>(listener)->s_Procs = procs;
 }
 
-JPH_CharacterContactListener *JPH_CharacterContactListener_Create(void *userData)
+JPH_CharacterContactListener *JPH_CharacterContactListener_Create()
 {
-    ManagedCharacterContactListener *const impl = new ManagedCharacterContactListener(userData);
+    ManagedCharacterContactListener *const impl = new ManagedCharacterContactListener();
     return reinterpret_cast<JPH_CharacterContactListener *>(impl);
 }
 
@@ -9586,7 +9584,7 @@ void JPH_RagdollSettings_CalculateConstraintIndexToBodyIdxPair(JPH_RagdollSettin
 
 JPH_Ragdoll *JPH_RagdollSettings_CreateRagdoll(JPH_RagdollSettings *settings,
                                                const JPH_PhysicsSystem *system,
-                                               const JPH_CollisionGroupID collisionGroup,
+                                               const JPH_CollisionGroupId collisionGroup,
                                                const uint64_t userData)
 {
     JPH::Ragdoll *ragdoll = AsRagdollSettings(settings)->CreateRagdoll(collisionGroup, userData, system->physicsSystem);
@@ -9878,12 +9876,12 @@ bool JPH_Wheel_HasContact(const JPH_Wheel *wheel)
     return AsWheel(wheel)->HasContact();
 }
 
-JPH_BodyID JPH_Wheel_GetContactBodyID(const JPH_Wheel *wheel)
+JPH_BodyId JPH_Wheel_GetContactBodyID(const JPH_Wheel *wheel)
 {
     return AsWheel(wheel)->GetContactBodyID().GetIndexAndSequenceNumber();
 }
 
-JPH_SubShapeID JPH_Wheel_GetContactSubShapeID(const JPH_Wheel *wheel)
+JPH_SubShapeId JPH_Wheel_GetContactSubShapeID(const JPH_Wheel *wheel)
 {
     return AsWheel(wheel)->GetContactSubShapeID().GetValue();
 }

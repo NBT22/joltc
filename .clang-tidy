@@ -67,11 +67,10 @@ performance-*,
 -performance-noexcept-destructor,
 -performance-no-int-to-ptr,
 -performance-avoid-endl,
+-performance-enum-size,
 portability-simd-intrinsics,
+portability-std-allocator-const,
 readability-*,
-
--readability-qualified-auto,
-
 -readability-braces-around-statements,
 -readability-named-parameter,
 -readability-function-size,
@@ -88,6 +87,5 @@ readability-*,
 -readability-identifier-naming,
 -readability-reference-to-constructed-temporary'
 CheckOptions:
-  bugprone-unused-return-value.CheckedReturnTypes: '^::(Vk|Luna).+$;^::luna.+$'
   bugprone-unused-return-value.AllowCastToVoid: true
   readability-function-cognitive-complexity.IgnoreMacros: true

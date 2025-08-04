@@ -25,11 +25,11 @@ static_assert(sizeof(JPH::ObjectLayer) == 4);
 
 static_assert(sizeof(JPH::ObjectLayer) == sizeof(JPH_ObjectLayer));
 static_assert(sizeof(JPH::BroadPhaseLayer) == sizeof(JPH_BroadPhaseLayer));
-static_assert(sizeof(JPH::BodyID) == sizeof(JPH_BodyID));
-static_assert(sizeof(JPH::SubShapeID) == sizeof(JPH_SubShapeID));
-static_assert(sizeof(JPH::CharacterID) == sizeof(JPH_CharacterID));
-static_assert(sizeof(JPH::CollisionGroup::GroupID) == sizeof(JPH_CollisionGroupID));
-static_assert(sizeof(JPH::CollisionGroup::SubGroupID) == sizeof(JPH_CollisionSubGroupID));
+static_assert(sizeof(JPH::BodyID) == sizeof(JPH_BodyId));
+static_assert(sizeof(JPH::SubShapeID) == sizeof(JPH_SubShapeId));
+static_assert(sizeof(JPH::CharacterID) == sizeof(JPH_CharacterId));
+static_assert(sizeof(JPH::CollisionGroup::GroupID) == sizeof(JPH_CollisionGroupId));
+static_assert(sizeof(JPH::CollisionGroup::SubGroupID) == sizeof(JPH_CollisionSubGroupId));
 
 static_assert(JPH_DEFAULT_COLLISION_TOLERANCE == JPH::cDefaultCollisionTolerance);
 static_assert(JPH_DEFAULT_PENETRATION_TOLERANCE == JPH::cDefaultPenetrationTolerance);
@@ -39,6 +39,8 @@ static_assert(JPH_MAX_PHYSICS_JOBS == JPH::cMaxPhysicsJobs);
 static_assert(JPH_MAX_PHYSICS_BARRIERS == JPH::cMaxPhysicsBarriers);
 static_assert(JPH_INVALID_COLLISION_GROUP_ID == JPH::CollisionGroup::cInvalidGroup);
 static_assert(JPH_INVALID_COLLISION_SUBGROUP_ID == JPH::CollisionGroup::cInvalidSubGroup);
+
+static_assert(JPH_BodyId_InvalidBodyID == JPH::BodyID::cInvalidBodyID);
 
 
 // EPhysicsUpdateError

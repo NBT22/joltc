@@ -26,15 +26,15 @@ if (NOT DEFINED JPH_MASTER_PROJECT)
 endif ()
 
 if (JPH_MASTER_PROJECT)
-	# Configure CMake global variables
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-endif()
+    # Configure CMake global variables
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+endif ()
 
 if (MSVC AND JPH_MASTER_PROJECT)
     if (NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
-        set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     endif ()
 endif ()
 
@@ -47,11 +47,19 @@ option(USE_ASSERTS "Enable asserts" OFF)
 # When turning this option on, the library will be compiled using doubles for positions. This allows for much bigger worlds.
 option(DOUBLE_PRECISION "Use double precision math" OFF)
 
-# When turning this option on, the library will be compiled with debug symbols
-option(GENERATE_DEBUG_SYMBOLS "Generate debug symbols" OFF)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    # When turning this option on, the library will be compiled with debug symbols
+    option(GENERATE_DEBUG_SYMBOLS "Generate debug symbols" ON)
 
-# When turning this option on, the library will override the default CMAKE_CXX_FLAGS_DEBUG/RELEASE values, otherwise they will use the platform defaults
-option(OVERRIDE_CXX_FLAGS "Override CMAKE_CXX_FLAGS_DEBUG/RELEASE" ON)
+    # When turning this option on, the library will override the default CMAKE_CXX_FLAGS_DEBUG/RELEASE values, otherwise they will use the platform defaults
+    option(OVERRIDE_CXX_FLAGS "Override CMAKE_CXX_FLAGS_DEBUG/RELEASE" OFF)
+else ()
+    # When turning this option on, the library will be compiled with debug symbols
+    option(GENERATE_DEBUG_SYMBOLS "Generate debug symbols" OFF)
+
+    # When turning this option on, the library will override the default CMAKE_CXX_FLAGS_DEBUG/RELEASE values, otherwise they will use the platform defaults
+    option(OVERRIDE_CXX_FLAGS "Override CMAKE_CXX_FLAGS_DEBUG/RELEASE" ON)
+endif ()
 
 # When turning this option on, the library will be compiled in such a way to attempt to keep the simulation deterministic across platforms
 option(CROSS_PLATFORM_DETERMINISTIC "Cross platform deterministic" OFF)
@@ -100,14 +108,14 @@ option(TRACK_BROADPHASE_STATS "Track Broadphase Stats" OFF)
 option(TRACK_NARROWPHASE_STATS "Track Narrowphase Stats" OFF)
 
 # Enable the debug renderer in the Debug and Release builds. Note that DEBUG_RENDERER_IN_DISTRIBUTION will override this setting.
-option(DEBUG_RENDERER_IN_DEBUG_AND_RELEASE "Enable debug renderer in Debug and Release builds" ON)
+option(DEBUG_RENDERER_IN_DEBUG_AND_RELEASE "Enable debug renderer in Debug and Release builds" OFF)
 
 # Setting to enable the debug renderer in all builds.
 # Note that enabling this reduces the performance of the library even if you're not drawing anything.
-option(DEBUG_RENDERER_IN_DISTRIBUTION "Enable debug renderer in all builds" ON)
+option(DEBUG_RENDERER_IN_DISTRIBUTION "Enable debug renderer in all builds" OFF)
 
 # Enable the profiler in Debug and Release builds. Note that PROFILER_IN_DISTRIBUTION will override this setting.
-option(PROFILER_IN_DEBUG_AND_RELEASE "Enable the profiler in Debug and Release builds" ON)
+option(PROFILER_IN_DEBUG_AND_RELEASE "Enable the profiler in Debug and Release builds" OFF)
 
 # Enable the profiler in all builds.
 # Note that enabling this reduces the performance of the library.
@@ -120,7 +128,7 @@ option(DISABLE_CUSTOM_ALLOCATOR "Disable support for a custom memory allocator" 
 option(USE_STD_VECTOR "Use std::vector instead of own Array class" OFF)
 
 # Setting this option will compile the ObjectStream class and RTTI attribute information
-option(ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute information" ON)
+option(ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute information" OFF)
 
 option(JPH_SAMPLES "Build samples" ${JPH_MASTER_PROJECT})
 
@@ -136,148 +144,140 @@ if (JPH_MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
 endif ()
 
 # Search for local JoltPhysics first
-if(JPH_MASTER_PROJECT AND EXISTS "${CMAKE_SOURCE_DIR}/JoltPhysics/Build/CMakeLists.txt")
-    message(STATUS "Using local JoltPhysics from ${CMAKE_SOURCE_DIR}/JoltPhysics")
-
-    FetchContent_Declare(
-        JoltPhysics
-        SOURCE_DIR "${CMAKE_SOURCE_DIR}/JoltPhysics"
-        SOURCE_SUBDIR "Build"
-    )
-elseif(JPH_MASTER_PROJECT AND EXISTS "${CMAKE_SOURCE_DIR}/../JoltPhysics/Build/CMakeLists.txt")
+if (JPH_MASTER_PROJECT AND EXISTS "${CMAKE_SOURCE_DIR}/../JoltPhysics/Build/CMakeLists.txt")
     message(STATUS "Using local JoltPhysics from ${CMAKE_SOURCE_DIR}/../JoltPhysics")
 
     FetchContent_Declare(
-        JoltPhysics
-        SOURCE_DIR "${CMAKE_SOURCE_DIR}/../JoltPhysics"
-        SOURCE_SUBDIR "Build"
+            JoltPhysics
+            SOURCE_DIR "${CMAKE_SOURCE_DIR}/../JoltPhysics"
+            SOURCE_SUBDIR "Build"
     )
-else()
+else ()
     message(STATUS "Local Jolt not found, download from remote")
 
     FetchContent_Declare(
-        JoltPhysics
-        GIT_REPOSITORY "https://github.com/jrouwe/JoltPhysics"
-        GIT_TAG v5.3.0
-        SOURCE_SUBDIR "Build"
+            JoltPhysics
+            GIT_REPOSITORY "https://github.com/jrouwe/JoltPhysics"
+            GIT_TAG v5.3.0
+            SOURCE_SUBDIR "Build"
     )
-endif()
+endif ()
 FetchContent_MakeAvailable(JoltPhysics)
 
 if (XCODE)
-	# Ensure that we enable SSE4.2 for the x86_64 build, XCode builds multiple architectures
-	set_property(TARGET Jolt PROPERTY XCODE_ATTRIBUTE_OTHER_CPLUSPLUSFLAGS[arch=x86_64] "$(inherited) -msse4.2 -mpopcnt")
-endif()
+    # Ensure that we enable SSE4.2 for the x86_64 build, XCode builds multiple architectures
+    set_property(TARGET Jolt PROPERTY XCODE_ATTRIBUTE_OTHER_CPLUSPLUSFLAGS[arch=x86_64] "$(inherited) -msse4.2 -mpopcnt")
+endif ()
 
 if (MSVC)
-	# Fill in the path to the asan libraries
-	set(CLANG_LIB_PATH "\"$(VSInstallDir)\\VC\\Tools\\Llvm\\x64\\lib\\clang\\${CMAKE_CXX_COMPILER_VERSION}\\lib\\windows\"")
+    # Fill in the path to the asan libraries
+    set(CLANG_LIB_PATH "\"$(VSInstallDir)\\VC\\Tools\\Llvm\\x64\\lib\\clang\\${CMAKE_CXX_COMPILER_VERSION}\\lib\\windows\"")
 
-	# 64 bit architecture
-	set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE "x64")
+    # 64 bit architecture
+    set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE "x64")
 
-	# Set general compiler flags
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus /Gm- /MP /nologo /diagnostics:classic /FC /fp:except- /Zc:inline")
+    # Set general compiler flags
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus /Gm- /MP /nologo /diagnostics:classic /FC /fp:except- /Zc:inline")
 
-	# Enable warnings
-	if (ENABLE_ALL_WARNINGS)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX")
-	endif()
+    # Enable warnings
+    if (ENABLE_ALL_WARNINGS)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX")
+    endif ()
 
-	# Set compiler flag for disabling RTTI
-	if (NOT CPP_RTTI_ENABLED)
-		# Set compiler flag for disabling RTTI
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
-	else()
-		# Set compiler flag for enabling RTTI
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR")
-	endif()
+    # Set compiler flag for disabling RTTI
+    if (NOT CPP_RTTI_ENABLED)
+        # Set compiler flag for disabling RTTI
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
+    else ()
+        # Set compiler flag for enabling RTTI
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR")
+    endif ()
 
-	if (NOT CPP_EXCEPTIONS_ENABLED)
-		# Remove any existing compiler flag that enables exceptions
-		string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    if (NOT CPP_EXCEPTIONS_ENABLED)
+        # Remove any existing compiler flag that enables exceptions
+        string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
-		# Disable warning about STL and compiler-generated types using noexcept when exceptions are disabled
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4577")
-	else()
-		# Enable exceptions
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
-	endif()
+        # Disable warning about STL and compiler-generated types using noexcept when exceptions are disabled
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4577")
+    else ()
+        # Enable exceptions
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+    endif ()
 
-	set(CMAKE_CXX_FLAGS_DISTRIBUTION "${CMAKE_CXX_FLAGS_RELEASE}")
+    set(CMAKE_CXX_FLAGS_DISTRIBUTION "${CMAKE_CXX_FLAGS_RELEASE}")
 
-	# Set linker flags
-	set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:WINDOWS /ignore:4221")
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-		if (CROSS_PLATFORM_DETERMINISTIC)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:precise")
-		else()
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast") # Clang doesn't use fast math because it cannot be turned off inside a single compilation unit
-		endif()
-	elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /showFilenames")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments") # Clang emits warnings about unused arguments such as /MP and /GL
-	endif()
-else()
-	# Enable warnings
-	if (ENABLE_ALL_WARNINGS)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
-	endif()
+    # Set linker flags
+    set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:WINDOWS /ignore:4221")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        if (CROSS_PLATFORM_DETERMINISTIC)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:precise")
+        else ()
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast") # Clang doesn't use fast math because it cannot be turned off inside a single compilation unit
+        endif ()
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /showFilenames")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments") # Clang emits warnings about unused arguments such as /MP and /GL
+    endif ()
+else ()
+    # Enable warnings
+    if (ENABLE_ALL_WARNINGS)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+    endif ()
 
-	# Set compiler flag for disabling RTTI
-	if (NOT CPP_RTTI_ENABLED)
-		# Set compiler flag for disabling RTTI
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
-	else()
-		# Set compiler flag for enabling RTTI
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -frtti")
-	endif()
+    # Set compiler flag for disabling RTTI
+    if (NOT CPP_RTTI_ENABLED)
+        # Set compiler flag for disabling RTTI
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+    else ()
+        # Set compiler flag for enabling RTTI
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -frtti")
+    endif ()
 
-	# Disable exception-handling
-	if (NOT CPP_EXCEPTIONS_ENABLED)
-		# Set compiler flag for disabling exception-handling
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
-	else()
-		# Set compiler flag for enabling exception-handling
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
-	endif()
+    # Disable exception-handling
+    if (NOT CPP_EXCEPTIONS_ENABLED)
+        # Set compiler flag for disabling exception-handling
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+    else ()
+        # Set compiler flag for enabling exception-handling
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
+    endif ()
 
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-		# Also disable -Wstringop-overflow or it will generate false positives that can't be disabled from code when link-time optimizations are enabled
-		# Also turn off automatic fused multiply add contractions, there doesn't seem to be a way to do this selectively through the macro JPH_PRECISE_MATH_OFF
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow -ffp-contract=off")
-	else()
-		# Do not use -ffast-math since it cannot be turned off in a single compilation unit under clang, see Core.h
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=precise")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        # Also disable -Wstringop-overflow or it will generate false positives that can't be disabled from code when link-time optimizations are enabled
+        # Also turn off automatic fused multiply add contractions, there doesn't seem to be a way to do this selectively through the macro JPH_PRECISE_MATH_OFF
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow -ffp-contract=off")
+    else ()
+        # Do not use -ffast-math since it cannot be turned off in a single compilation unit under clang, see Core.h
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=precise")
 
-		# On clang 14 and later we can turn off float contraction through a pragma, older versions and deterministic versions need it off always, see Core.h
-		if (CMAKE_CXX_COMPILER_VERSION LESS 14 OR CROSS_PLATFORM_DETERMINISTIC)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-contract=off")
-		endif()
+        # On clang 14 and later we can turn off float contraction through a pragma, older versions and deterministic versions need it off always, see Core.h
+        if (CMAKE_CXX_COMPILER_VERSION LESS 14 OR CROSS_PLATFORM_DETERMINISTIC)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-contract=off")
+        endif ()
 
-		# Cross compiler flags
-		if (CROSS_COMPILE_ARM)
-			set(CMAKE_CXX_FLAGS "--target=aarch64-linux-gnu ${CMAKE_CXX_FLAGS}")
-		endif()
-	endif()
+        # Cross compiler flags
+        if (CROSS_COMPILE_ARM)
+            set(CMAKE_CXX_FLAGS "--target=aarch64-linux-gnu ${CMAKE_CXX_FLAGS}")
+        endif ()
+    endif ()
 
-	# See https://github.com/jrouwe/JoltPhysics/issues/922. When compiling with DOUBLE_PRECISION=YES and CMAKE_OSX_DEPLOYMENT_TARGET=10.12 clang triggers a warning that we silence here.
-	if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -faligned-allocation")
-	endif()
+    # See https://github.com/jrouwe/JoltPhysics/issues/922. When compiling with DOUBLE_PRECISION=YES and CMAKE_OSX_DEPLOYMENT_TARGET=10.12 clang triggers a warning that we silence here.
+    if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -faligned-allocation")
+    endif ()
 
-	# Set compiler flags for various configurations
-	if (OVERRIDE_CXX_FLAGS)
-		set(CMAKE_CXX_FLAGS_DEBUG "")
-		set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-	endif()
-	set(CMAKE_CXX_FLAGS_DISTRIBUTION "${CMAKE_CXX_FLAGS_RELEASE}")
+    # Set compiler flags for various configurations
+    if (OVERRIDE_CXX_FLAGS)
+        set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+        set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    endif ()
+    set(CMAKE_CXX_FLAGS_DISTRIBUTION "${CMAKE_CXX_FLAGS_RELEASE}")
 
-	# Set linker flags
-	if (NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"))
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
-	endif()
-endif()
+    # Set linker flags
+    if (NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"))
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
+    endif ()
+endif ()
 
 # Set linker flags
 set(CMAKE_EXE_LINKER_FLAGS_DISTRIBUTION "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
@@ -285,100 +285,96 @@ set(CMAKE_SHARED_LINKER_FLAGS_DISTRIBUTION "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}
 
 SET_INTERPROCEDURAL_OPTIMIZATION()
 
-set(PHYSICS_REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Disable shared library when building Jolt" FORCE)
 
 # Options
 if (IOS OR EMSCRIPTEN)
     set(JPH_BUILD_SHARED OFF CACHE BOOL "Always Disable shared library on (IOS, WEB)" FORCE)
-else()
-	option(JPH_BUILD_SHARED "Build a shared library" ${JPH_MASTER_PROJECT})
-endif()
+else ()
+    option(JPH_BUILD_SHARED "Build a shared library" ${JPH_MASTER_PROJECT})
+endif ()
 
 # Setup joltc library
 # Define target name
 if (DOUBLE_PRECISION)
-    set (TARGET_NAME joltc_double)
-else()
-    set (TARGET_NAME joltc)
+    set(TARGET_NAME joltc_double)
+else ()
+    set(TARGET_NAME joltc)
 endif ()
 
 set(SOURCE_FILES
-	${CMAKE_CURRENT_SOURCE_DIR}/include/joltc.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc_assert.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/joltc.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc_assert.cpp
 )
 
 if (JPH_BUILD_SHARED)
-	add_library(${TARGET_NAME} SHARED ${SOURCE_FILES})
-else()
-	add_library(${TARGET_NAME} ${SOURCE_FILES})
-endif()
-
-if(JPH_BUILD_SHARED)
-	target_compile_definitions(${TARGET_NAME} PRIVATE JPH_SHARED_LIBRARY_BUILD=1)
+    add_library(${TARGET_NAME} SHARED ${SOURCE_FILES})
+else ()
+    add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
 endif ()
 
-target_include_directories(${TARGET_NAME} PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	${JoltPhysics_SOURCE_DIR}/..
-)
+if (JPH_BUILD_SHARED)
+    target_compile_definitions(${TARGET_NAME} PRIVATE JPH_SHARED_LIBRARY_BUILD=1)
+endif ()
+
+target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(${TARGET_NAME} PRIVATE Jolt)
 
 if (MSVC)
     # Debug information
-	target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:Debug>:/Zi>)
+    target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:Debug>:/Zi>)
 
-	# Enable full optimization in dev/release
-	target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:Debug>:/Od> $<$<NOT:$<CONFIG:Debug>>:/Ox>)
+    # Enable full optimization in dev/release
+    target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:Debug>:/Od> $<$<NOT:$<CONFIG:Debug>>:/Ox>)
 
-	# Inline function expansion
-	target_compile_options(${TARGET_NAME} PRIVATE /Ob2)
+    # Inline function expansion
+    target_compile_options(${TARGET_NAME} PRIVATE /Ob2)
 
-	 # Enable intrinsic functions in dev/release
-	target_compile_options(${TARGET_NAME} PRIVATE $<$<NOT:$<CONFIG:Debug>>:/Oi>)
+    # Enable intrinsic functions in dev/release
+    target_compile_options(${TARGET_NAME} PRIVATE $<$<NOT:$<CONFIG:Debug>>:/Oi>)
 
     # Favor fast code
-	target_compile_options(${TARGET_NAME} PRIVATE /Ot)
+    target_compile_options(${TARGET_NAME} PRIVATE /Ot)
 
     # Enable fiber-safe optimizations in dev/release
-	target_compile_options(${TARGET_NAME} PRIVATE $<$<NOT:$<CONFIG:Debug>>:/GT>)
+    target_compile_options(${TARGET_NAME} PRIVATE $<$<NOT:$<CONFIG:Debug>>:/GT>)
 
-	# Enable string pooling
-	target_compile_options(${TARGET_NAME} PRIVATE /GF)
+    # Enable string pooling
+    target_compile_options(${TARGET_NAME} PRIVATE /GF)
 
     # Use security checks only in debug
-	target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:DEBUG>:/sdl> $<$<NOT:$<CONFIG:DEBUG>>:/sdl->)
-else()
+    target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:DEBUG>:/sdl> $<$<NOT:$<CONFIG:DEBUG>>:/sdl->)
+else ()
 
 endif ()
 
 install(TARGETS ${TARGET_NAME}
-    EXPORT ${TARGET_NAME}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        EXPORT ${TARGET_NAME}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/joltc.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Jolt
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Jolt
 )
- 
+
 if (JPH_SAMPLES)
-	add_subdirectory(samples)
+    add_subdirectory(samples)
 endif ()
 
 if (JPH_BUILD_SHARED)
-	message(STATUS "  Library         SHARED")
+    message(STATUS "  Library         SHARED")
 else ()
-  	message(STATUS "  Library         STATIC")
+    message(STATUS "  Library         STATIC")
 endif ()
 
 message(STATUS "  Samples         ${JPH_SAMPLES}")
 
 if (CMAKE_GENERATOR_PLATFORM)
     message(STATUS "CMAKE_GENERATOR_PLATFORM: ${CMAKE_GENERATOR_PLATFORM}")
-endif()
+endif ()
 
 message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
 if (CMAKE_OSX_ARCHITECTURES)
