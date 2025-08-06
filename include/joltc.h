@@ -48,6 +48,8 @@ typedef uint32_t JPH_CollisionSubGroupId;
 typedef uint32_t JPH_CharacterId;
 
 static const JPH_BodyId JPH_BodyId_InvalidBodyID = 0xffffffff;
+static const JPH_ObjectLayer JPH_ObjectLayerInvalid = ~0u;
+static const JPH_BroadPhaseLayer JPH_BroadPhaseLayerInvalid = 0xff;
 
 /* Forward declarations */
 typedef struct JPH_BroadPhaseLayerInterface JPH_BroadPhaseLayerInterface;
@@ -383,6 +385,7 @@ static const JPH_Vec3 JPH_Vec3_NaN = {NAN, NAN, NAN};
 static const JPH_Vec3 JPH_Vec3_AxisX = {1.0f, 0.0f, 0.0f};
 static const JPH_Vec3 JPH_Vec3_AxisY = {0.0f, 1.0f, 0.0f};
 static const JPH_Vec3 JPH_Vec3_AxisZ = {0.0f, 0.0f, 1.0f};
+static const JPH_Vec3 JPH_Vec3_Forward = {0.0f, 0.0f, -1.0f};
 
 typedef struct JPH_Vec4
 {
@@ -1007,44 +1010,38 @@ JPH_CAPI void JPH_CollideShapeResult_FreeMembers(const JPH_CollideShapeResult *r
 JPH_CAPI void JPH_CollisionEstimationResult_FreeMembers(const JPH_CollisionEstimationResult *result);
 
 /* JPH_BroadPhaseLayerInterface */
-JPH_CAPI JPH_BroadPhaseLayerInterface *JPH_BroadPhaseLayerInterfaceMask_Create(uint32_t numBroadPhaseLayers);
-JPH_CAPI void JPH_BroadPhaseLayerInterfaceMask_ConfigureLayer(JPH_BroadPhaseLayerInterface *bpInterface,
-                                                              JPH_BroadPhaseLayer broadPhaseLayer,
-                                                              uint32_t groupsToInclude,
-                                                              uint32_t groupsToExclude);
-
-JPH_CAPI JPH_BroadPhaseLayerInterface *JPH_BroadPhaseLayerInterfaceTable_Create(uint32_t numObjectLayers,
-                                                                                uint32_t numBroadPhaseLayers);
-JPH_CAPI void JPH_BroadPhaseLayerInterfaceTable_MapObjectToBroadPhaseLayer(JPH_BroadPhaseLayerInterface *bpInterface,
-                                                                           JPH_ObjectLayer objectLayer,
-                                                                           JPH_BroadPhaseLayer broadPhaseLayer);
+typedef struct JPH_BroadPhaseLayerInterface_Impl
+{
+        JPH_BroadPhaseLayer(JPH_API_CALL *GetBroadPhaseLayer)(JPH_ObjectLayer inLayer);
+} JPH_BroadPhaseLayerInterface_Impl;
+JPH_CAPI JPH_BroadPhaseLayerInterface *JPH_BroadPhaseLayerInterface_Create(uint32_t broadPhaseLayerCount,
+                                                                           const JPH_BroadPhaseLayerInterface_Impl
+                                                                                   *impl);
+JPH_CAPI void JPH_BroadPhaseLayerInterface_Destroy(JPH_BroadPhaseLayerInterface *broadPhaseLayerInterface);
+JPH_CAPI void JPH_BroadPhaseLayerInterface_SetImpl(JPH_BroadPhaseLayerInterface *broadPhaseLayerInterface,
+                                                   const JPH_BroadPhaseLayerInterface_Impl *impl);
 
 /* JPH_ObjectLayerPairFilter */
-JPH_CAPI JPH_ObjectLayerPairFilter *JPH_ObjectLayerPairFilterMask_Create(void);
-JPH_CAPI JPH_ObjectLayer JPH_ObjectLayerPairFilterMask_GetObjectLayer(uint32_t group, uint32_t mask);
-JPH_CAPI uint32_t JPH_ObjectLayerPairFilterMask_GetGroup(JPH_ObjectLayer layer);
-JPH_CAPI uint32_t JPH_ObjectLayerPairFilterMask_GetMask(JPH_ObjectLayer layer);
+typedef struct JPH_ObjectLayerPairFilter_Impl
+{
+        bool(JPH_API_CALL *ShouldCollide)(JPH_ObjectLayer inLayer1, JPH_ObjectLayer inLayer2);
+} JPH_ObjectLayerPairFilter_Impl;
 
-JPH_CAPI JPH_ObjectLayerPairFilter *JPH_ObjectLayerPairFilterTable_Create(uint32_t numObjectLayers);
-JPH_CAPI void JPH_ObjectLayerPairFilterTable_DisableCollision(JPH_ObjectLayerPairFilter *objectFilter,
-                                                              JPH_ObjectLayer layer1,
-                                                              JPH_ObjectLayer layer2);
-JPH_CAPI void JPH_ObjectLayerPairFilterTable_EnableCollision(JPH_ObjectLayerPairFilter *objectFilter,
-                                                             JPH_ObjectLayer layer1,
-                                                             JPH_ObjectLayer layer2);
-JPH_CAPI bool JPH_ObjectLayerPairFilterTable_ShouldCollide(JPH_ObjectLayerPairFilter *objectFilter,
-                                                           JPH_ObjectLayer layer1,
-                                                           JPH_ObjectLayer layer2);
+JPH_CAPI JPH_ObjectLayerPairFilter *JPH_ObjectLayerPairFilter_Create(const JPH_ObjectLayerPairFilter_Impl *impl);
+JPH_CAPI void JPH_ObjectLayerPairFilter_Destroy(JPH_ObjectLayerPairFilter *filter);
+JPH_CAPI void JPH_ObjectLayerPairFilter_SetImpl(JPH_ObjectLayerPairFilter *filter,
+                                                const JPH_ObjectLayerPairFilter_Impl *impl);
 
 /* JPH_ObjectVsBroadPhaseLayerFilter */
-JPH_CAPI JPH_ObjectVsBroadPhaseLayerFilter *JPH_ObjectVsBroadPhaseLayerFilterMask_Create(
-        const JPH_BroadPhaseLayerInterface *broadPhaseLayerInterface);
-
-JPH_CAPI JPH_ObjectVsBroadPhaseLayerFilter *JPH_ObjectVsBroadPhaseLayerFilterTable_Create(
-        JPH_BroadPhaseLayerInterface *broadPhaseLayerInterface,
-        uint32_t numBroadPhaseLayers,
-        JPH_ObjectLayerPairFilter *objectLayerPairFilter,
-        uint32_t numObjectLayers);
+typedef struct JPH_ObjectVsBroadPhaseLayerFilter_Impl
+{
+        bool(JPH_API_CALL *ShouldCollide)(JPH_ObjectLayer inObjectLayer, JPH_BroadPhaseLayer inBroadPhaseLayer);
+} JPH_ObjectVsBroadPhaseLayerFilter_Impl;
+JPH_CAPI JPH_ObjectVsBroadPhaseLayerFilter *JPH_ObjectVsBroadPhaseLayerFilter_Create(
+        const JPH_ObjectVsBroadPhaseLayerFilter_Impl *impl);
+JPH_CAPI void JPH_ObjectVsBroadPhaseLayerFilter_Destroy(JPH_ObjectVsBroadPhaseLayerFilter *filter);
+JPH_CAPI void JPH_ObjectVsBroadPhaseLayerFilter_SetImpl(JPH_ObjectVsBroadPhaseLayerFilter *filter,
+                                                        const JPH_ObjectVsBroadPhaseLayerFilter_Impl *impl);
 
 JPH_CAPI void JPH_DrawSettings_InitDefault(JPH_DrawSettings *settings);
 
@@ -1165,12 +1162,12 @@ typedef struct JPH_PhysicsStepListenerContext
 } JPH_PhysicsStepListenerContext;
 
 
-typedef struct JPH_PhysicsStepListener_Procs
+typedef struct JPH_PhysicsStepListener_Impl
 {
         void(JPH_API_CALL *OnStep)(void *userData, const JPH_PhysicsStepListenerContext *context);
-} JPH_PhysicsStepListener_Procs;
+} JPH_PhysicsStepListener_Impl;
 
-JPH_CAPI void JPH_PhysicsStepListener_SetProcs(const JPH_PhysicsStepListener_Procs *procs);
+JPH_CAPI void JPH_PhysicsStepListener_SetImpl(const JPH_PhysicsStepListener_Impl *impl);
 JPH_CAPI JPH_PhysicsStepListener *JPH_PhysicsStepListener_Create(void *userData);
 JPH_CAPI void JPH_PhysicsStepListener_Destroy(JPH_PhysicsStepListener *listener);
 
@@ -2504,39 +2501,39 @@ JPH_CAPI uint64_t JPH_Body_GetUserData(JPH_Body *body);
 
 JPH_CAPI JPH_Body *JPH_Body_GetFixedToWorldBody(void);
 
-/* JPH_BroadPhaseLayerFilter_Procs */
-typedef struct JPH_BroadPhaseLayerFilter_Procs
+/* JPH_BroadPhaseLayerFilter_Impl */
+typedef struct JPH_BroadPhaseLayerFilter_Impl
 {
         bool(JPH_API_CALL *ShouldCollide)(void *userData, JPH_BroadPhaseLayer layer);
-} JPH_BroadPhaseLayerFilter_Procs;
+} JPH_BroadPhaseLayerFilter_Impl;
 
-JPH_CAPI void JPH_BroadPhaseLayerFilter_SetProcs(const JPH_BroadPhaseLayerFilter_Procs *procs);
+JPH_CAPI void JPH_BroadPhaseLayerFilter_SetImpl(const JPH_BroadPhaseLayerFilter_Impl *impl);
 JPH_CAPI JPH_BroadPhaseLayerFilter *JPH_BroadPhaseLayerFilter_Create(void *userData);
 JPH_CAPI void JPH_BroadPhaseLayerFilter_Destroy(JPH_BroadPhaseLayerFilter *filter);
 
 /* JPH_ObjectLayerFilter */
-typedef struct JPH_ObjectLayerFilter_Procs
+typedef struct JPH_ObjectLayerFilter_Impl
 {
         bool(JPH_API_CALL *ShouldCollide)(void *userData, JPH_ObjectLayer layer);
-} JPH_ObjectLayerFilter_Procs;
+} JPH_ObjectLayerFilter_Impl;
 
-JPH_CAPI void JPH_ObjectLayerFilter_SetProcs(const JPH_ObjectLayerFilter_Procs *procs);
+JPH_CAPI void JPH_ObjectLayerFilter_SetImpl(const JPH_ObjectLayerFilter_Impl *impl);
 JPH_CAPI JPH_ObjectLayerFilter *JPH_ObjectLayerFilter_Create(void *userData);
 JPH_CAPI void JPH_ObjectLayerFilter_Destroy(JPH_ObjectLayerFilter *filter);
 
 /* JPH_BodyFilter */
-typedef struct JPH_BodyFilter_Procs
+typedef struct JPH_BodyFilter_Impl
 {
         bool(JPH_API_CALL *ShouldCollide)(void *userData, JPH_BodyId bodyID);
         bool(JPH_API_CALL *ShouldCollideLocked)(void *userData, const JPH_Body *bodyID);
-} JPH_BodyFilter_Procs;
+} JPH_BodyFilter_Impl;
 
-JPH_CAPI void JPH_BodyFilter_SetProcs(const JPH_BodyFilter_Procs *procs);
+JPH_CAPI void JPH_BodyFilter_SetImpl(const JPH_BodyFilter_Impl *impl);
 JPH_CAPI JPH_BodyFilter *JPH_BodyFilter_Create(void *userData);
 JPH_CAPI void JPH_BodyFilter_Destroy(JPH_BodyFilter *filter);
 
 /* JPH_ShapeFilter */
-typedef struct JPH_ShapeFilter_Procs
+typedef struct JPH_ShapeFilter_Impl
 {
         bool(JPH_API_CALL *ShouldCollide)(void *userData,
                                           const JPH_Shape *shape2,
@@ -2546,16 +2543,16 @@ typedef struct JPH_ShapeFilter_Procs
                                            const JPH_SubShapeId *subShapeIDOfShape1,
                                            const JPH_Shape *shape2,
                                            const JPH_SubShapeId *subShapeIDOfShape2);
-} JPH_ShapeFilter_Procs;
+} JPH_ShapeFilter_Impl;
 
-JPH_CAPI void JPH_ShapeFilter_SetProcs(const JPH_ShapeFilter_Procs *procs);
+JPH_CAPI void JPH_ShapeFilter_SetImpl(const JPH_ShapeFilter_Impl *impl);
 JPH_CAPI JPH_ShapeFilter *JPH_ShapeFilter_Create(void *userData);
 JPH_CAPI void JPH_ShapeFilter_Destroy(JPH_ShapeFilter *filter);
 JPH_CAPI JPH_BodyId JPH_ShapeFilter_GetBodyID2(JPH_ShapeFilter *filter);
 JPH_CAPI void JPH_ShapeFilter_SetBodyID2(JPH_ShapeFilter *filter, JPH_BodyId id);
 
 /* JPH_SimShapeFilter */
-typedef struct JPH_SimShapeFilter_Procs
+typedef struct JPH_SimShapeFilter_Impl
 {
         bool(JPH_API_CALL *ShouldCollide)(void *userData,
                                           const JPH_Body *body1,
@@ -2564,14 +2561,14 @@ typedef struct JPH_SimShapeFilter_Procs
                                           const JPH_Body *body2,
                                           const JPH_Shape *shape2,
                                           const JPH_SubShapeId *subShapeIDOfShape2);
-} JPH_SimShapeFilter_Procs;
+} JPH_SimShapeFilter_Impl;
 
-JPH_CAPI void JPH_SimShapeFilter_SetProcs(const JPH_SimShapeFilter_Procs *procs);
+JPH_CAPI void JPH_SimShapeFilter_SetImpl(const JPH_SimShapeFilter_Impl *impl);
 JPH_CAPI JPH_SimShapeFilter *JPH_SimShapeFilter_Create(void *userData);
 JPH_CAPI void JPH_SimShapeFilter_Destroy(JPH_SimShapeFilter *filter);
 
 /* Contact listener */
-typedef struct JPH_ContactListener_Procs
+typedef struct JPH_ContactListener_Impl
 {
         JPH_ValidateResult(JPH_API_CALL *OnContactValidate)(const JPH_Body *body1,
                                                             const JPH_Body *body2,
@@ -2589,30 +2586,30 @@ typedef struct JPH_ContactListener_Procs
                                                JPH_ContactSettings *settings);
 
         void(JPH_API_CALL *OnContactRemoved)(const JPH_SubShapeIDPair *subShapePair);
-} JPH_ContactListener_Procs;
+} JPH_ContactListener_Impl;
 
-JPH_CAPI void JPH_ContactListener_SetProcs(JPH_ContactListener *listener, const JPH_ContactListener_Procs *procs);
+JPH_CAPI void JPH_ContactListener_SetImpl(JPH_ContactListener *listener, const JPH_ContactListener_Impl *impl);
 JPH_CAPI JPH_ContactListener *JPH_ContactListener_Create(void);
 JPH_CAPI void JPH_ContactListener_Destroy(JPH_ContactListener *listener);
 
 /* BodyActivationListener */
-typedef struct JPH_BodyActivationListener_Procs
+typedef struct JPH_BodyActivationListener_Impl
 {
         void(JPH_API_CALL *OnBodyActivated)(void *userData, JPH_BodyId bodyID, uint64_t bodyUserData);
         void(JPH_API_CALL *OnBodyDeactivated)(void *userData, JPH_BodyId bodyID, uint64_t bodyUserData);
-} JPH_BodyActivationListener_Procs;
+} JPH_BodyActivationListener_Impl;
 
-JPH_CAPI void JPH_BodyActivationListener_SetProcs(const JPH_BodyActivationListener_Procs *procs);
+JPH_CAPI void JPH_BodyActivationListener_SetImpl(const JPH_BodyActivationListener_Impl *impl);
 JPH_CAPI JPH_BodyActivationListener *JPH_BodyActivationListener_Create(void *userData);
 JPH_CAPI void JPH_BodyActivationListener_Destroy(JPH_BodyActivationListener *listener);
 
 /* JPH_BodyDrawFilter */
-typedef struct JPH_BodyDrawFilter_Procs
+typedef struct JPH_BodyDrawFilter_Impl
 {
         bool(JPH_API_CALL *ShouldDraw)(void *userData, const JPH_Body *body);
-} JPH_BodyDrawFilter_Procs;
+} JPH_BodyDrawFilter_Impl;
 
-JPH_CAPI void JPH_BodyDrawFilter_SetProcs(const JPH_BodyDrawFilter_Procs *procs);
+JPH_CAPI void JPH_BodyDrawFilter_SetImpl(const JPH_BodyDrawFilter_Impl *impl);
 JPH_CAPI JPH_BodyDrawFilter *JPH_BodyDrawFilter_Create(void *userData);
 JPH_CAPI void JPH_BodyDrawFilter_Destroy(JPH_BodyDrawFilter *filter);
 
@@ -2844,7 +2841,7 @@ JPH_CAPI bool JPH_CharacterVirtual_HasCollidedWithCharacter(JPH_CharacterVirtual
                                                             const JPH_CharacterVirtual *other);
 
 /* CharacterContactListener */
-typedef struct JPH_CharacterContactListener_Procs
+typedef struct JPH_CharacterContactListener_Impl
 {
         void(JPH_API_CALL *OnAdjustBodyVelocity)(const JPH_CharacterVirtual *character,
                                                  const JPH_Body *body2,
@@ -2914,15 +2911,15 @@ typedef struct JPH_CharacterContactListener_Procs
                                                     const JPH_PhysicsMaterial *contactMaterial,
                                                     const JPH_Vec3 *characterVelocity,
                                                     JPH_Vec3 *newCharacterVelocity);
-} JPH_CharacterContactListener_Procs;
+} JPH_CharacterContactListener_Impl;
 
-JPH_CAPI void JPH_CharacterContactListener_SetProcs(JPH_CharacterContactListener *listener,
-                                                    const JPH_CharacterContactListener_Procs *procs);
+JPH_CAPI void JPH_CharacterContactListener_SetImpl(JPH_CharacterContactListener *listener,
+                                                   const JPH_CharacterContactListener_Impl *impl);
 JPH_CAPI JPH_CharacterContactListener *JPH_CharacterContactListener_Create(void);
 JPH_CAPI void JPH_CharacterContactListener_Destroy(JPH_CharacterContactListener *listener);
 
 /* JPH_CharacterVsCharacterCollision */
-typedef struct JPH_CharacterVsCharacterCollision_Procs
+typedef struct JPH_CharacterVsCharacterCollision_Impl
 {
         void(JPH_API_CALL *CollideCharacter)(void *userData,
                                              const JPH_CharacterVirtual *character,
@@ -2936,9 +2933,9 @@ typedef struct JPH_CharacterVsCharacterCollision_Procs
                                           const JPH_Vec3 *direction,
                                           const JPH_ShapeCastSettings *shapeCastSettings,
                                           const JPH_RVec3 *baseOffset);
-} JPH_CharacterVsCharacterCollision_Procs;
+} JPH_CharacterVsCharacterCollision_Impl;
 
-JPH_CAPI void JPH_CharacterVsCharacterCollision_SetProcs(const JPH_CharacterVsCharacterCollision_Procs *procs);
+JPH_CAPI void JPH_CharacterVsCharacterCollision_SetImpl(const JPH_CharacterVsCharacterCollision_Impl *impl);
 JPH_CAPI JPH_CharacterVsCharacterCollision *JPH_CharacterVsCharacterCollision_Create(void *userData);
 JPH_CAPI JPH_CharacterVsCharacterCollision *JPH_CharacterVsCharacterCollision_CreateSimple(void);
 JPH_CAPI void JPH_CharacterVsCharacterCollisionSimple_AddCharacter(JPH_CharacterVsCharacterCollision
@@ -2987,7 +2984,7 @@ JPH_CAPI bool JPH_CollisionDispatch_CastShapeVsShapeWorldSpace(const JPH_Vec3 *d
                                                                const JPH_ShapeFilter *shapeFilter);
 
 /* DebugRenderer */
-typedef struct JPH_DebugRenderer_Procs
+typedef struct JPH_DebugRenderer_Impl
 {
         void(JPH_API_CALL *DrawLine)(void *userData, const JPH_RVec3 *from, const JPH_RVec3 *to, JPH_Color color);
         void(JPH_API_CALL *DrawTriangle)(void *userData,
@@ -3001,9 +2998,9 @@ typedef struct JPH_DebugRenderer_Procs
                                        const char *str,
                                        JPH_Color color,
                                        float height);
-} JPH_DebugRenderer_Procs;
+} JPH_DebugRenderer_Impl;
 
-JPH_CAPI void JPH_DebugRenderer_SetProcs(const JPH_DebugRenderer_Procs *procs);
+JPH_CAPI void JPH_DebugRenderer_SetImpl(const JPH_DebugRenderer_Impl *impl);
 JPH_CAPI JPH_DebugRenderer *JPH_DebugRenderer_Create(void *userData);
 JPH_CAPI void JPH_DebugRenderer_Destroy(JPH_DebugRenderer *renderer);
 JPH_CAPI void JPH_DebugRenderer_NextFrame(JPH_DebugRenderer *renderer);

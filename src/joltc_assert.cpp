@@ -41,6 +41,8 @@ static_assert(JPH_INVALID_COLLISION_GROUP_ID == JPH::CollisionGroup::cInvalidGro
 static_assert(JPH_INVALID_COLLISION_SUBGROUP_ID == JPH::CollisionGroup::cInvalidSubGroup);
 
 static_assert(JPH_BodyId_InvalidBodyID == JPH::BodyID::cInvalidBodyID);
+static_assert(JPH_ObjectLayerInvalid == JPH::cObjectLayerInvalid);
+static_assert(JPH::BroadPhaseLayer(JPH_BroadPhaseLayerInvalid) == JPH::cBroadPhaseLayerInvalid);
 
 
 // EPhysicsUpdateError
