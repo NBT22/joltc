@@ -435,6 +435,18 @@ static inline JPH::Quat ToJolt(const JPH_Quat *quat)
     return {quat->x, quat->y, quat->z, quat->w};
 }
 
+static inline void ToJolt(const Transform *transform, JPH::Vec3 &position, JPH::Vec3 &rotationEulerAngles)
+{
+    position = ToJolt(transform->position);
+    rotationEulerAngles = ToJolt(transform->rotation);
+}
+
+static inline void ToJolt(const Transform *transform, JPH::Vec3 &position, JPH::Quat &rotation)
+{
+    position = ToJolt(transform->position);
+    rotation = JPH::Quat::sEulerAngles(ToJolt(transform->rotation));
+}
+
 static inline JPH::Plane ToJolt(const JPH_Plane *value)
 {
     return {ToJolt(value->normal), value->distance};
@@ -3263,6 +3275,43 @@ JPH_EmptyShape *JPH_EmptyShapeSettings_CreateShape(const JPH_EmptyShapeSettings 
 }
 
 /* JPH_BodyCreationSettings */
+JPH_CAPI JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create_GAME(const JPH_ShapeSettings *shapeSettings,
+                                                                        const Transform *transform,
+                                                                        JPH_MotionType motionType,
+                                                                        const JPH_ObjectLayer objectLayer,
+                                                                        void *userData)
+{
+    const JPH::ShapeSettings *joltShapeSettings = AsShapeSettings(shapeSettings);
+    JPH::Vec3 position;
+    JPH::Quat rotation;
+    ToJolt(transform, position, rotation);
+    const JPH::EMotionType joltMotionType = static_cast<JPH::EMotionType>(motionType);
+    JPH::BodyCreationSettings *const bodyCreationSettings = new JPH::BodyCreationSettings(joltShapeSettings,
+                                                                                          position,
+                                                                                          rotation,
+                                                                                          joltMotionType,
+                                                                                          objectLayer);
+    bodyCreationSettings->mUserData = reinterpret_cast<uint64_t>(userData);
+    return ToBodyCreationSettings(bodyCreationSettings);
+}
+JPH_CAPI JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create2_GAME(const JPH_Shape *shape,
+                                                                         const Transform *transform,
+                                                                         JPH_MotionType motionType,
+                                                                         const JPH_ObjectLayer objectLayer,
+                                                                         void *userData)
+{
+    JPH::Vec3 position;
+    JPH::Quat rotation;
+    ToJolt(transform, position, rotation);
+    const JPH::EMotionType joltMotionType = static_cast<JPH::EMotionType>(motionType);
+    JPH::BodyCreationSettings *const bodyCreationSettings = new JPH::BodyCreationSettings(AsShape(shape),
+                                                                                          position,
+                                                                                          rotation,
+                                                                                          joltMotionType,
+                                                                                          objectLayer);
+    bodyCreationSettings->mUserData = reinterpret_cast<uint64_t>(userData);
+    return ToBodyCreationSettings(bodyCreationSettings);
+}
 JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create()
 {
     JPH::BodyCreationSettings *const bodyCreationSettings = new JPH::BodyCreationSettings();
@@ -3275,12 +3324,14 @@ JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create2(const JPH_ShapeSettin
                                                            JPH_MotionType motionType,
                                                            const JPH_ObjectLayer objectLayer)
 {
-    auto *const bodyCreationSettings = new JPH::BodyCreationSettings(AsShapeSettings(shapeSettings),
-                                                                     ToJolt(position),
-                                                                     rotation != nullptr ? ToJolt(rotation)
-                                                                                         : JPH::Quat::sIdentity(),
-                                                                     static_cast<JPH::EMotionType>(motionType),
-                                                                     objectLayer);
+    const JPH::ShapeSettings *joltShapeSettings = AsShapeSettings(shapeSettings);
+    const JPH::Quat joltRotation = rotation != nullptr ? ToJolt(rotation) : JPH::Quat::sIdentity();
+    const JPH::EMotionType joltMotionType = static_cast<JPH::EMotionType>(motionType);
+    JPH::BodyCreationSettings *const bodyCreationSettings = new JPH::BodyCreationSettings(joltShapeSettings,
+                                                                                          ToJolt(position),
+                                                                                          joltRotation,
+                                                                                          joltMotionType,
+                                                                                          objectLayer);
     return ToBodyCreationSettings(bodyCreationSettings);
 }
 
@@ -3290,12 +3341,13 @@ JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create3(const JPH_Shape *shap
                                                            JPH_MotionType motionType,
                                                            const JPH_ObjectLayer objectLayer)
 {
-    auto *const bodyCreationSettings = new JPH::BodyCreationSettings(AsShape(shape),
-                                                                     ToJolt(position),
-                                                                     rotation != nullptr ? ToJolt(rotation)
-                                                                                         : JPH::Quat::sIdentity(),
-                                                                     static_cast<JPH::EMotionType>(motionType),
-                                                                     objectLayer);
+    const JPH::Quat joltRotation = rotation != nullptr ? ToJolt(rotation) : JPH::Quat::sIdentity();
+    const JPH::EMotionType joltMotionType = static_cast<JPH::EMotionType>(motionType);
+    JPH::BodyCreationSettings *const bodyCreationSettings = new JPH::BodyCreationSettings(AsShape(shape),
+                                                                                          ToJolt(position),
+                                                                                          joltRotation,
+                                                                                          joltMotionType,
+                                                                                          objectLayer);
     return ToBodyCreationSettings(bodyCreationSettings);
 }
 void JPH_BodyCreationSettings_Destroy(JPH_BodyCreationSettings *settings)
@@ -6507,10 +6559,15 @@ bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *query,
                                        JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                        JPH_ObjectLayerFilter *objectLayerFilter)
 {
+    JPH_ASSERT(query);
+    JPH_ASSERT(transform);
+    JPH_ASSERT(result);
+    JPH_ASSERT(broadPhaseLayerFilter);
+    JPH_ASSERT(objectLayerFilter);
     const JPH::RRayCast ray(ToJolt(transform->position),
                             JPH::Quat::sEulerAngles(ToJolt(transform->rotation)) * -JPH::Vec3::sAxisZ() * maxDistance);
     constexpr JPH::RayCastSettings raySettings{};
-    JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector;
+    JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector{};
     const JPH::BodyFilter bodyFilter{};
     const JPH::ShapeFilter shapeFilter{};
 
@@ -6527,6 +6584,51 @@ bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *query,
         result->fraction = collector.mHit.mFraction;
         result->bodyID = collector.mHit.mBodyID.GetIndexAndSequenceNumber();
         result->subShapeID2 = collector.mHit.mSubShapeID2.GetValue();
+    }
+
+    return collector.HadHit();
+}
+
+bool JPH_NarrowPhaseQuery_CastRay2_GAME(const JPH_NarrowPhaseQuery *query,
+                                        const JPH_BodyInterface *bodyInterface,
+                                        const JPH_BodyId bodyId,
+                                        const float maxDistance,
+                                        JPH_RayCastResult *result,
+                                        Vector3 *hitPointOffset,
+                                        JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
+                                        JPH_ObjectLayerFilter *objectLayerFilter,
+                                        const JPH_BodyFilter *bodyFilter)
+{
+    JPH_ASSERT(query);
+    JPH_ASSERT(bodyInterface);
+    JPH_ASSERT(bodyId != JPH_BodyId_InvalidBodyID);
+    JPH_ASSERT(result);
+    JPH_ASSERT(hitPointOffset);
+    JPH_ASSERT(broadPhaseLayerFilter);
+    JPH_ASSERT(objectLayerFilter);
+    JPH::RVec3 position;
+    JPH::Quat rotation;
+    AsBodyInterface(bodyInterface)->GetPositionAndRotation(JPH::BodyID(bodyId), position, rotation);
+    const JPH::RVec3 forward = rotation * -JPH::Vec3::sAxisZ();
+    const JPH::RRayCast ray(position, forward * maxDistance);
+    constexpr JPH::RayCastSettings raySettings{};
+    JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector{};
+    const JPH::ShapeFilter shapeFilter{};
+
+    AsNarrowPhaseQuery(query)->CastRay(ray,
+                                       raySettings,
+                                       collector,
+                                       ToJolt(broadPhaseLayerFilter),
+                                       ToJolt(objectLayerFilter),
+                                       ToJolt(bodyFilter),
+                                       shapeFilter);
+
+    if (collector.HadHit())
+    {
+        result->fraction = collector.mHit.mFraction;
+        result->bodyID = collector.mHit.mBodyID.GetIndexAndSequenceNumber();
+        result->subShapeID2 = collector.mHit.mSubShapeID2.GetValue();
+        *hitPointOffset = FromJolt(-JPH::Vec3::sAxisZ() * collector.mHit.mFraction * maxDistance);
     }
 
     return collector.HadHit();

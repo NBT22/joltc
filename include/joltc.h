@@ -1588,6 +1588,16 @@ JPH_CAPI JPH_EmptyShapeSettings *JPH_EmptyShapeSettings_Create(const Vector3 *ce
 JPH_CAPI JPH_EmptyShape *JPH_EmptyShapeSettings_CreateShape(const JPH_EmptyShapeSettings *settings);
 
 /* JPH_BodyCreationSettings */
+JPH_CAPI JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create_GAME(const JPH_ShapeSettings *shapeSettings,
+                                                                        const Transform *transform,
+                                                                        JPH_MotionType motionType,
+                                                                        JPH_ObjectLayer objectLayer,
+                                                                        void *userData);
+JPH_CAPI JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create2_GAME(const JPH_Shape *shape,
+                                                                         const Transform *transform,
+                                                                         JPH_MotionType motionType,
+                                                                         JPH_ObjectLayer objectLayer,
+                                                                         void *userData);
 JPH_CAPI JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create(void);
 JPH_CAPI JPH_BodyCreationSettings *JPH_BodyCreationSettings_Create2(const JPH_ShapeSettings *shapeSettings,
                                                                     const JPH_RVec3 *position,
@@ -2279,6 +2289,16 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *quer
                                                 JPH_RayCastResult *result,
                                                 JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                                 JPH_ObjectLayerFilter *objectLayerFilter);
+
+JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay2_GAME(const JPH_NarrowPhaseQuery *query,
+                                                 const JPH_BodyInterface *bodyInterface,
+                                                 JPH_BodyId bodyId,
+                                                 float maxDistance,
+                                                 JPH_RayCastResult *result,
+                                                 Vector3 *hitPointOffset,
+                                                 JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
+                                                 JPH_ObjectLayerFilter *objectLayerFilter,
+                                                 const JPH_BodyFilter *bodyFilter);
 
 JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay(const JPH_NarrowPhaseQuery *query,
                                            const JPH_RVec3 *origin,

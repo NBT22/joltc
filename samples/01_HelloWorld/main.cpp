@@ -88,10 +88,10 @@ int main()
         // Next we can create a rigid body to serve as the floor, we make a large box
         // Create the settings for the collision volume (the shape).
         // Note that for simple shapes (like boxes) you can also directly construct a BoxShape.
-        JPH_Vec3 boxHalfExtents = {100.0f, 1.0f, 100.0f};
+        Vector3 boxHalfExtents = {100.0f, 1.0f, 100.0f};
         JPH_BoxShape *floorShape = JPH_BoxShape_Create(&boxHalfExtents, JPH_DEFAULT_CONVEX_RADIUS);
 
-        JPH_Vec3 floorPosition = {0.0f, -1.0f, 0.0f};
+        Vector3 floorPosition = {0.0f, -1.0f, 0.0f};
         JPH_BodyCreationSettings *floorSettings = JPH_BodyCreationSettings_Create3((const JPH_Shape *)floorShape,
                                                                                    &floorPosition,
                                                                                    nullptr, // Identity,
@@ -107,7 +107,7 @@ int main()
     JPH_BodyId sphereId = {};
     {
         JPH_SphereShape *sphereShape = JPH_SphereShape_Create(50.0f);
-        JPH_Vec3 spherePosition = {0.0f, 2.0f, 0.0f};
+        Vector3 spherePosition = {0.0f, 2.0f, 0.0f};
         JPH_BodyCreationSettings *sphereSettings = JPH_BodyCreationSettings_Create3((const JPH_Shape *)sphereShape,
                                                                                     &spherePosition,
                                                                                     nullptr, // Identity,
@@ -120,7 +120,7 @@ int main()
 
     // Now you can interact with the dynamic body, in this case we're going to give it a velocity.
     // (note that if we had used CreateBody then we could have set the velocity straight on the body before adding it to the physics system)
-    JPH_Vec3 sphereLinearVelocity = {0.0f, -5.0f, 0.0f};
+    Vector3 sphereLinearVelocity = {0.0f, -5.0f, 0.0f};
     JPH_BodyInterface_SetLinearVelocity(bodyInterface, sphereId, &sphereLinearVelocity);
 
     {
@@ -132,7 +132,7 @@ int main()
 
         JPH_CapsuleShape *capsuleShape = JPH_CapsuleShape_Create(0.5f * cCharacterHeightStanding,
                                                                  cCharacterRadiusStanding);
-        JPH_Vec3 position = {0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0};
+        Vector3 position = {0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0};
         auto mStandingShape = JPH_RotatedTranslatedShape_Create(&position, nullptr, (JPH_Shape *)capsuleShape);
 
         JPH_CharacterVirtualSettings characterSettings{};
@@ -169,7 +169,7 @@ int main()
 
         // Output current position and velocity of the sphere
         JPH_RVec3 position;
-        JPH_Vec3 velocity;
+        Vector3 velocity;
 
         JPH_BodyInterface_GetCenterOfMassPosition(bodyInterface, sphereId, &position);
         JPH_BodyInterface_GetLinearVelocity(bodyInterface, sphereId, &velocity);
