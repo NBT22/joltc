@@ -1094,28 +1094,24 @@ static inline const JPH::BroadPhaseLayerFilter &ToJolt(JPH_BroadPhaseLayerFilter
 class ManagedBroadPhaseLayerFilter final: public JPH::BroadPhaseLayerFilter
 {
     public:
-        explicit ManagedBroadPhaseLayerFilter(void *userData, const JPH_BroadPhaseLayerFilter_Impl *impl):
-            userData(userData),
-            impl(impl)
-        {}
+        explicit ManagedBroadPhaseLayerFilter(const JPH_BroadPhaseLayerFilter_Impl *impl): impl(impl) {}
 
         [[nodiscard]] bool ShouldCollide(const JPH::BroadPhaseLayer inLayer) const override
         {
             if (impl != nullptr && impl->ShouldCollide != nullptr)
             {
-                return impl->ShouldCollide(userData, static_cast<JPH_BroadPhaseLayer>(inLayer));
+                return impl->ShouldCollide(static_cast<JPH_BroadPhaseLayer>(inLayer));
             }
 
             return true;
         }
 
-        void *userData{};
         const JPH_BroadPhaseLayerFilter_Impl *impl;
 };
 
-JPH_BroadPhaseLayerFilter *JPH_BroadPhaseLayerFilter_Create(void *userData, const JPH_BroadPhaseLayerFilter_Impl *impl)
+JPH_BroadPhaseLayerFilter *JPH_BroadPhaseLayerFilter_Create(const JPH_BroadPhaseLayerFilter_Impl *impl)
 {
-    ManagedBroadPhaseLayerFilter *const filter = new ManagedBroadPhaseLayerFilter(userData, impl);
+    ManagedBroadPhaseLayerFilter *const filter = new ManagedBroadPhaseLayerFilter(impl);
     return reinterpret_cast<JPH_BroadPhaseLayerFilter *>(filter);
 }
 
@@ -1125,12 +1121,6 @@ void JPH_BroadPhaseLayerFilter_Destroy(JPH_BroadPhaseLayerFilter *filter)
     {
         delete reinterpret_cast<ManagedBroadPhaseLayerFilter *>(filter);
     }
-}
-
-void JPH_BroadPhaseLayerFilter_SetUserData(JPH_BroadPhaseLayerFilter *filter, void *userData)
-{
-    JPH_ASSERT(filter);
-    reinterpret_cast<ManagedBroadPhaseLayerFilter *>(filter)->userData = userData;
 }
 
 void JPH_BroadPhaseLayerFilter_SetImpl(JPH_BroadPhaseLayerFilter *filter, const JPH_BroadPhaseLayerFilter_Impl *impl)
@@ -1149,40 +1139,30 @@ static inline const JPH::ObjectLayerFilter &ToJolt(JPH_ObjectLayerFilter *filter
 class ManagedObjectLayerFilter final: public JPH::ObjectLayerFilter
 {
     public:
-        explicit ManagedObjectLayerFilter(void *userData, const JPH_ObjectLayerFilter_Impl *impl):
-            userData(userData),
-            impl(impl)
-        {}
+        explicit ManagedObjectLayerFilter(const JPH_ObjectLayerFilter_Impl *impl): impl(impl) {}
 
         [[nodiscard]] bool ShouldCollide(const JPH::ObjectLayer inLayer) const override
         {
             if (impl != nullptr && impl->ShouldCollide != nullptr)
             {
-                return impl->ShouldCollide(userData, inLayer);
+                return impl->ShouldCollide(inLayer);
             }
 
             return true;
         }
 
-        void *userData{};
         const JPH_ObjectLayerFilter_Impl *impl{};
 };
 
-JPH_ObjectLayerFilter *JPH_ObjectLayerFilter_Create(void *userData, const JPH_ObjectLayerFilter_Impl *impl)
+JPH_ObjectLayerFilter *JPH_ObjectLayerFilter_Create(const JPH_ObjectLayerFilter_Impl *impl)
 {
-    ManagedObjectLayerFilter *const filter = new ManagedObjectLayerFilter(userData, impl);
+    ManagedObjectLayerFilter *const filter = new ManagedObjectLayerFilter(impl);
     return reinterpret_cast<JPH_ObjectLayerFilter *>(filter);
 }
 
 void JPH_ObjectLayerFilter_Destroy(JPH_ObjectLayerFilter *filter)
 {
     delete reinterpret_cast<ManagedObjectLayerFilter *>(filter);
-}
-
-void JPH_ObjectLayerFilter_SetUserData(JPH_ObjectLayerFilter *filter, void *userData)
-{
-    JPH_ASSERT(filter);
-    reinterpret_cast<ManagedObjectLayerFilter *>(filter)->userData = userData;
 }
 
 void JPH_ObjectLayerFilter_SetImpl(JPH_ObjectLayerFilter *filter, const JPH_ObjectLayerFilter_Impl *impl)
@@ -1201,13 +1181,13 @@ static const JPH::BodyFilter &ToJolt(const JPH_BodyFilter *bodyFilter)
 class ManagedBodyFilter final: public JPH::BodyFilter
 {
     public:
-        explicit ManagedBodyFilter(void *userData, const JPH_BodyFilter_Impl *impl): userData(userData), impl(impl) {}
+        explicit ManagedBodyFilter(const JPH_BodyFilter_Impl *impl): impl(impl) {}
 
         [[nodiscard]] bool ShouldCollide(const JPH::BodyID &bodyID) const override
         {
             if (impl != nullptr && impl->ShouldCollide != nullptr)
             {
-                return impl->ShouldCollide(userData, bodyID.GetIndexAndSequenceNumber());
+                return impl->ShouldCollide(bodyID.GetIndexAndSequenceNumber());
             }
 
             return true;
@@ -1217,31 +1197,24 @@ class ManagedBodyFilter final: public JPH::BodyFilter
         {
             if (impl != nullptr && impl->ShouldCollideLocked != nullptr)
             {
-                return impl->ShouldCollideLocked(userData, reinterpret_cast<const JPH_Body *>(&body));
+                return impl->ShouldCollideLocked(reinterpret_cast<const JPH_Body *>(&body));
             }
 
             return true;
         }
 
-        void *userData{};
         const JPH_BodyFilter_Impl *impl{};
 };
 
-JPH_BodyFilter *JPH_BodyFilter_Create(void *userData, const JPH_BodyFilter_Impl *impl)
+JPH_BodyFilter *JPH_BodyFilter_Create(const JPH_BodyFilter_Impl *impl)
 {
-    ManagedBodyFilter *const filter = new ManagedBodyFilter(userData, impl);
+    ManagedBodyFilter *const filter = new ManagedBodyFilter(impl);
     return reinterpret_cast<JPH_BodyFilter *>(filter);
 }
 
 void JPH_BodyFilter_Destroy(JPH_BodyFilter *filter)
 {
     delete reinterpret_cast<ManagedBodyFilter *>(filter);
-}
-
-void JPH_BodyFilter_SetUserData(JPH_BodyFilter *filter, void *userData)
-{
-    JPH_ASSERT(filter);
-    reinterpret_cast<ManagedBodyFilter *>(filter)->userData = userData;
 }
 
 void JPH_BodyFilter_SetImpl(JPH_BodyFilter *filter, const JPH_BodyFilter_Impl *impl)
@@ -1260,13 +1233,13 @@ static inline const JPH::ShapeFilter &ToJolt(const JPH_ShapeFilter *filter)
 class ManagedShapeFilter final: public JPH::ShapeFilter
 {
     public:
-        explicit ManagedShapeFilter(void *userData, const JPH_ShapeFilter_Impl *impl): userData(userData), impl(impl) {}
+        explicit ManagedShapeFilter(const JPH_ShapeFilter_Impl *impl): impl(impl) {}
 
         bool ShouldCollide(const JPH::Shape *inShape2, const JPH::SubShapeID &inSubShapeIDOfShape2) const override
         {
             if (impl != nullptr && impl->ShouldCollide != nullptr)
             {
-                return impl->ShouldCollide(userData, ToShape(inShape2), inSubShapeIDOfShape2.GetValue());
+                return impl->ShouldCollide(ToShape(inShape2), inSubShapeIDOfShape2.GetValue());
             }
 
             return true;
@@ -1279,8 +1252,7 @@ class ManagedShapeFilter final: public JPH::ShapeFilter
         {
             if (impl != nullptr && impl->ShouldCollide2 != nullptr)
             {
-                return impl->ShouldCollide2(userData,
-                                            ToShape(inShape1),
+                return impl->ShouldCollide2(ToShape(inShape1),
                                             inSubShapeIDOfShape1.GetValue(),
                                             ToShape(inShape2),
                                             inSubShapeIDOfShape2.GetValue());
@@ -1289,25 +1261,18 @@ class ManagedShapeFilter final: public JPH::ShapeFilter
             return true;
         }
 
-        void *userData{};
         const JPH_ShapeFilter_Impl *impl{};
 };
 
-JPH_ShapeFilter *JPH_ShapeFilter_Create(void *userData, const JPH_ShapeFilter_Impl *impl)
+JPH_ShapeFilter *JPH_ShapeFilter_Create(const JPH_ShapeFilter_Impl *impl)
 {
-    ManagedShapeFilter *const filter = new ManagedShapeFilter(userData, impl);
+    ManagedShapeFilter *const filter = new ManagedShapeFilter(impl);
     return reinterpret_cast<JPH_ShapeFilter *>(filter);
 }
 
 void JPH_ShapeFilter_Destroy(JPH_ShapeFilter *filter)
 {
     delete reinterpret_cast<ManagedShapeFilter *>(filter);
-}
-
-void JPH_ShapeFilter_SetUserData(JPH_ShapeFilter *filter, void *userData)
-{
-    JPH_ASSERT(filter);
-    reinterpret_cast<ManagedShapeFilter *>(filter)->userData = userData;
 }
 
 void JPH_ShapeFilter_SetImpl(JPH_ShapeFilter *filter, const JPH_ShapeFilter_Impl *impl)
@@ -8549,7 +8514,7 @@ bool JPH_CharacterVirtual_HasCollidedWithCharacter(JPH_CharacterVirtual *charact
 class ManagedCharacterContactListener final: public JPH::CharacterContactListener
 {
     public:
-        const JPH_CharacterContactListener_Impl *s_Impl = nullptr;
+        explicit ManagedCharacterContactListener(const JPH_CharacterContactListener_Impl *impl): impl(impl) {}
 
         void OnAdjustBodyVelocity(const JPH::CharacterVirtual *inCharacter,
                                   const JPH::Body &inBody2,
@@ -8561,12 +8526,12 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
             FromJolt(ioLinearVelocity, &linearVelocity);
             FromJolt(ioAngularVelocity, &angularVelocity);
 
-            if (s_Impl != nullptr && s_Impl->OnAdjustBodyVelocity != nullptr)
+            if (impl != nullptr && impl->OnAdjustBodyVelocity != nullptr)
             {
-                s_Impl->OnAdjustBodyVelocity(ToCharacterVirtual(inCharacter),
-                                             ToBody(&inBody2),
-                                             &linearVelocity,
-                                             &angularVelocity);
+                impl->OnAdjustBodyVelocity(ToCharacterVirtual(inCharacter),
+                                           ToBody(&inBody2),
+                                           &linearVelocity,
+                                           &angularVelocity);
 
                 ioLinearVelocity = ToJolt(linearVelocity);
                 ioAngularVelocity = ToJolt(angularVelocity);
@@ -8577,11 +8542,11 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                                const JPH::BodyID &inBodyID2,
                                const JPH::SubShapeID &inSubShapeID2) override
         {
-            if (s_Impl != nullptr && s_Impl->OnContactValidate != nullptr)
+            if (impl != nullptr && impl->OnContactValidate != nullptr)
             {
-                return s_Impl->OnContactValidate(ToCharacterVirtual(inCharacter),
-                                                 inBodyID2.GetIndexAndSequenceNumber(),
-                                                 inSubShapeID2.GetValue());
+                return impl->OnContactValidate(ToCharacterVirtual(inCharacter),
+                                               inBodyID2.GetIndexAndSequenceNumber(),
+                                               inSubShapeID2.GetValue());
             }
 
             return true;
@@ -8591,11 +8556,11 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                                         const JPH::CharacterVirtual *inOtherCharacter,
                                         const JPH::SubShapeID &inSubShapeID2) override
         {
-            if (s_Impl != nullptr && s_Impl->OnCharacterContactValidate != nullptr)
+            if (impl != nullptr && impl->OnCharacterContactValidate != nullptr)
             {
-                return s_Impl->OnCharacterContactValidate(ToCharacterVirtual(inCharacter),
-                                                          ToCharacterVirtual(inOtherCharacter),
-                                                          inSubShapeID2.GetValue());
+                return impl->OnCharacterContactValidate(ToCharacterVirtual(inCharacter),
+                                                        ToCharacterVirtual(inOtherCharacter),
+                                                        inSubShapeID2.GetValue());
             }
 
             return true;
@@ -8608,7 +8573,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                             JPH::Vec3Arg inContactNormal,
                             JPH::CharacterContactSettings &ioSettings) override
         {
-            if (s_Impl != nullptr && s_Impl->OnContactAdded != nullptr)
+            if (impl != nullptr && impl->OnContactAdded != nullptr)
             {
                 JPH_RVec3 contactPosition;
                 JPH_Vec3 contactNormal;
@@ -8620,12 +8585,12 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 settings.canPushCharacter = ioSettings.mCanPushCharacter;
                 settings.canReceiveImpulses = ioSettings.mCanReceiveImpulses;
 
-                s_Impl->OnContactAdded(ToCharacterVirtual(inCharacter),
-                                       inBodyID2.GetIndexAndSequenceNumber(),
-                                       inSubShapeID2.GetValue(),
-                                       &contactPosition,
-                                       &contactNormal,
-                                       &settings);
+                impl->OnContactAdded(ToCharacterVirtual(inCharacter),
+                                     inBodyID2.GetIndexAndSequenceNumber(),
+                                     inSubShapeID2.GetValue(),
+                                     &contactPosition,
+                                     &contactNormal,
+                                     &settings);
 
                 ioSettings.mCanPushCharacter = settings.canPushCharacter;
                 ioSettings.mCanReceiveImpulses = settings.canReceiveImpulses;
@@ -8639,7 +8604,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                                 JPH::Vec3Arg inContactNormal,
                                 JPH::CharacterContactSettings &ioSettings) override
         {
-            if (s_Impl != nullptr && s_Impl->OnContactPersisted != nullptr)
+            if (impl != nullptr && impl->OnContactPersisted != nullptr)
             {
                 JPH_RVec3 contactPosition;
                 JPH_Vec3 contactNormal;
@@ -8651,12 +8616,12 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 settings.canPushCharacter = ioSettings.mCanPushCharacter;
                 settings.canReceiveImpulses = ioSettings.mCanReceiveImpulses;
 
-                s_Impl->OnContactPersisted(ToCharacterVirtual(inCharacter),
-                                           inBodyID2.GetIndexAndSequenceNumber(),
-                                           inSubShapeID2.GetValue(),
-                                           &contactPosition,
-                                           &contactNormal,
-                                           &settings);
+                impl->OnContactPersisted(ToCharacterVirtual(inCharacter),
+                                         inBodyID2.GetIndexAndSequenceNumber(),
+                                         inSubShapeID2.GetValue(),
+                                         &contactPosition,
+                                         &contactNormal,
+                                         &settings);
 
                 ioSettings.mCanPushCharacter = settings.canPushCharacter;
                 ioSettings.mCanReceiveImpulses = settings.canReceiveImpulses;
@@ -8667,11 +8632,11 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                               const JPH::BodyID &inBodyID2,
                               const JPH::SubShapeID &inSubShapeID2) override
         {
-            if (s_Impl != nullptr && s_Impl->OnContactRemoved != nullptr)
+            if (impl != nullptr && impl->OnContactRemoved != nullptr)
             {
-                s_Impl->OnContactRemoved(ToCharacterVirtual(inCharacter),
-                                         inBodyID2.GetIndexAndSequenceNumber(),
-                                         inSubShapeID2.GetValue());
+                impl->OnContactRemoved(ToCharacterVirtual(inCharacter),
+                                       inBodyID2.GetIndexAndSequenceNumber(),
+                                       inSubShapeID2.GetValue());
             }
         }
 
@@ -8682,7 +8647,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                                      JPH::Vec3Arg inContactNormal,
                                      JPH::CharacterContactSettings &ioSettings) override
         {
-            if (s_Impl != nullptr && s_Impl->OnCharacterContactAdded != nullptr)
+            if (impl != nullptr && impl->OnCharacterContactAdded != nullptr)
             {
                 JPH_RVec3 contactPosition;
                 JPH_Vec3 contactNormal;
@@ -8694,12 +8659,12 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 settings.canPushCharacter = ioSettings.mCanPushCharacter;
                 settings.canReceiveImpulses = ioSettings.mCanReceiveImpulses;
 
-                s_Impl->OnCharacterContactAdded(ToCharacterVirtual(inCharacter),
-                                                ToCharacterVirtual(inOtherCharacter),
-                                                inSubShapeID2.GetValue(),
-                                                &contactPosition,
-                                                &contactNormal,
-                                                &settings);
+                impl->OnCharacterContactAdded(ToCharacterVirtual(inCharacter),
+                                              ToCharacterVirtual(inOtherCharacter),
+                                              inSubShapeID2.GetValue(),
+                                              &contactPosition,
+                                              &contactNormal,
+                                              &settings);
 
                 ioSettings.mCanPushCharacter = settings.canPushCharacter;
                 ioSettings.mCanReceiveImpulses = settings.canReceiveImpulses;
@@ -8713,7 +8678,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                                          JPH::Vec3Arg inContactNormal,
                                          JPH::CharacterContactSettings &ioSettings) override
         {
-            if (s_Impl != nullptr && s_Impl->OnCharacterContactPersisted != nullptr)
+            if (impl != nullptr && impl->OnCharacterContactPersisted != nullptr)
             {
                 JPH_RVec3 contactPosition;
                 JPH_Vec3 contactNormal;
@@ -8725,12 +8690,12 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 settings.canPushCharacter = ioSettings.mCanPushCharacter;
                 settings.canReceiveImpulses = ioSettings.mCanReceiveImpulses;
 
-                s_Impl->OnCharacterContactPersisted(ToCharacterVirtual(inCharacter),
-                                                    ToCharacterVirtual(inOtherCharacter),
-                                                    inSubShapeID2.GetValue(),
-                                                    &contactPosition,
-                                                    &contactNormal,
-                                                    &settings);
+                impl->OnCharacterContactPersisted(ToCharacterVirtual(inCharacter),
+                                                  ToCharacterVirtual(inOtherCharacter),
+                                                  inSubShapeID2.GetValue(),
+                                                  &contactPosition,
+                                                  &contactNormal,
+                                                  &settings);
 
                 ioSettings.mCanPushCharacter = settings.canPushCharacter;
                 ioSettings.mCanReceiveImpulses = settings.canReceiveImpulses;
@@ -8741,11 +8706,11 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                                        const JPH::CharacterID &inOtherCharacterID,
                                        const JPH::SubShapeID &inSubShapeID2) override
         {
-            if (s_Impl != nullptr && s_Impl->OnCharacterContactRemoved != nullptr)
+            if (impl != nullptr && impl->OnCharacterContactRemoved != nullptr)
             {
-                s_Impl->OnCharacterContactRemoved(ToCharacterVirtual(inCharacter),
-                                                  inOtherCharacterID.GetValue(),
-                                                  inSubShapeID2.GetValue());
+                impl->OnCharacterContactRemoved(ToCharacterVirtual(inCharacter),
+                                                inOtherCharacterID.GetValue(),
+                                                inSubShapeID2.GetValue());
             }
         }
 
@@ -8759,7 +8724,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                             JPH::Vec3Arg inCharacterVelocity,
                             JPH::Vec3 &ioNewCharacterVelocity) override
         {
-            if (s_Impl != nullptr && s_Impl->OnContactSolve != nullptr)
+            if (impl != nullptr && impl->OnContactSolve != nullptr)
             {
                 JPH_RVec3 contactPosition;
                 JPH_Vec3 contactNormal;
@@ -8773,15 +8738,15 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 FromJolt(inCharacterVelocity, &characterVelocity);
                 FromJolt(ioNewCharacterVelocity, &newCharacterVelocity);
 
-                s_Impl->OnContactSolve(ToCharacterVirtual(inCharacter),
-                                       inBodyID2.GetIndexAndSequenceNumber(),
-                                       inSubShapeID2.GetValue(),
-                                       &contactPosition,
-                                       &contactNormal,
-                                       &contactVelocity,
-                                       reinterpret_cast<const JPH_PhysicsMaterial *>(inContactMaterial),
-                                       &characterVelocity,
-                                       &newCharacterVelocity);
+                impl->OnContactSolve(ToCharacterVirtual(inCharacter),
+                                     inBodyID2.GetIndexAndSequenceNumber(),
+                                     inSubShapeID2.GetValue(),
+                                     &contactPosition,
+                                     &contactNormal,
+                                     &contactVelocity,
+                                     reinterpret_cast<const JPH_PhysicsMaterial *>(inContactMaterial),
+                                     &characterVelocity,
+                                     &newCharacterVelocity);
 
                 ioNewCharacterVelocity = ToJolt(newCharacterVelocity);
             }
@@ -8797,7 +8762,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                                      JPH::Vec3Arg inCharacterVelocity,
                                      JPH::Vec3 &ioNewCharacterVelocity) override
         {
-            if (s_Impl != nullptr && s_Impl->OnCharacterContactSolve != nullptr)
+            if (impl != nullptr && impl->OnCharacterContactSolve != nullptr)
             {
                 JPH_RVec3 contactPosition;
                 JPH_Vec3 contactNormal;
@@ -8811,31 +8776,27 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                 FromJolt(inCharacterVelocity, &characterVelocity);
                 FromJolt(ioNewCharacterVelocity, &newCharacterVelocity);
 
-                s_Impl->OnCharacterContactSolve(ToCharacterVirtual(inCharacter),
-                                                ToCharacterVirtual(inOtherCharacter),
-                                                inSubShapeID2.GetValue(),
-                                                &contactPosition,
-                                                &contactNormal,
-                                                &contactVelocity,
-                                                reinterpret_cast<const JPH_PhysicsMaterial *>(inContactMaterial),
-                                                &characterVelocity,
-                                                &newCharacterVelocity);
+                impl->OnCharacterContactSolve(ToCharacterVirtual(inCharacter),
+                                              ToCharacterVirtual(inOtherCharacter),
+                                              inSubShapeID2.GetValue(),
+                                              &contactPosition,
+                                              &contactNormal,
+                                              &contactVelocity,
+                                              reinterpret_cast<const JPH_PhysicsMaterial *>(inContactMaterial),
+                                              &characterVelocity,
+                                              &newCharacterVelocity);
 
                 ioNewCharacterVelocity = ToJolt(newCharacterVelocity);
             }
         }
+
+        const JPH_CharacterContactListener_Impl *impl = nullptr;
 };
 
-void JPH_CharacterContactListener_SetImpl(JPH_CharacterContactListener *listener,
-                                          const JPH_CharacterContactListener_Impl *impl)
+JPH_CharacterContactListener *JPH_CharacterContactListener_Create(const JPH_CharacterContactListener_Impl *impl)
 {
-    reinterpret_cast<ManagedCharacterContactListener *>(listener)->s_Impl = impl;
-}
-
-JPH_CharacterContactListener *JPH_CharacterContactListener_Create()
-{
-    ManagedCharacterContactListener *const impl = new ManagedCharacterContactListener();
-    return reinterpret_cast<JPH_CharacterContactListener *>(impl);
+    ManagedCharacterContactListener *const listener = new ManagedCharacterContactListener(impl);
+    return reinterpret_cast<JPH_CharacterContactListener *>(listener);
 }
 
 void JPH_CharacterContactListener_Destroy(JPH_CharacterContactListener *listener)
@@ -8844,6 +8805,12 @@ void JPH_CharacterContactListener_Destroy(JPH_CharacterContactListener *listener
     {
         delete reinterpret_cast<ManagedCharacterContactListener *>(listener);
     }
+}
+
+void JPH_CharacterContactListener_SetImpl(JPH_CharacterContactListener *listener,
+                                          const JPH_CharacterContactListener_Impl *impl)
+{
+    reinterpret_cast<ManagedCharacterContactListener *>(listener)->impl = impl;
 }
 
 /* JPH_CharacterVsCharacterCollision */

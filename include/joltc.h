@@ -2504,55 +2504,47 @@ JPH_CAPI JPH_Body *JPH_Body_GetFixedToWorldBody(void);
 /* JPH_BroadPhaseLayerFilter_Impl */
 typedef struct JPH_BroadPhaseLayerFilter_Impl
 {
-        bool(JPH_API_CALL *ShouldCollide)(void *userData, JPH_BroadPhaseLayer layer);
+        bool(JPH_API_CALL *ShouldCollide)(JPH_BroadPhaseLayer layer);
 } JPH_BroadPhaseLayerFilter_Impl;
 
-JPH_CAPI JPH_BroadPhaseLayerFilter *JPH_BroadPhaseLayerFilter_Create(void *userData,
-                                                                     const JPH_BroadPhaseLayerFilter_Impl *impl);
+JPH_CAPI JPH_BroadPhaseLayerFilter *JPH_BroadPhaseLayerFilter_Create(const JPH_BroadPhaseLayerFilter_Impl *impl);
 JPH_CAPI void JPH_BroadPhaseLayerFilter_Destroy(JPH_BroadPhaseLayerFilter *filter);
-JPH_CAPI void JPH_BroadPhaseLayerFilter_SetUserData(JPH_BroadPhaseLayerFilter *filter, void *userData);
 JPH_CAPI void JPH_BroadPhaseLayerFilter_SetImpl(JPH_BroadPhaseLayerFilter *filter,
                                                 const JPH_BroadPhaseLayerFilter_Impl *impl);
 
 /* JPH_ObjectLayerFilter */
 typedef struct JPH_ObjectLayerFilter_Impl
 {
-        bool(JPH_API_CALL *ShouldCollide)(void *userData, JPH_ObjectLayer layer);
+        bool(JPH_API_CALL *ShouldCollide)(JPH_ObjectLayer layer);
 } JPH_ObjectLayerFilter_Impl;
 
-JPH_CAPI JPH_ObjectLayerFilter *JPH_ObjectLayerFilter_Create(void *userData, const JPH_ObjectLayerFilter_Impl *impl);
+JPH_CAPI JPH_ObjectLayerFilter *JPH_ObjectLayerFilter_Create(const JPH_ObjectLayerFilter_Impl *impl);
 JPH_CAPI void JPH_ObjectLayerFilter_Destroy(JPH_ObjectLayerFilter *filter);
-JPH_CAPI void JPH_ObjectLayerFilter_SetUserData(JPH_ObjectLayerFilter *filter, void *userData);
 JPH_CAPI void JPH_ObjectLayerFilter_SetImpl(JPH_ObjectLayerFilter *filter, const JPH_ObjectLayerFilter_Impl *impl);
 
 /* JPH_BodyFilter */
 typedef struct JPH_BodyFilter_Impl
 {
-        bool(JPH_API_CALL *ShouldCollide)(void *userData, JPH_BodyId bodyID);
-        bool(JPH_API_CALL *ShouldCollideLocked)(void *userData, const JPH_Body *body);
+        bool(JPH_API_CALL *ShouldCollide)(JPH_BodyId bodyID);
+        bool(JPH_API_CALL *ShouldCollideLocked)(const JPH_Body *body);
 } JPH_BodyFilter_Impl;
 
-JPH_CAPI JPH_BodyFilter *JPH_BodyFilter_Create(void *userData, const JPH_BodyFilter_Impl *impl);
+JPH_CAPI JPH_BodyFilter *JPH_BodyFilter_Create(const JPH_BodyFilter_Impl *impl);
 JPH_CAPI void JPH_BodyFilter_Destroy(JPH_BodyFilter *filter);
-JPH_CAPI void JPH_BodyFilter_SetUserData(JPH_BodyFilter *filter, void *userData);
 JPH_CAPI void JPH_BodyFilter_SetImpl(JPH_BodyFilter *filter, const JPH_BodyFilter_Impl *impl);
 
 /* JPH_ShapeFilter */
 typedef struct JPH_ShapeFilter_Impl
 {
-        bool(JPH_API_CALL *ShouldCollide)(void *userData,
-                                          const JPH_Shape *inShape2,
-                                          JPH_SubShapeId inSubShapeIDOfShape2);
-        bool(JPH_API_CALL *ShouldCollide2)(void *userData,
-                                           const JPH_Shape *shape1,
+        bool(JPH_API_CALL *ShouldCollide)(const JPH_Shape *inShape2, JPH_SubShapeId inSubShapeIDOfShape2);
+        bool(JPH_API_CALL *ShouldCollide2)(const JPH_Shape *shape1,
                                            JPH_SubShapeId subShapeIDOfShape1,
                                            const JPH_Shape *shape2,
                                            JPH_SubShapeId subShapeIDOfShape2);
 } JPH_ShapeFilter_Impl;
 
-JPH_CAPI JPH_ShapeFilter *JPH_ShapeFilter_Create(void *userData, const JPH_ShapeFilter_Impl *impl);
+JPH_CAPI JPH_ShapeFilter *JPH_ShapeFilter_Create(const JPH_ShapeFilter_Impl *impl);
 JPH_CAPI void JPH_ShapeFilter_Destroy(JPH_ShapeFilter *filter);
-JPH_CAPI void JPH_ShapeFilter_SetUserData(JPH_ShapeFilter *filter, void *userData);
 JPH_CAPI void JPH_ShapeFilter_SetImpl(JPH_ShapeFilter *filter, const JPH_ShapeFilter_Impl *impl);
 JPH_CAPI JPH_BodyId JPH_ShapeFilter_GetBodyID2(JPH_ShapeFilter *filter);
 JPH_CAPI void JPH_ShapeFilter_SetBodyID2(JPH_ShapeFilter *filter, JPH_BodyId id);
@@ -2919,10 +2911,11 @@ typedef struct JPH_CharacterContactListener_Impl
                                                     JPH_Vec3 *newCharacterVelocity);
 } JPH_CharacterContactListener_Impl;
 
+JPH_CAPI JPH_CharacterContactListener *JPH_CharacterContactListener_Create(const JPH_CharacterContactListener_Impl
+                                                                                   *impl);
+JPH_CAPI void JPH_CharacterContactListener_Destroy(JPH_CharacterContactListener *listener);
 JPH_CAPI void JPH_CharacterContactListener_SetImpl(JPH_CharacterContactListener *listener,
                                                    const JPH_CharacterContactListener_Impl *impl);
-JPH_CAPI JPH_CharacterContactListener *JPH_CharacterContactListener_Create(void);
-JPH_CAPI void JPH_CharacterContactListener_Destroy(JPH_CharacterContactListener *listener);
 
 /* JPH_CharacterVsCharacterCollision */
 typedef struct JPH_CharacterVsCharacterCollision_Impl
