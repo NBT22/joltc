@@ -2286,6 +2286,14 @@ JPH_CAPI bool JPH_BroadPhaseQuery_CollidePoint(const JPH_BroadPhaseQuery *query,
 //--------------------------------------------------------------------------------------------------
 // JPH_NarrowPhaseQuery
 //--------------------------------------------------------------------------------------------------
+JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *query,
+                                                const JPH_RVec3 *origin,
+                                                const JPH_Vec3 *rotationEulerAngles,
+                                                float distance,
+                                                JPH_RayCastResult *result,
+                                                JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
+                                                JPH_ObjectLayerFilter *objectLayerFilter);
+
 JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay(const JPH_NarrowPhaseQuery *query,
                                            const JPH_RVec3 *origin,
                                            const JPH_Vec3 *direction,

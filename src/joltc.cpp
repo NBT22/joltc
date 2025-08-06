@@ -6506,6 +6506,37 @@ class CastShapeCollectorCallback final: public JPH::CastShapeCollector
         uint32_t _padding{0};
 };
 
+JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *query,
+                                                const JPH_RVec3 *origin,
+                                                const JPH_Vec3 *rotationEulerAngles,
+                                                JPH_RayCastResult *result,
+                                                JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
+                                                JPH_ObjectLayerFilter *objectLayerFilter)
+{
+    const JPH::RRayCast ray(ToJolt(origin), ToJolt(rotationEulerAngles));
+    constexpr JPH::RayCastSettings raySettings{};
+    JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector;
+    const JPH::BodyFilter bodyFilter{};
+    const JPH::ShapeFilter shapeFilter{};
+
+    AsNarrowPhaseQuery(query)->CastRay(ray,
+                                       raySettings,
+                                       collector,
+                                       ToJolt(broadPhaseLayerFilter),
+                                       ToJolt(objectLayerFilter),
+                                       bodyFilter,
+                                       shapeFilter);
+
+    if (collector.HadHit())
+    {
+        result->fraction = collector.mHit.mFraction;
+        result->bodyID = collector.mHit.mBodyID.GetIndexAndSequenceNumber();
+        result->subShapeID2 = collector.mHit.mSubShapeID2.GetValue();
+    }
+
+    return collector.HadHit();
+}
+
 bool JPH_NarrowPhaseQuery_CastRay(const JPH_NarrowPhaseQuery *query,
                                   const JPH_RVec3 *origin,
                                   const JPH_Vec3 *direction,
