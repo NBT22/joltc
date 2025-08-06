@@ -211,14 +211,14 @@ static bool AssertFailedImpl(const char *inExpression, const char *inMessage, co
 // TODO: The functions in this region could use with optimization from std::copy_n
 #pragma region FromJoltFunctions
 
-static inline void FromJolt(const JPH::Vec3 &vec, JPH_Vec3 *result)
+static inline void FromJolt(const JPH::Vec3 &vec, Vector3 *result)
 {
     result->x = vec.GetX();
     result->y = vec.GetY();
     result->z = vec.GetZ();
 }
 
-static inline JPH_Vec3 FromJolt(const JPH::Vec3 &vec)
+static inline Vector3 FromJolt(const JPH::Vec3 &vec)
 {
     return {vec.GetX(), vec.GetY(), vec.GetZ()};
 }
@@ -383,7 +383,7 @@ static inline JPH_CollideShapeResult FromJolt(const JPH::CollideShapeResult &jol
     if (!jolt.mShape1Face.empty())
     {
         result.shape1FaceCount = jolt.mShape1Face.size();
-        result.shape1Faces = static_cast<JPH_Vec3 *>(malloc(sizeof(JPH_Vec3) * result.shape1FaceCount));
+        result.shape1Faces = static_cast<Vector3 *>(malloc(sizeof(Vector3) * result.shape1FaceCount));
         for (uint32_t i = 0; i < result.shape1FaceCount; i++)
         {
             FromJolt(jolt.mShape1Face[i], &result.shape1Faces[i]);
@@ -393,7 +393,7 @@ static inline JPH_CollideShapeResult FromJolt(const JPH::CollideShapeResult &jol
     if (!jolt.mShape2Face.empty())
     {
         result.shape2FaceCount = jolt.mShape2Face.size();
-        result.shape2Faces = static_cast<JPH_Vec3 *>(malloc(sizeof(JPH_Vec3) * result.shape2FaceCount));
+        result.shape2Faces = static_cast<Vector3 *>(malloc(sizeof(Vector3) * result.shape2FaceCount));
         for (uint32_t i = 0; i < result.shape2FaceCount; i++)
         {
             FromJolt(jolt.mShape2Face[i], &result.shape2Faces[i]);
@@ -415,12 +415,12 @@ static inline void FromJolt(const JPH::CollisionGroup &jolt, JPH_CollisionGroup 
 // TODO: The functions in this region could use with optimization from std::copy_n
 #pragma region ToJoltFunctions
 
-static inline JPH::Vec3 ToJolt(const JPH_Vec3 &vec)
+static inline JPH::Vec3 ToJolt(const Vector3 &vec)
 {
     return {vec.x, vec.y, vec.z};
 }
 
-static inline JPH::Vec3 ToJolt(const JPH_Vec3 *vec)
+static inline JPH::Vec3 ToJolt(const Vector3 *vec)
 {
     return {vec->x, vec->y, vec->z};
 }
@@ -450,7 +450,7 @@ static inline JPH::Mat44 ToJolt(const JPH_Matrix4x4 *matrix)
     return result;
 }
 
-static inline JPH::Float3 ToJoltFloat3(const JPH_Vec3 &vec)
+static inline JPH::Float3 ToJoltFloat3(const Vector3 &vec)
 {
     return {vec.x, vec.y, vec.z};
 }
@@ -545,7 +545,7 @@ static inline JPH::CollisionGroup ToJolt(const JPH_CollisionGroup *group)
 
 void JPH_MassProperties_DecomposePrincipalMomentsOfInertia(const JPH_MassProperties *properties,
                                                            JPH_Matrix4x4 *rotation,
-                                                           JPH_Vec3 *diagonal)
+                                                           Vector3 *diagonal)
 {
     JPH::Mat44 joltRotation;
     JPH::Vec3 joltDiagonal;
@@ -563,12 +563,12 @@ void JPH_MassProperties_ScaleToMass(JPH_MassProperties *properties, const float 
     FromJolt(joltProperties.mInertia, &properties->inertia);
 }
 
-void JPH_MassProperties_GetEquivalentSolidBoxSize(const float mass, const JPH_Vec3 *inertiaDiagonal, JPH_Vec3 *result)
+void JPH_MassProperties_GetEquivalentSolidBoxSize(const float mass, const Vector3 *inertiaDiagonal, Vector3 *result)
 {
     FromJolt(JPH::MassProperties::sGetEquivalentSolidBoxSize(mass, ToJolt(inertiaDiagonal)), result);
 }
 
-void JPH_RayCast_GetPointOnRay(const JPH_Vec3 *origin, const JPH_Vec3 *direction, float fraction, JPH_Vec3 *result)
+void JPH_RayCast_GetPointOnRay(const Vector3 *origin, const Vector3 *direction, float fraction, Vector3 *result)
 {
     JPH_ASSERT(origin);
     JPH_ASSERT(direction);
@@ -579,7 +579,7 @@ void JPH_RayCast_GetPointOnRay(const JPH_Vec3 *origin, const JPH_Vec3 *direction
     FromJolt(point, result);
 }
 
-void JPH_RRayCast_GetPointOnRay(const JPH_RVec3 *origin, const JPH_Vec3 *direction, float fraction, JPH_RVec3 *result)
+void JPH_RRayCast_GetPointOnRay(const JPH_RVec3 *origin, const Vector3 *direction, float fraction, JPH_RVec3 *result)
 {
     JPH_ASSERT(origin);
     JPH_ASSERT(direction);
@@ -1352,12 +1352,12 @@ void JPH_SimShapeFilter_Destroy(JPH_SimShapeFilter *filter)
 }
 
 /* Math */
-void JPH_Quaternion_FromTo(const JPH_Vec3 *from, const JPH_Vec3 *to, JPH_Quat *quat)
+void JPH_Quaternion_FromTo(const Vector3 *from, const Vector3 *to, JPH_Quat *quat)
 {
     FromJolt(JPH::Quat::sFromTo(ToJolt(from), ToJolt(to)), quat);
 }
 
-void JPH_Quat_GetAxisAngle(const JPH_Quat *quat, JPH_Vec3 *outAxis, float *outAngle)
+void JPH_Quat_GetAxisAngle(const JPH_Quat *quat, Vector3 *outAxis, float *outAngle)
 {
     JPH_ASSERT(quat);
     JPH_ASSERT(outAxis);
@@ -1371,7 +1371,7 @@ void JPH_Quat_GetAxisAngle(const JPH_Quat *quat, JPH_Vec3 *outAxis, float *outAn
     *outAngle = angle;
 }
 
-void JPH_Quat_GetEulerAngles(const JPH_Quat *quat, JPH_Vec3 *result)
+void JPH_Quat_GetEulerAngles(const JPH_Quat *quat, Vector3 *result)
 {
     JPH_ASSERT(quat);
     JPH_ASSERT(result);
@@ -1379,7 +1379,7 @@ void JPH_Quat_GetEulerAngles(const JPH_Quat *quat, JPH_Vec3 *result)
     FromJolt(ToJolt(quat).GetEulerAngles(), result);
 }
 
-void JPH_Quat_RotateAxisX(const JPH_Quat *quat, JPH_Vec3 *result)
+void JPH_Quat_RotateAxisX(const JPH_Quat *quat, Vector3 *result)
 {
     JPH_ASSERT(quat);
     JPH_ASSERT(result);
@@ -1387,7 +1387,7 @@ void JPH_Quat_RotateAxisX(const JPH_Quat *quat, JPH_Vec3 *result)
     FromJolt(ToJolt(quat).RotateAxisX(), result);
 }
 
-void JPH_Quat_RotateAxisY(const JPH_Quat *quat, JPH_Vec3 *result)
+void JPH_Quat_RotateAxisY(const JPH_Quat *quat, Vector3 *result)
 {
     JPH_ASSERT(quat);
     JPH_ASSERT(result);
@@ -1395,7 +1395,7 @@ void JPH_Quat_RotateAxisY(const JPH_Quat *quat, JPH_Vec3 *result)
     FromJolt(ToJolt(quat).RotateAxisY(), result);
 }
 
-void JPH_Quat_RotateAxisZ(const JPH_Quat *quat, JPH_Vec3 *result)
+void JPH_Quat_RotateAxisZ(const JPH_Quat *quat, Vector3 *result)
 {
     JPH_ASSERT(quat);
     JPH_ASSERT(result);
@@ -1419,7 +1419,7 @@ void JPH_Quat_GetPerpendicular(const JPH_Quat *quat, JPH_Quat *result)
     FromJolt(ToJolt(quat).GetPerpendicular(), result);
 }
 
-float JPH_Quat_GetRotationAngle(const JPH_Quat *quat, const JPH_Vec3 *axis)
+float JPH_Quat_GetRotationAngle(const JPH_Quat *quat, const Vector3 *axis)
 {
     JPH_ASSERT(quat);
     JPH_ASSERT(axis);
@@ -1427,13 +1427,13 @@ float JPH_Quat_GetRotationAngle(const JPH_Quat *quat, const JPH_Vec3 *axis)
     return ToJolt(quat).GetRotationAngle(ToJolt(axis));
 }
 
-void JPH_Quat_Rotation(const JPH_Vec3 *inAxis, float inAngle, JPH_Quat *result)
+void JPH_Quat_Rotation(const Vector3 *inAxis, float inAngle, JPH_Quat *result)
 {
     JPH_ASSERT(inAxis && result);
     FromJolt(JPH::Quat::sRotation(ToJolt(inAxis), inAngle), result);
 }
 
-void JPH_Quat_FromEulerAngles(const JPH_Vec3 *angles, JPH_Quat *result)
+void JPH_Quat_FromEulerAngles(const Vector3 *angles, JPH_Quat *result)
 {
     JPH_ASSERT(angles && result);
     FromJolt(JPH::Quat::sEulerAngles(ToJolt(angles)), result);
@@ -1481,7 +1481,7 @@ void JPH_Quat_Conjugated(const JPH_Quat *quat, JPH_Quat *result)
     FromJolt(ToJolt(quat).Conjugated(), result);
 }
 
-void JPH_Quat_GetTwist(const JPH_Quat *quat, const JPH_Vec3 *axis, JPH_Quat *result)
+void JPH_Quat_GetTwist(const JPH_Quat *quat, const Vector3 *axis, JPH_Quat *result)
 {
     JPH_ASSERT(quat && axis && result);
     FromJolt(ToJolt(quat).GetTwist(ToJolt(axis)), result);
@@ -1509,19 +1509,19 @@ void JPH_Quat_Slerp(const JPH_Quat *from, const JPH_Quat *to, float fraction, JP
     FromJolt(ToJolt(from).SLERP(ToJolt(to), fraction), result);
 }
 
-void JPH_Quat_Rotate(const JPH_Quat *quat, const JPH_Vec3 *vec, JPH_Vec3 *result)
+void JPH_Quat_Rotate(const JPH_Quat *quat, const Vector3 *vec, Vector3 *result)
 {
     JPH_ASSERT(quat && vec && result);
     FromJolt(ToJolt(quat) * ToJolt(vec), result);
 }
 
-void JPH_Quat_InverseRotate(const JPH_Quat *quat, const JPH_Vec3 *vec, JPH_Vec3 *result)
+void JPH_Quat_InverseRotate(const JPH_Quat *quat, const Vector3 *vec, Vector3 *result)
 {
     JPH_ASSERT(quat && vec && result);
     FromJolt(ToJolt(quat).InverseRotate(ToJolt(vec)), result);
 }
 
-bool JPH_Vec3_IsClose(const JPH_Vec3 *v1, const JPH_Vec3 *v2, float maxDistSq)
+bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistSq)
 {
     JPH_ASSERT(v1 != nullptr);
     JPH_ASSERT(v2 != nullptr);
@@ -1529,28 +1529,28 @@ bool JPH_Vec3_IsClose(const JPH_Vec3 *v1, const JPH_Vec3 *v2, float maxDistSq)
     return ToJolt(v1).IsClose(ToJolt(v2), maxDistSq);
 }
 
-bool JPH_Vec3_IsNearZero(const JPH_Vec3 *vector, float maxDistSq)
+bool Vector3_IsNearZero(const Vector3 *vector, float maxDistSq)
 {
     JPH_ASSERT(vector != nullptr);
 
     return ToJolt(vector).IsNearZero(maxDistSq);
 }
 
-bool JPH_Vec3_IsNormalized(const JPH_Vec3 *v, float tolerance)
+bool Vector3_IsNormalized(const Vector3 *v, float tolerance)
 {
     JPH_ASSERT(v != nullptr);
 
     return ToJolt(v).IsNormalized(tolerance);
 }
 
-bool JPH_Vec3_IsNaN(const JPH_Vec3 *v)
+bool Vector3_IsNaN(const Vector3 *v)
 {
     JPH_ASSERT(v != nullptr);
 
     return ToJolt(v).IsNaN();
 }
 
-void JPH_Vec3_Negate(const JPH_Vec3 *v, JPH_Vec3 *result)
+void Vector3_Negate(const Vector3 *v, Vector3 *result)
 {
     JPH_ASSERT(v != nullptr);
     JPH_ASSERT(result != nullptr);
@@ -1558,7 +1558,7 @@ void JPH_Vec3_Negate(const JPH_Vec3 *v, JPH_Vec3 *result)
     FromJolt(-ToJolt(v), result);
 }
 
-void JPH_Vec3_Normalized(const JPH_Vec3 *v, JPH_Vec3 *result)
+void Vector3_Normalized(const Vector3 *v, Vector3 *result)
 {
     JPH_ASSERT(v != nullptr);
     JPH_ASSERT(result != nullptr);
@@ -1566,7 +1566,7 @@ void JPH_Vec3_Normalized(const JPH_Vec3 *v, JPH_Vec3 *result)
     FromJolt(ToJolt(v).Normalized(), result);
 }
 
-void JPH_Vec3_Cross(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result)
+void Vector3_Cross(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
 {
     JPH_ASSERT(v1 != nullptr);
     JPH_ASSERT(v2 != nullptr);
@@ -1575,7 +1575,7 @@ void JPH_Vec3_Cross(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result)
     FromJolt(ToJolt(v1).Cross(ToJolt(v2)), result);
 }
 
-void JPH_Vec3_Abs(const JPH_Vec3 *v, JPH_Vec3 *result)
+void Vector3_Abs(const Vector3 *v, Vector3 *result)
 {
     JPH_ASSERT(v != nullptr);
     JPH_ASSERT(result != nullptr);
@@ -1583,42 +1583,42 @@ void JPH_Vec3_Abs(const JPH_Vec3 *v, JPH_Vec3 *result)
     FromJolt(ToJolt(v).Abs(), result);
 }
 
-float JPH_Vec3_Length(const JPH_Vec3 *v)
+float Vector3_Length(const Vector3 *v)
 {
     JPH_ASSERT(v);
 
     return ToJolt(v).Length();
 }
 
-float JPH_Vec3_LengthSquared(const JPH_Vec3 *v)
+float Vector3_LengthSquared(const Vector3 *v)
 {
     JPH_ASSERT(v);
 
     return ToJolt(v).LengthSq();
 }
 
-void JPH_Vec3_Multiply(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result)
+void Vector3_Multiply(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
 {
     JPH_ASSERT(v1 && v2 && result);
 
     FromJolt(ToJolt(v1) * ToJolt(v2), result);
 }
 
-void JPH_Vec3_MultiplyScalar(const JPH_Vec3 *v, float scalar, JPH_Vec3 *result)
+void Vector3_MultiplyScalar(const Vector3 *v, float scalar, Vector3 *result)
 {
     JPH_ASSERT(v && result);
 
     FromJolt(ToJolt(v) * scalar, result);
 }
 
-void JPH_Vec3_Divide(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result)
+void Vector3_Divide(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
 {
     JPH_ASSERT(v1 && v2 && result);
 
     FromJolt(ToJolt(v1) / ToJolt(v2), result);
 }
 
-void JPH_Vec3_DivideScalar(const JPH_Vec3 *v, float scalar, JPH_Vec3 *result)
+void Vector3_DivideScalar(const Vector3 *v, float scalar, Vector3 *result)
 {
     JPH_ASSERT(v && result);
     JPH_ASSERT(scalar != 0.0f);
@@ -1626,28 +1626,28 @@ void JPH_Vec3_DivideScalar(const JPH_Vec3 *v, float scalar, JPH_Vec3 *result)
     FromJolt(ToJolt(v) / scalar, result);
 }
 
-void JPH_Vec3_DotProduct(const JPH_Vec3 *v1, const JPH_Vec3 *v2, float *result)
+void Vector3_DotProduct(const Vector3 *v1, const Vector3 *v2, float *result)
 {
     JPH_ASSERT(v1 && v2 && result);
 
     *result = ToJolt(v1).Dot(ToJolt(v2));
 }
 
-void JPH_Vec3_Normalize(const JPH_Vec3 *v, JPH_Vec3 *result)
+void Vector3_Normalize(const Vector3 *v, Vector3 *result)
 {
     JPH_ASSERT(v && result);
 
     FromJolt(ToJolt(v).Normalized(), result);
 }
 
-void JPH_Vec3_Add(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result)
+void Vector3_Add(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
 {
     JPH_ASSERT(v1 && v2 && result);
 
     FromJolt(ToJolt(v1) + ToJolt(v2), result);
 }
 
-void JPH_Vec3_Subtract(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result)
+void Vector3_Subtract(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
 {
     JPH_ASSERT(v1 && v2 && result);
 
@@ -1683,24 +1683,24 @@ void JPH_Matrix4x4_Rotation(JPH_Matrix4x4 *result, const JPH_Quat *rotation)
     FromJolt(JPH::Mat44::sRotation(ToJolt(rotation)), result);
 }
 
-void JPH_Matrix4x4_Translation(JPH_Matrix4x4 *result, const JPH_Vec3 *translation)
+void JPH_Matrix4x4_Translation(JPH_Matrix4x4 *result, const Vector3 *translation)
 {
     FromJolt(JPH::Mat44::sTranslation(ToJolt(translation)), result);
 }
 
-void JPH_Matrix4x4_RotationTranslation(JPH_Matrix4x4 *result, const JPH_Quat *rotation, const JPH_Vec3 *translation)
+void JPH_Matrix4x4_RotationTranslation(JPH_Matrix4x4 *result, const JPH_Quat *rotation, const Vector3 *translation)
 {
     FromJolt(JPH::Mat44::sRotationTranslation(ToJolt(rotation), ToJolt(translation)), result);
 }
 
 void JPH_Matrix4x4_InverseRotationTranslation(JPH_Matrix4x4 *result,
                                               const JPH_Quat *rotation,
-                                              const JPH_Vec3 *translation)
+                                              const Vector3 *translation)
 {
     FromJolt(JPH::Mat44::sInverseRotationTranslation(ToJolt(rotation), ToJolt(translation)), result);
 }
 
-void JPH_Matrix4x4_Scale(JPH_Matrix4x4 *result, const JPH_Vec3 *scale)
+void JPH_Matrix4x4_Scale(JPH_Matrix4x4 *result, const Vector3 *scale)
 {
     FromJolt(JPH::Mat44::sScale(ToJolt(scale)), result);
 }
@@ -1749,7 +1749,7 @@ void JPH_RMatrix4x4_InverseRotationTranslation(JPH_RMatrix4x4 *result,
     FromJolt(JPH::RMat44::sInverseRotationTranslation(ToJolt(rotation), ToJolt(translation)), result);
 }
 
-void JPH_RMatrix4x4_Scale(JPH_RMatrix4x4 *result, const JPH_Vec3 *scale)
+void JPH_RMatrix4x4_Scale(JPH_RMatrix4x4 *result, const Vector3 *scale)
 {
     FromJolt(JPH::RMat44::sScale(ToJolt(scale)), result);
 }
@@ -1760,28 +1760,28 @@ void JPH_RMatrix4x4_Inversed(const JPH_RMatrix4x4 *matrix, JPH_RMatrix4x4 *resul
     FromJolt(ToJolt(matrix).Inversed(), result);
 }
 
-void JPH_Matrix4x4_GetAxisX(const JPH_Matrix4x4 *matrix, JPH_Vec3 *result)
+void JPH_Matrix4x4_GetAxisX(const JPH_Matrix4x4 *matrix, Vector3 *result)
 {
     JPH_ASSERT(matrix);
     JPH_ASSERT(result);
     FromJolt(ToJolt(matrix).GetAxisX(), result);
 }
 
-void JPH_Matrix4x4_GetAxisY(const JPH_Matrix4x4 *matrix, JPH_Vec3 *result)
+void JPH_Matrix4x4_GetAxisY(const JPH_Matrix4x4 *matrix, Vector3 *result)
 {
     JPH_ASSERT(matrix);
     JPH_ASSERT(result);
     FromJolt(ToJolt(matrix).GetAxisY(), result);
 }
 
-void JPH_Matrix4x4_GetAxisZ(const JPH_Matrix4x4 *matrix, JPH_Vec3 *result)
+void JPH_Matrix4x4_GetAxisZ(const JPH_Matrix4x4 *matrix, Vector3 *result)
 {
     JPH_ASSERT(matrix);
     JPH_ASSERT(result);
     FromJolt(ToJolt(matrix).GetAxisZ(), result);
 }
 
-void JPH_Matrix4x4_GetTranslation(const JPH_Matrix4x4 *matrix, JPH_Vec3 *result)
+void JPH_Matrix4x4_GetTranslation(const JPH_Matrix4x4 *matrix, Vector3 *result)
 {
     JPH_ASSERT(matrix);
     JPH_ASSERT(result);
@@ -1919,7 +1919,7 @@ bool JPH_Shape_MustBeStatic(const JPH_Shape *shape)
     return reinterpret_cast<const JPH::Shape *>(shape)->MustBeStatic();
 }
 
-void JPH_Shape_GetCenterOfMass(const JPH_Shape *shape, JPH_Vec3 *result)
+void JPH_Shape_GetCenterOfMass(const JPH_Shape *shape, Vector3 *result)
 {
     FromJolt(AsShape(shape)->GetCenterOfMass(), result);
 }
@@ -1936,7 +1936,7 @@ uint32_t JPH_Shape_GetSubShapeIDBitsRecursive(const JPH_Shape *shape)
 
 void JPH_Shape_GetWorldSpaceBounds(const JPH_Shape *shape,
                                    const JPH_RMatrix4x4 *centerOfMassTransform,
-                                   const JPH_Vec3 *scale,
+                                   const Vector3 *scale,
                                    JPH_AABox *result)
 {
     const JPH::AABox bounds = AsShape(shape)->GetWorldSpaceBounds(ToJolt(centerOfMassTransform), ToJolt(scale));
@@ -1974,8 +1974,8 @@ const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, const J
 
 void JPH_Shape_GetSurfaceNormal(const JPH_Shape *shape,
                                 const JPH_SubShapeId subShapeID,
-                                const JPH_Vec3 *localPosition,
-                                JPH_Vec3 *normal)
+                                const Vector3 *localPosition,
+                                Vector3 *normal)
 {
     JPH::SubShapeID joltSubShapeID = JPH::SubShapeID();
     joltSubShapeID.SetValue(subShapeID);
@@ -1985,8 +1985,8 @@ void JPH_Shape_GetSurfaceNormal(const JPH_Shape *shape,
 
 void JPH_Shape_GetSupportingFace(const JPH_Shape *shape,
                                  const JPH_SubShapeId subShapeID,
-                                 const JPH_Vec3 *direction,
-                                 const JPH_Vec3 *scale,
+                                 const Vector3 *direction,
+                                 const Vector3 *scale,
                                  const JPH_Matrix4x4 *centerOfMassTransform,
                                  JPH_SupportingFace *outVertices)
 {
@@ -2021,17 +2021,17 @@ float JPH_Shape_GetVolume(const JPH_Shape *shape)
     return AsShape(shape)->GetVolume();
 }
 
-bool JPH_Shape_IsValidScale(const JPH_Shape *shape, const JPH_Vec3 *scale)
+bool JPH_Shape_IsValidScale(const JPH_Shape *shape, const Vector3 *scale)
 {
     return AsShape(shape)->IsValidScale(ToJolt(scale));
 }
 
-void JPH_Shape_MakeScaleValid(const JPH_Shape *shape, const JPH_Vec3 *scale, JPH_Vec3 *result)
+void JPH_Shape_MakeScaleValid(const JPH_Shape *shape, const Vector3 *scale, Vector3 *result)
 {
     FromJolt(AsShape(shape)->MakeScaleValid(ToJolt(scale)), result);
 }
 
-JPH_Shape *JPH_Shape_ScaleShape(const JPH_Shape *shape, const JPH_Vec3 *scale)
+JPH_Shape *JPH_Shape_ScaleShape(const JPH_Shape *shape, const Vector3 *scale)
 {
     const JPH::Result<JPH::Ref<JPH::Shape>> shapeResult = AsShape(shape)->ScaleShape(ToJolt(scale));
     if (!shapeResult.IsValid())
@@ -2045,10 +2045,7 @@ JPH_Shape *JPH_Shape_ScaleShape(const JPH_Shape *shape, const JPH_Vec3 *scale)
     return const_cast<JPH_Shape *>(ToShape(scaleShape));
 }
 
-bool JPH_Shape_CastRay(const JPH_Shape *shape,
-                       const JPH_Vec3 *origin,
-                       const JPH_Vec3 *direction,
-                       JPH_RayCastResult *hit)
+bool JPH_Shape_CastRay(const JPH_Shape *shape, const Vector3 *origin, const Vector3 *direction, JPH_RayCastResult *hit)
 {
     const JPH::RayCast ray(ToJolt(origin), ToJolt(direction));
     constexpr JPH::SubShapeIDCreator creator;
@@ -2067,8 +2064,8 @@ bool JPH_Shape_CastRay(const JPH_Shape *shape,
 }
 
 bool JPH_Shape_CastRay2(const JPH_Shape *shape,
-                        const JPH_Vec3 *origin,
-                        const JPH_Vec3 *direction,
+                        const Vector3 *origin,
+                        const Vector3 *direction,
                         const JPH_RayCastSettings *rayCastSettings,
                         const JPH_CollisionCollectorType collectorType,
                         JPH_CastRayResultCallback *callback,
@@ -2144,7 +2141,7 @@ bool JPH_Shape_CastRay2(const JPH_Shape *shape,
     }
 }
 
-bool JPH_Shape_CollidePoint(const JPH_Shape *shape, const JPH_Vec3 *point, const JPH_ShapeFilter *shapeFilter)
+bool JPH_Shape_CollidePoint(const JPH_Shape *shape, const Vector3 *point, const JPH_ShapeFilter *shapeFilter)
 {
     constexpr JPH::SubShapeIDCreator creator;
     JPH::AnyHitCollisionCollector<JPH::CollidePointCollector> collector;
@@ -2154,7 +2151,7 @@ bool JPH_Shape_CollidePoint(const JPH_Shape *shape, const JPH_Vec3 *point, const
 }
 
 bool JPH_Shape_CollidePoint2(const JPH_Shape *shape,
-                             const JPH_Vec3 *point,
+                             const Vector3 *point,
                              const JPH_CollisionCollectorType collectorType,
                              JPH_CollidePointResultCallback *callback,
                              void *userData,
@@ -2246,7 +2243,7 @@ void JPH_ConvexShape_SetDensity(JPH_ConvexShape *shape, const float density)
 }
 
 /* BoxShape */
-JPH_BoxShapeSettings *JPH_BoxShapeSettings_Create(const JPH_Vec3 *halfExtent, const float convexRadius)
+JPH_BoxShapeSettings *JPH_BoxShapeSettings_Create(const Vector3 *halfExtent, const float convexRadius)
 {
     JPH::BoxShapeSettings *const settings = new JPH::BoxShapeSettings(ToJolt(halfExtent), convexRadius);
     settings->AddRef();
@@ -2269,7 +2266,7 @@ JPH_BoxShape *JPH_BoxShapeSettings_CreateShape(const JPH_BoxShapeSettings *setti
     return const_cast<JPH_BoxShape *>(reinterpret_cast<const JPH_BoxShape *>(shape));
 }
 
-JPH_BoxShape *JPH_BoxShape_Create(const JPH_Vec3 *halfExtent, const float convexRadius)
+JPH_BoxShape *JPH_BoxShape_Create(const Vector3 *halfExtent, const float convexRadius)
 {
     JPH::BoxShape *const shape = new JPH::BoxShape(ToJolt(halfExtent), convexRadius);
     shape->AddRef();
@@ -2277,7 +2274,7 @@ JPH_BoxShape *JPH_BoxShape_Create(const JPH_Vec3 *halfExtent, const float convex
     return reinterpret_cast<JPH_BoxShape *>(shape);
 }
 
-void JPH_BoxShape_GetHalfExtent(const JPH_BoxShape *shape, JPH_Vec3 *halfExtent)
+void JPH_BoxShape_GetHalfExtent(const JPH_BoxShape *shape, Vector3 *halfExtent)
 {
     const JPH::BoxShape *const joltShape = reinterpret_cast<const JPH::BoxShape *>(shape);
     const JPH::Vec3 joltVector = joltShape->GetHalfExtent();
@@ -2386,9 +2383,9 @@ float JPH_PlaneShape_GetHalfExtent(const JPH_PlaneShape *shape)
 }
 
 /* TriangleShape */
-JPH_TriangleShapeSettings *JPH_TriangleShapeSettings_Create(const JPH_Vec3 *v1,
-                                                            const JPH_Vec3 *v2,
-                                                            const JPH_Vec3 *v3,
+JPH_TriangleShapeSettings *JPH_TriangleShapeSettings_Create(const Vector3 *v1,
+                                                            const Vector3 *v2,
+                                                            const Vector3 *v3,
                                                             const float convexRadius)
 {
     JPH::TriangleShapeSettings *const settings = new JPH::TriangleShapeSettings(ToJolt(v1),
@@ -2411,9 +2408,9 @@ JPH_TriangleShape *JPH_TriangleShapeSettings_CreateShape(const JPH_TriangleShape
     return const_cast<JPH_TriangleShape *>(reinterpret_cast<const JPH_TriangleShape *>(shape));
 }
 
-JPH_TriangleShape *JPH_TriangleShape_Create(const JPH_Vec3 *v1,
-                                            const JPH_Vec3 *v2,
-                                            const JPH_Vec3 *v3,
+JPH_TriangleShape *JPH_TriangleShape_Create(const Vector3 *v1,
+                                            const Vector3 *v2,
+                                            const Vector3 *v3,
                                             const float convexRadius)
 {
     JPH::TriangleShape *const shape = new JPH::TriangleShape(ToJolt(v1), ToJolt(v2), ToJolt(v3), convexRadius);
@@ -2427,17 +2424,17 @@ float JPH_TriangleShape_GetConvexRadius(const JPH_TriangleShape *shape)
     return reinterpret_cast<const JPH::TriangleShape *>(shape)->GetConvexRadius();
 }
 
-void JPH_TriangleShape_GetVertex1(const JPH_TriangleShape *shape, JPH_Vec3 *result)
+void JPH_TriangleShape_GetVertex1(const JPH_TriangleShape *shape, Vector3 *result)
 {
     FromJolt(reinterpret_cast<const JPH::TriangleShape *>(shape)->GetVertex1(), result);
 }
 
-void JPH_TriangleShape_GetVertex2(const JPH_TriangleShape *shape, JPH_Vec3 *result)
+void JPH_TriangleShape_GetVertex2(const JPH_TriangleShape *shape, Vector3 *result)
 {
     FromJolt(reinterpret_cast<const JPH::TriangleShape *>(shape)->GetVertex2(), result);
 }
 
-void JPH_TriangleShape_GetVertex3(const JPH_TriangleShape *shape, JPH_Vec3 *result)
+void JPH_TriangleShape_GetVertex3(const JPH_TriangleShape *shape, Vector3 *result)
 {
     FromJolt(reinterpret_cast<const JPH::TriangleShape *>(shape)->GetVertex3(), result);
 }
@@ -2578,7 +2575,7 @@ float JPH_TaperedCylinderShape_GetHalfHeight(const JPH_TaperedCylinderShape *sha
 }
 
 /* ConvexHullShape */
-JPH_ConvexHullShapeSettings *JPH_ConvexHullShapeSettings_Create(const JPH_Vec3 *points,
+JPH_ConvexHullShapeSettings *JPH_ConvexHullShapeSettings_Create(const Vector3 *points,
                                                                 const uint32_t pointsCount,
                                                                 const float maxConvexRadius)
 {
@@ -2613,7 +2610,7 @@ uint32_t JPH_ConvexHullShape_GetNumPoints(const JPH_ConvexHullShape *shape)
     return reinterpret_cast<const JPH::ConvexHullShape *>(shape)->GetNumPoints();
 }
 
-void JPH_ConvexHullShape_GetPoint(const JPH_ConvexHullShape *shape, const uint32_t index, JPH_Vec3 *result)
+void JPH_ConvexHullShape_GetPoint(const JPH_ConvexHullShape *shape, const uint32_t index, Vector3 *result)
 {
     const JPH::Vec3 point = reinterpret_cast<const JPH::ConvexHullShape *>(shape)->GetPoint(index);
     FromJolt(point, result);
@@ -2654,7 +2651,7 @@ JPH_MeshShapeSettings *JPH_MeshShapeSettings_Create(const JPH_Triangle *triangle
     return ToMeshShapeSettings(settings);
 }
 
-JPH_MeshShapeSettings *JPH_MeshShapeSettings_Create2(const JPH_Vec3 *vertices,
+JPH_MeshShapeSettings *JPH_MeshShapeSettings_Create2(const Vector3 *vertices,
                                                      const uint32_t verticesCount,
                                                      const JPH_IndexedTriangle *triangles,
                                                      const uint32_t triangleCount)
@@ -2748,8 +2745,8 @@ uint32_t JPH_MeshShape_GetTriangleUserData(const JPH_MeshShape *shape, const JPH
 
 /* HeightFieldShapeSettings */
 JPH_HeightFieldShapeSettings *JPH_HeightFieldShapeSettings_Create(const float *samples,
-                                                                  const JPH_Vec3 *offset,
-                                                                  const JPH_Vec3 *scale,
+                                                                  const Vector3 *offset,
+                                                                  const Vector3 *scale,
                                                                   const uint32_t sampleCount)
 {
     JPH::HeightFieldShapeSettings *const settings = new JPH::HeightFieldShapeSettings(samples,
@@ -2824,7 +2821,7 @@ const JPH_PhysicsMaterial *JPH_HeightFieldShape_GetMaterial(const JPH_HeightFiel
 void JPH_HeightFieldShape_GetPosition(const JPH_HeightFieldShape *shape,
                                       const uint32_t x,
                                       const uint32_t y,
-                                      JPH_Vec3 *result)
+                                      Vector3 *result)
 {
     FromJolt(AsHeightFieldShape(shape)->GetPosition(x, y), result);
 }
@@ -2835,8 +2832,8 @@ bool JPH_HeightFieldShape_IsNoCollision(const JPH_HeightFieldShape *shape, const
 }
 
 bool JPH_HeightFieldShape_ProjectOntoSurface(const JPH_HeightFieldShape *shape,
-                                             const JPH_Vec3 *localPosition,
-                                             JPH_Vec3 *outSurfacePosition,
+                                             const Vector3 *localPosition,
+                                             Vector3 *outSurfacePosition,
                                              JPH_SubShapeId *outSubShapeID)
 {
     JPH_ASSERT(outSurfacePosition);
@@ -2905,7 +2902,7 @@ float JPH_TaperedCapsuleShape_GetHalfHeight(const JPH_TaperedCapsuleShape *shape
 
 /* CompoundShape */
 void JPH_CompoundShapeSettings_AddShape(JPH_CompoundShapeSettings *settings,
-                                        const JPH_Vec3 *position,
+                                        const Vector3 *position,
                                         const JPH_Quat *rotation,
                                         const JPH_ShapeSettings *shapeSettings,
                                         const uint32_t userData)
@@ -2917,7 +2914,7 @@ void JPH_CompoundShapeSettings_AddShape(JPH_CompoundShapeSettings *settings,
 }
 
 void JPH_CompoundShapeSettings_AddShape2(JPH_CompoundShapeSettings *settings,
-                                         const JPH_Vec3 *position,
+                                         const Vector3 *position,
                                          const JPH_Quat *rotation,
                                          const JPH_Shape *shape,
                                          const uint32_t userData)
@@ -2935,7 +2932,7 @@ uint32_t JPH_CompoundShape_GetNumSubShapes(const JPH_CompoundShape *shape)
 void JPH_CompoundShape_GetSubShape(const JPH_CompoundShape *shape,
                                    uint32_t index,
                                    const JPH_Shape **subShape,
-                                   JPH_Vec3 *positionCOM,
+                                   Vector3 *positionCOM,
                                    JPH_Quat *rotation,
                                    uint32_t *userData)
 {
@@ -3017,7 +3014,7 @@ JPH_MutableCompoundShape *JPH_MutableCompoundShape_Create(const JPH_MutableCompo
 }
 
 uint32_t JPH_MutableCompoundShape_AddShape(JPH_MutableCompoundShape *shape,
-                                           const JPH_Vec3 *position,
+                                           const Vector3 *position,
                                            const JPH_Quat *rotation,
                                            const JPH_Shape *child,
                                            const uint32_t userData,
@@ -3034,7 +3031,7 @@ void JPH_MutableCompoundShape_RemoveShape(JPH_MutableCompoundShape *shape, const
 
 void JPH_MutableCompoundShape_ModifyShape(JPH_MutableCompoundShape *shape,
                                           const uint32_t index,
-                                          const JPH_Vec3 *position,
+                                          const Vector3 *position,
                                           const JPH_Quat *rotation)
 {
     JPH::MutableCompoundShape *const joltShape = reinterpret_cast<JPH::MutableCompoundShape *>(shape);
@@ -3043,7 +3040,7 @@ void JPH_MutableCompoundShape_ModifyShape(JPH_MutableCompoundShape *shape,
 
 void JPH_MutableCompoundShape_ModifyShape2(JPH_MutableCompoundShape *shape,
                                            const uint32_t index,
-                                           const JPH_Vec3 *position,
+                                           const Vector3 *position,
                                            const JPH_Quat *rotation,
                                            const JPH_Shape *newShape)
 {
@@ -3065,7 +3062,7 @@ const JPH_Shape *JPH_DecoratedShape_GetInnerShape(const JPH_DecoratedShape *shap
 }
 
 /* RotatedTranslatedShape */
-JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create(const JPH_Vec3 *position,
+JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create(const Vector3 *position,
                                                                               const JPH_Quat *rotation,
                                                                               const JPH_ShapeSettings *shapeSettings)
 {
@@ -3079,7 +3076,7 @@ JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create(co
     return reinterpret_cast<JPH_RotatedTranslatedShapeSettings *>(settings);
 }
 
-JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create2(const JPH_Vec3 *position,
+JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create2(const Vector3 *position,
                                                                                const JPH_Quat *rotation,
                                                                                const JPH_Shape *shape)
 {
@@ -3106,7 +3103,7 @@ JPH_RotatedTranslatedShape *JPH_RotatedTranslatedShapeSettings_CreateShape(const
     return const_cast<JPH_RotatedTranslatedShape *>(reinterpret_cast<const JPH_RotatedTranslatedShape *>(shape));
 }
 
-JPH_RotatedTranslatedShape *JPH_RotatedTranslatedShape_Create(const JPH_Vec3 *position,
+JPH_RotatedTranslatedShape *JPH_RotatedTranslatedShape_Create(const Vector3 *position,
                                                               const JPH_Quat *rotation,
                                                               const JPH_Shape *shape)
 {
@@ -3122,7 +3119,7 @@ JPH_RotatedTranslatedShape *JPH_RotatedTranslatedShape_Create(const JPH_Vec3 *po
     return reinterpret_cast<JPH_RotatedTranslatedShape *>(rotatedTranslatedShape);
 }
 
-void JPH_RotatedTranslatedShape_GetPosition(const JPH_RotatedTranslatedShape *shape, JPH_Vec3 *position)
+void JPH_RotatedTranslatedShape_GetPosition(const JPH_RotatedTranslatedShape *shape, Vector3 *position)
 {
     JPH_ASSERT(shape);
     const JPH::RotatedTranslatedShape *joltShape = reinterpret_cast<const JPH::RotatedTranslatedShape *>(shape);
@@ -3138,7 +3135,7 @@ void JPH_RotatedTranslatedShape_GetRotation(const JPH_RotatedTranslatedShape *sh
     FromJolt(joltQuat, rotation);
 }
 
-JPH_ScaledShapeSettings *JPH_ScaledShapeSettings_Create(const JPH_ShapeSettings *shapeSettings, const JPH_Vec3 *scale)
+JPH_ScaledShapeSettings *JPH_ScaledShapeSettings_Create(const JPH_ShapeSettings *shapeSettings, const Vector3 *scale)
 {
     JPH::ScaledShapeSettings *const settings = new JPH::ScaledShapeSettings(AsShapeSettings(shapeSettings),
                                                                             ToJolt(scale));
@@ -3147,7 +3144,7 @@ JPH_ScaledShapeSettings *JPH_ScaledShapeSettings_Create(const JPH_ShapeSettings 
     return reinterpret_cast<JPH_ScaledShapeSettings *>(settings);
 }
 
-JPH_ScaledShapeSettings *JPH_ScaledShapeSettings_Create2(const JPH_Shape *shape, const JPH_Vec3 *scale)
+JPH_ScaledShapeSettings *JPH_ScaledShapeSettings_Create2(const JPH_Shape *shape, const Vector3 *scale)
 {
     JPH::ScaledShapeSettings *const settings = new JPH::ScaledShapeSettings(AsShape(shape), ToJolt(scale));
     settings->AddRef();
@@ -3170,7 +3167,7 @@ JPH_ScaledShape *JPH_ScaledShapeSettings_CreateShape(const JPH_ScaledShapeSettin
     return const_cast<JPH_ScaledShape *>(reinterpret_cast<const JPH_ScaledShape *>(shape));
 }
 
-JPH_ScaledShape *JPH_ScaledShape_Create(const JPH_Shape *shape, const JPH_Vec3 *scale)
+JPH_ScaledShape *JPH_ScaledShape_Create(const JPH_Shape *shape, const Vector3 *scale)
 {
     const JPH::Shape *const jolt_shape = reinterpret_cast<const JPH::Shape *>(shape);
 
@@ -3180,7 +3177,7 @@ JPH_ScaledShape *JPH_ScaledShape_Create(const JPH_Shape *shape, const JPH_Vec3 *
     return reinterpret_cast<JPH_ScaledShape *>(scaledShape);
 }
 
-void JPH_ScaledShape_GetScale(const JPH_ScaledShape *shape, JPH_Vec3 *result)
+void JPH_ScaledShape_GetScale(const JPH_ScaledShape *shape, Vector3 *result)
 {
     JPH_ASSERT(shape);
     const JPH::ScaledShape *joltShape = reinterpret_cast<const JPH::ScaledShape *>(shape);
@@ -3189,7 +3186,7 @@ void JPH_ScaledShape_GetScale(const JPH_ScaledShape *shape, JPH_Vec3 *result)
 }
 
 /* JPH_OffsetCenterOfMassShape */
-JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create(const JPH_Vec3 *offset,
+JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create(const Vector3 *offset,
                                                                                 const JPH_ShapeSettings *shapeSettings)
 {
     const JPH::ShapeSettings *const joltSettings = reinterpret_cast<const JPH::ShapeSettings *>(shapeSettings);
@@ -3201,7 +3198,7 @@ JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create(
     return reinterpret_cast<JPH_OffsetCenterOfMassShapeSettings *>(settings);
 }
 
-JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create2(const JPH_Vec3 *offset,
+JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create2(const Vector3 *offset,
                                                                                  const JPH_Shape *shape)
 {
     const JPH::Shape *const joltShape = reinterpret_cast<const JPH::Shape *>(shape);
@@ -3226,7 +3223,7 @@ JPH_OffsetCenterOfMassShape *JPH_OffsetCenterOfMassShapeSettings_CreateShape(con
     return const_cast<JPH_OffsetCenterOfMassShape *>(reinterpret_cast<const JPH_OffsetCenterOfMassShape *>(shape));
 }
 
-JPH_OffsetCenterOfMassShape *JPH_OffsetCenterOfMassShape_Create(const JPH_Vec3 *offset, const JPH_Shape *shape)
+JPH_OffsetCenterOfMassShape *JPH_OffsetCenterOfMassShape_Create(const Vector3 *offset, const JPH_Shape *shape)
 {
     const JPH::Shape *const joltShape = reinterpret_cast<const JPH::Shape *>(shape);
 
@@ -3237,13 +3234,13 @@ JPH_OffsetCenterOfMassShape *JPH_OffsetCenterOfMassShape_Create(const JPH_Vec3 *
     return reinterpret_cast<JPH_OffsetCenterOfMassShape *>(offsetCenterOfMassShape);
 }
 
-void JPH_OffsetCenterOfMassShape_GetOffset(const JPH_OffsetCenterOfMassShape *shape, JPH_Vec3 *result)
+void JPH_OffsetCenterOfMassShape_GetOffset(const JPH_OffsetCenterOfMassShape *shape, Vector3 *result)
 {
     FromJolt(reinterpret_cast<const JPH::OffsetCenterOfMassShape *>(shape)->GetOffset(), result);
 }
 
 /* EmptyShape */
-JPH_EmptyShapeSettings *JPH_EmptyShapeSettings_Create(const JPH_Vec3 *centerOfMass)
+JPH_EmptyShapeSettings *JPH_EmptyShapeSettings_Create(const Vector3 *centerOfMass)
 {
     JPH::EmptyShapeSettings *const settings = new JPH::EmptyShapeSettings(ToJolt(centerOfMass));
     settings->AddRef();
@@ -3329,22 +3326,22 @@ void JPH_BodyCreationSettings_SetRotation(JPH_BodyCreationSettings *settings, co
     AsBodyCreationSettings(settings)->mRotation = ToJolt(value);
 }
 
-void JPH_BodyCreationSettings_GetLinearVelocity(JPH_BodyCreationSettings *settings, JPH_Vec3 *velocity)
+void JPH_BodyCreationSettings_GetLinearVelocity(JPH_BodyCreationSettings *settings, Vector3 *velocity)
 {
     FromJolt(AsBodyCreationSettings(settings)->mLinearVelocity, velocity);
 }
 
-void JPH_BodyCreationSettings_SetLinearVelocity(JPH_BodyCreationSettings *settings, const JPH_Vec3 *velocity)
+void JPH_BodyCreationSettings_SetLinearVelocity(JPH_BodyCreationSettings *settings, const Vector3 *velocity)
 {
     AsBodyCreationSettings(settings)->mLinearVelocity = ToJolt(velocity);
 }
 
-void JPH_BodyCreationSettings_GetAngularVelocity(JPH_BodyCreationSettings *settings, JPH_Vec3 *velocity)
+void JPH_BodyCreationSettings_GetAngularVelocity(JPH_BodyCreationSettings *settings, Vector3 *velocity)
 {
     FromJolt(AsBodyCreationSettings(settings)->mAngularVelocity, velocity);
 }
 
-void JPH_BodyCreationSettings_SetAngularVelocity(JPH_BodyCreationSettings *settings, const JPH_Vec3 *velocity)
+void JPH_BodyCreationSettings_SetAngularVelocity(JPH_BodyCreationSettings *settings, const Vector3 *velocity)
 {
     JPH_ASSERT(settings);
 
@@ -3711,7 +3708,7 @@ void JPH_Constraint_SetUserData(JPH_Constraint *constraint, const uint64_t userD
     AsConstraint(constraint)->SetUserData(userData);
 }
 
-void JPH_Constraint_NotifyShapeChanged(JPH_Constraint *constraint, const JPH_BodyId bodyID, const JPH_Vec3 *deltaCOM)
+void JPH_Constraint_NotifyShapeChanged(JPH_Constraint *constraint, const JPH_BodyId bodyID, const Vector3 *deltaCOM)
 {
     AsConstraint(constraint)->NotifyShapeChanged(JPH::BodyID(bodyID), ToJolt(deltaCOM));
 }
@@ -3848,13 +3845,13 @@ void JPH_FixedConstraint_GetSettings(const JPH_FixedConstraint *constraint, JPH_
     JPH_FixedConstraintSettings_FromJolt(settings, *joltSettings);
 }
 
-void JPH_FixedConstraint_GetTotalLambdaPosition(const JPH_FixedConstraint *constraint, JPH_Vec3 *result)
+void JPH_FixedConstraint_GetTotalLambdaPosition(const JPH_FixedConstraint *constraint, Vector3 *result)
 {
     const JPH::Vec3 lambda = AsFixedConstraint(constraint)->GetTotalLambdaPosition();
     FromJolt(lambda, result);
 }
 
-void JPH_FixedConstraint_GetTotalLambdaRotation(const JPH_FixedConstraint *constraint, JPH_Vec3 *result)
+void JPH_FixedConstraint_GetTotalLambdaRotation(const JPH_FixedConstraint *constraint, Vector3 *result)
 {
     const JPH::Vec3 lambda = AsFixedConstraint(constraint)->GetTotalLambdaRotation();
     FromJolt(lambda, result);
@@ -4047,17 +4044,17 @@ void JPH_PointConstraint_SetPoint2(JPH_PointConstraint *constraint, JPH_Constrai
     AsPointConstraint(constraint)->SetPoint2(static_cast<JPH::EConstraintSpace>(space), ToJolt(value));
 }
 
-void JPH_PointConstraint_GetLocalSpacePoint1(const JPH_PointConstraint *constraint, JPH_Vec3 *result)
+void JPH_PointConstraint_GetLocalSpacePoint1(const JPH_PointConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsPointConstraint(constraint)->GetLocalSpacePoint1(), result);
 }
 
-void JPH_PointConstraint_GetLocalSpacePoint2(const JPH_PointConstraint *constraint, JPH_Vec3 *result)
+void JPH_PointConstraint_GetLocalSpacePoint2(const JPH_PointConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsPointConstraint(constraint)->GetLocalSpacePoint2(), result);
 }
 
-void JPH_PointConstraint_GetTotalLambdaPosition(const JPH_PointConstraint *constraint, JPH_Vec3 *result)
+void JPH_PointConstraint_GetTotalLambdaPosition(const JPH_PointConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsPointConstraint(constraint)->GetTotalLambdaPosition(), result);
 }
@@ -4144,32 +4141,32 @@ void JPH_HingeConstraint_GetSettings(JPH_HingeConstraint *constraint, JPH_HingeC
     JPH_HingeConstraintSettings_FromJolt(settings, *joltSettings);
 }
 
-void JPH_HingeConstraint_GetLocalSpacePoint1(const JPH_HingeConstraint *constraint, JPH_Vec3 *result)
+void JPH_HingeConstraint_GetLocalSpacePoint1(const JPH_HingeConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsHingeConstraint(constraint)->GetLocalSpacePoint1(), result);
 }
 
-void JPH_HingeConstraint_GetLocalSpacePoint2(const JPH_HingeConstraint *constraint, JPH_Vec3 *result)
+void JPH_HingeConstraint_GetLocalSpacePoint2(const JPH_HingeConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsHingeConstraint(constraint)->GetLocalSpacePoint2(), result);
 }
 
-void JPH_HingeConstraint_GetLocalSpaceHingeAxis1(const JPH_HingeConstraint *constraint, JPH_Vec3 *result)
+void JPH_HingeConstraint_GetLocalSpaceHingeAxis1(const JPH_HingeConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsHingeConstraint(constraint)->GetLocalSpaceHingeAxis1(), result);
 }
 
-void JPH_HingeConstraint_GetLocalSpaceHingeAxis2(const JPH_HingeConstraint *constraint, JPH_Vec3 *result)
+void JPH_HingeConstraint_GetLocalSpaceHingeAxis2(const JPH_HingeConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsHingeConstraint(constraint)->GetLocalSpaceHingeAxis2(), result);
 }
 
-void JPH_HingeConstraint_GetLocalSpaceNormalAxis1(const JPH_HingeConstraint *constraint, JPH_Vec3 *result)
+void JPH_HingeConstraint_GetLocalSpaceNormalAxis1(const JPH_HingeConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsHingeConstraint(constraint)->GetLocalSpaceNormalAxis1(), result);
 }
 
-void JPH_HingeConstraint_GetLocalSpaceNormalAxis2(const JPH_HingeConstraint *constraint, JPH_Vec3 *result)
+void JPH_HingeConstraint_GetLocalSpaceNormalAxis2(const JPH_HingeConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsHingeConstraint(constraint)->GetLocalSpaceNormalAxis2(), result);
 }
@@ -4260,7 +4257,7 @@ void JPH_HingeConstraint_SetLimitsSpringSettings(JPH_HingeConstraint *constraint
     AsHingeConstraint(constraint)->SetLimitsSpringSettings(ToJolt(settings));
 }
 
-void JPH_HingeConstraint_GetTotalLambdaPosition(const JPH_HingeConstraint *constraint, JPH_Vec3 *result)
+void JPH_HingeConstraint_GetTotalLambdaPosition(const JPH_HingeConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsHingeConstraint(constraint)->GetTotalLambdaPosition(), result);
 }
@@ -4340,7 +4337,7 @@ void JPH_SliderConstraintSettings_Init(JPH_SliderConstraintSettings *settings)
     JPH_SliderConstraintSettings_FromJolt(settings, joltSettings);
 }
 
-void JPH_SliderConstraintSettings_SetSliderAxis(JPH_SliderConstraintSettings *settings, const JPH_Vec3 *axis)
+void JPH_SliderConstraintSettings_SetSliderAxis(JPH_SliderConstraintSettings *settings, const Vector3 *axis)
 {
     JPH_ASSERT(settings);
 
@@ -4478,7 +4475,7 @@ float JPH_SliderConstraint_GetTotalLambdaPositionLimits(const JPH_SliderConstrai
     return AsSliderConstraint(constraint)->GetTotalLambdaPositionLimits();
 }
 
-void JPH_SliderConstraint_GetTotalLambdaRotation(const JPH_SliderConstraint *constraint, JPH_Vec3 *result)
+void JPH_SliderConstraint_GetTotalLambdaRotation(const JPH_SliderConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSliderConstraint(constraint)->GetTotalLambdaRotation(), result);
 }
@@ -4568,7 +4565,7 @@ float JPH_ConeConstraint_GetCosHalfConeAngle(const JPH_ConeConstraint *constrain
     return AsConeConstraint(constraint)->GetCosHalfConeAngle();
 }
 
-void JPH_ConeConstraint_GetTotalLambdaPosition(const JPH_ConeConstraint *constraint, JPH_Vec3 *result)
+void JPH_ConeConstraint_GetTotalLambdaPosition(const JPH_ConeConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsConeConstraint(constraint)->GetTotalLambdaPosition(), result);
 }
@@ -4675,7 +4672,7 @@ float JPH_SwingTwistConstraint_GetNormalHalfConeAngle(JPH_SwingTwistConstraint *
     return AsSwingTwistConstraint(constraint)->GetNormalHalfConeAngle();
 }
 
-void JPH_SwingTwistConstraint_GetTotalLambdaPosition(const JPH_SwingTwistConstraint *constraint, JPH_Vec3 *result)
+void JPH_SwingTwistConstraint_GetTotalLambdaPosition(const JPH_SwingTwistConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSwingTwistConstraint(constraint)->GetTotalLambdaPosition(), result);
 }
@@ -4699,7 +4696,7 @@ float JPH_SwingTwistConstraint_GetTotalLambdaSwingZ(const JPH_SwingTwistConstrai
     return joltConstraint->GetTotalLambdaSwingZ();
 }
 
-void JPH_SwingTwistConstraint_GetTotalLambdaMotor(const JPH_SwingTwistConstraint *constraint, JPH_Vec3 *result)
+void JPH_SwingTwistConstraint_GetTotalLambdaMotor(const JPH_SwingTwistConstraint *constraint, Vector3 *result)
 {
     JPH_ASSERT(constraint);
     const JPH::SwingTwistConstraint *joltConstraint = reinterpret_cast<const JPH::SwingTwistConstraint *>(constraint);
@@ -4854,42 +4851,42 @@ float JPH_SixDOFConstraint_GetLimitsMax(JPH_SixDOFConstraint *constraint, JPH_Si
     return AsSixDOFConstraint(constraint)->GetLimitsMax(static_cast<JPH::SixDOFConstraint::EAxis>(axis));
 }
 
-void JPH_SixDOFConstraint_GetTotalLambdaPosition(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTotalLambdaPosition(const JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTotalLambdaPosition(), result);
 }
 
-void JPH_SixDOFConstraint_GetTotalLambdaRotation(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTotalLambdaRotation(const JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTotalLambdaRotation(), result);
 }
 
-void JPH_SixDOFConstraint_GetTotalLambdaMotorTranslation(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTotalLambdaMotorTranslation(const JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTotalLambdaMotorTranslation(), result);
 }
 
-void JPH_SixDOFConstraint_GetTotalLambdaMotorRotation(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTotalLambdaMotorRotation(const JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTotalLambdaMotorRotation(), result);
 }
 
-void JPH_SixDOFConstraint_GetTranslationLimitsMin(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTranslationLimitsMin(const JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTranslationLimitsMin(), result);
 }
 
-void JPH_SixDOFConstraint_GetTranslationLimitsMax(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTranslationLimitsMax(const JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTranslationLimitsMax(), result);
 }
 
-void JPH_SixDOFConstraint_GetRotationLimitsMin(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetRotationLimitsMin(const JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetRotationLimitsMin(), result);
 }
 
-void JPH_SixDOFConstraint_GetRotationLimitsMax(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetRotationLimitsMax(const JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetRotationLimitsMax(), result);
 }
@@ -4958,33 +4955,32 @@ JPH_MotorState JPH_SixDOFConstraint_GetMotorState(JPH_SixDOFConstraint *constrai
                                                ->GetMotorState(static_cast<JPH::SixDOFConstraint::EAxis>(axis)));
 }
 
-void JPH_SixDOFConstraint_SetTargetVelocityCS(JPH_SixDOFConstraint *constraint, const JPH_Vec3 *inVelocity)
+void JPH_SixDOFConstraint_SetTargetVelocityCS(JPH_SixDOFConstraint *constraint, const Vector3 *inVelocity)
 {
     AsSixDOFConstraint(constraint)->SetTargetVelocityCS(ToJolt(inVelocity));
 }
 
-void JPH_SixDOFConstraint_GetTargetVelocityCS(JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTargetVelocityCS(JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTargetVelocityCS(), result);
 }
 
-void JPH_SixDOFConstraint_SetTargetAngularVelocityCS(JPH_SixDOFConstraint *constraint,
-                                                     const JPH_Vec3 *inAngularVelocity)
+void JPH_SixDOFConstraint_SetTargetAngularVelocityCS(JPH_SixDOFConstraint *constraint, const Vector3 *inAngularVelocity)
 {
     AsSixDOFConstraint(constraint)->SetTargetAngularVelocityCS(ToJolt(inAngularVelocity));
 }
 
-void JPH_SixDOFConstraint_GetTargetAngularVelocityCS(JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTargetAngularVelocityCS(JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTargetAngularVelocityCS(), result);
 }
 
-void JPH_SixDOFConstraint_SetTargetPositionCS(JPH_SixDOFConstraint *constraint, const JPH_Vec3 *inPosition)
+void JPH_SixDOFConstraint_SetTargetPositionCS(JPH_SixDOFConstraint *constraint, const Vector3 *inPosition)
 {
     AsSixDOFConstraint(constraint)->SetTargetPositionCS(ToJolt(inPosition));
 }
 
-void JPH_SixDOFConstraint_GetTargetPositionCS(JPH_SixDOFConstraint *constraint, JPH_Vec3 *result)
+void JPH_SixDOFConstraint_GetTargetPositionCS(JPH_SixDOFConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsSixDOFConstraint(constraint)->GetTargetPositionCS(), result);
 }
@@ -5126,7 +5122,7 @@ void JPH_MotionProperties_SetInverseMass(JPH_MotionProperties *properties, const
     reinterpret_cast<JPH::MotionProperties *>(properties)->SetInverseMass(inverseMass);
 }
 
-void JPH_MotionProperties_GetInverseInertiaDiagonal(JPH_MotionProperties *properties, JPH_Vec3 *result)
+void JPH_MotionProperties_GetInverseInertiaDiagonal(JPH_MotionProperties *properties, Vector3 *result)
 {
     FromJolt(reinterpret_cast<JPH::MotionProperties *>(properties)->GetInverseInertiaDiagonal(), result);
 }
@@ -5137,7 +5133,7 @@ void JPH_MotionProperties_GetInertiaRotation(JPH_MotionProperties *properties, J
 }
 
 void JPH_MotionProperties_SetInverseInertia(JPH_MotionProperties *properties,
-                                            const JPH_Vec3 *diagonal,
+                                            const Vector3 *diagonal,
                                             const JPH_Quat *rot)
 {
     reinterpret_cast<JPH::MotionProperties *>(properties)->SetInverseInertia(ToJolt(diagonal), ToJolt(rot));
@@ -5227,14 +5223,14 @@ uint32_t JPH_PhysicsSystem_GetNumConstraints(const JPH_PhysicsSystem *system)
     return static_cast<uint32_t>(system->physicsSystem->GetConstraints().size());
 }
 
-void JPH_PhysicsSystem_SetGravity(JPH_PhysicsSystem *system, const JPH_Vec3 *value)
+void JPH_PhysicsSystem_SetGravity(JPH_PhysicsSystem *system, const Vector3 *value)
 {
     JPH_ASSERT(system);
 
     system->physicsSystem->SetGravity(ToJolt(value));
 }
 
-void JPH_PhysicsSystem_GetGravity(JPH_PhysicsSystem *system, JPH_Vec3 *result)
+void JPH_PhysicsSystem_GetGravity(JPH_PhysicsSystem *system, Vector3 *result)
 {
     JPH_ASSERT(system);
 
@@ -5570,14 +5566,12 @@ JPH_BodyType JPH_BodyInterface_GetBodyType(JPH_BodyInterface *interface, const J
     return static_cast<JPH_BodyType>(AsBodyInterface(interface)->GetBodyType(JPH::BodyID(bodyID)));
 }
 
-void JPH_BodyInterface_SetLinearVelocity(JPH_BodyInterface *interface,
-                                         const JPH_BodyId bodyID,
-                                         const JPH_Vec3 *velocity)
+void JPH_BodyInterface_SetLinearVelocity(JPH_BodyInterface *interface, const JPH_BodyId bodyID, const Vector3 *velocity)
 {
     AsBodyInterface(interface)->SetLinearVelocity(JPH::BodyID(bodyID), ToJolt(velocity));
 }
 
-void JPH_BodyInterface_GetLinearVelocity(JPH_BodyInterface *interface, const JPH_BodyId bodyID, JPH_Vec3 *velocity)
+void JPH_BodyInterface_GetLinearVelocity(JPH_BodyInterface *interface, const JPH_BodyId bodyID, Vector3 *velocity)
 {
     FromJolt(AsBodyInterface(interface)->GetLinearVelocity(JPH::BodyID(bodyID)), velocity);
 }
@@ -5694,8 +5688,8 @@ void JPH_BodyInterface_SetPositionRotationAndVelocity(JPH_BodyInterface *interfa
                                                       const JPH_BodyId bodyId,
                                                       const JPH_RVec3 *position,
                                                       const JPH_Quat *rotation,
-                                                      const JPH_Vec3 *linearVelocity,
-                                                      const JPH_Vec3 *angularVelocity)
+                                                      const Vector3 *linearVelocity,
+                                                      const Vector3 *angularVelocity)
 {
     AsBodyInterface(interface)->SetPositionRotationAndVelocity(JPH::BodyID(bodyId),
                                                                ToJolt(position),
@@ -5738,7 +5732,7 @@ void JPH_BodyInterface_SetShape(JPH_BodyInterface *interface,
 
 void JPH_BodyInterface_NotifyShapeChanged(JPH_BodyInterface *interface,
                                           const JPH_BodyId bodyId,
-                                          const JPH_Vec3 *previousCenterOfMass,
+                                          const Vector3 *previousCenterOfMass,
                                           const bool updateMassProperties,
                                           JPH_Activation activationMode)
 {
@@ -5799,12 +5793,12 @@ void JPH_BodyInterface_MoveKinematic(JPH_BodyInterface *interface,
 bool JPH_BodyInterface_ApplyBuoyancyImpulse(JPH_BodyInterface *interface,
                                             const JPH_BodyId bodyId,
                                             const JPH_RVec3 *surfacePosition,
-                                            const JPH_Vec3 *surfaceNormal,
+                                            const Vector3 *surfaceNormal,
                                             const float buoyancy,
                                             const float linearDrag,
                                             const float angularDrag,
-                                            const JPH_Vec3 *fluidVelocity,
-                                            const JPH_Vec3 *gravity,
+                                            const Vector3 *fluidVelocity,
+                                            const Vector3 *gravity,
                                             const float deltaTime)
 {
     return AsBodyInterface(interface)->ApplyBuoyancyImpulse(JPH::BodyID(bodyId),
@@ -5820,8 +5814,8 @@ bool JPH_BodyInterface_ApplyBuoyancyImpulse(JPH_BodyInterface *interface,
 
 void JPH_BodyInterface_SetLinearAndAngularVelocity(JPH_BodyInterface *interface,
                                                    const JPH_BodyId bodyId,
-                                                   const JPH_Vec3 *linearVelocity,
-                                                   const JPH_Vec3 *angularVelocity)
+                                                   const Vector3 *linearVelocity,
+                                                   const Vector3 *angularVelocity)
 {
     AsBodyInterface(interface)->SetLinearAndAngularVelocity(JPH::BodyID(bodyId),
                                                             ToJolt(linearVelocity),
@@ -5830,8 +5824,8 @@ void JPH_BodyInterface_SetLinearAndAngularVelocity(JPH_BodyInterface *interface,
 
 void JPH_BodyInterface_GetLinearAndAngularVelocity(JPH_BodyInterface *interface,
                                                    const JPH_BodyId bodyId,
-                                                   JPH_Vec3 *linearVelocity,
-                                                   JPH_Vec3 *angularVelocity)
+                                                   Vector3 *linearVelocity,
+                                                   Vector3 *angularVelocity)
 {
     JPH::Vec3 linear;
     JPH::Vec3 angular;
@@ -5842,15 +5836,15 @@ void JPH_BodyInterface_GetLinearAndAngularVelocity(JPH_BodyInterface *interface,
 
 void JPH_BodyInterface_AddLinearVelocity(JPH_BodyInterface *interface,
                                          const JPH_BodyId bodyId,
-                                         const JPH_Vec3 *linearVelocity)
+                                         const Vector3 *linearVelocity)
 {
     AsBodyInterface(interface)->AddLinearVelocity(JPH::BodyID(bodyId), ToJolt(linearVelocity));
 }
 
 void JPH_BodyInterface_AddLinearAndAngularVelocity(JPH_BodyInterface *interface,
                                                    const JPH_BodyId bodyId,
-                                                   const JPH_Vec3 *linearVelocity,
-                                                   const JPH_Vec3 *angularVelocity)
+                                                   const Vector3 *linearVelocity,
+                                                   const Vector3 *angularVelocity)
 {
     AsBodyInterface(interface)->AddLinearAndAngularVelocity(JPH::BodyID(bodyId),
                                                             ToJolt(linearVelocity),
@@ -5859,14 +5853,14 @@ void JPH_BodyInterface_AddLinearAndAngularVelocity(JPH_BodyInterface *interface,
 
 void JPH_BodyInterface_SetAngularVelocity(JPH_BodyInterface *interface,
                                           const JPH_BodyId bodyId,
-                                          const JPH_Vec3 *angularVelocity)
+                                          const Vector3 *angularVelocity)
 {
     AsBodyInterface(interface)->SetAngularVelocity(JPH::BodyID(bodyId), ToJolt(angularVelocity));
 }
 
 void JPH_BodyInterface_GetAngularVelocity(JPH_BodyInterface *interface,
                                           const JPH_BodyId bodyId,
-                                          JPH_Vec3 *angularVelocity)
+                                          Vector3 *angularVelocity)
 {
     const JPH::Vec3 result = AsBodyInterface(interface)->GetAngularVelocity(JPH::BodyID(bodyId));
     FromJolt(result, angularVelocity);
@@ -5875,46 +5869,46 @@ void JPH_BodyInterface_GetAngularVelocity(JPH_BodyInterface *interface,
 void JPH_BodyInterface_GetPointVelocity(JPH_BodyInterface *interface,
                                         const JPH_BodyId bodyId,
                                         const JPH_RVec3 *point,
-                                        JPH_Vec3 *velocity)
+                                        Vector3 *velocity)
 {
     const JPH::Vec3 result = AsBodyInterface(interface)->GetPointVelocity(JPH::BodyID(bodyId), ToJolt(point));
     FromJolt(result, velocity);
 }
 
-void JPH_BodyInterface_AddForce(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const JPH_Vec3 *force)
+void JPH_BodyInterface_AddForce(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const Vector3 *force)
 {
     AsBodyInterface(interface)->AddForce(JPH::BodyID(bodyId), ToJolt(force));
 }
 
 void JPH_BodyInterface_AddForce2(JPH_BodyInterface *interface,
                                  const JPH_BodyId bodyId,
-                                 const JPH_Vec3 *force,
+                                 const Vector3 *force,
                                  const JPH_RVec3 *point)
 {
     AsBodyInterface(interface)->AddForce(JPH::BodyID(bodyId), ToJolt(force), ToJolt(point));
 }
 
-void JPH_BodyInterface_AddTorque(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const JPH_Vec3 *torque)
+void JPH_BodyInterface_AddTorque(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const Vector3 *torque)
 {
     AsBodyInterface(interface)->AddTorque(JPH::BodyID(bodyId), ToJolt(torque));
 }
 
 void JPH_BodyInterface_AddForceAndTorque(JPH_BodyInterface *interface,
                                          const JPH_BodyId bodyId,
-                                         const JPH_Vec3 *force,
-                                         const JPH_Vec3 *torque)
+                                         const Vector3 *force,
+                                         const Vector3 *torque)
 {
     AsBodyInterface(interface)->AddForceAndTorque(JPH::BodyID(bodyId), ToJolt(force), ToJolt(torque));
 }
 
-void JPH_BodyInterface_AddImpulse(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const JPH_Vec3 *impulse)
+void JPH_BodyInterface_AddImpulse(JPH_BodyInterface *interface, const JPH_BodyId bodyId, const Vector3 *impulse)
 {
     AsBodyInterface(interface)->AddImpulse(JPH::BodyID(bodyId), ToJolt(impulse));
 }
 
 void JPH_BodyInterface_AddImpulse2(JPH_BodyInterface *interface,
                                    const JPH_BodyId bodyId,
-                                   const JPH_Vec3 *impulse,
+                                   const Vector3 *impulse,
                                    const JPH_RVec3 *point)
 {
     AsBodyInterface(interface)->AddImpulse(JPH::BodyID(bodyId), ToJolt(impulse), ToJolt(point));
@@ -5922,7 +5916,7 @@ void JPH_BodyInterface_AddImpulse2(JPH_BodyInterface *interface,
 
 void JPH_BodyInterface_AddAngularImpulse(JPH_BodyInterface *interface,
                                          const JPH_BodyId bodyId,
-                                         const JPH_Vec3 *angularImpulse)
+                                         const Vector3 *angularImpulse)
 {
     AsBodyInterface(interface)->AddAngularImpulse(JPH::BodyID(bodyId), ToJolt(angularImpulse));
 }
@@ -6258,8 +6252,8 @@ class CollideShapeBodyCollectorCallback final: public JPH::CollideShapeBodyColle
 };
 
 bool JPH_BroadPhaseQuery_CastRay(const JPH_BroadPhaseQuery *query,
-                                 const JPH_Vec3 *origin,
-                                 const JPH_Vec3 *direction,
+                                 const Vector3 *origin,
+                                 const Vector3 *direction,
                                  JPH_RayCastBodyCollectorCallback *callback,
                                  void *userData,
                                  JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
@@ -6274,8 +6268,8 @@ bool JPH_BroadPhaseQuery_CastRay(const JPH_BroadPhaseQuery *query,
 }
 
 bool JPH_BroadPhaseQuery_CastRay2(const JPH_BroadPhaseQuery *query,
-                                  const JPH_Vec3 *origin,
-                                  const JPH_Vec3 *direction,
+                                  const Vector3 *origin,
+                                  const Vector3 *direction,
                                   const JPH_CollisionCollectorType collectorType,
                                   JPH_RayCastBodyResultCallback *callback,
                                   void *userData,
@@ -6364,7 +6358,7 @@ bool JPH_BroadPhaseQuery_CollideAABox(const JPH_BroadPhaseQuery *query,
 }
 
 bool JPH_BroadPhaseQuery_CollideSphere(const JPH_BroadPhaseQuery *query,
-                                       const JPH_Vec3 *center,
+                                       const Vector3 *center,
                                        float radius,
                                        JPH_CollideShapeBodyCollectorCallback *callback,
                                        void *userData,
@@ -6383,7 +6377,7 @@ bool JPH_BroadPhaseQuery_CollideSphere(const JPH_BroadPhaseQuery *query,
 }
 
 bool JPH_BroadPhaseQuery_CollidePoint(const JPH_BroadPhaseQuery *query,
-                                      const JPH_Vec3 *point,
+                                      const Vector3 *point,
                                       JPH_CollideShapeBodyCollectorCallback *callback,
                                       void *userData,
                                       JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
@@ -6506,14 +6500,15 @@ class CastShapeCollectorCallback final: public JPH::CastShapeCollector
         uint32_t _padding{0};
 };
 
-JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *query,
-                                                const JPH_RVec3 *origin,
-                                                const JPH_Vec3 *rotationEulerAngles,
-                                                JPH_RayCastResult *result,
-                                                JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
-                                                JPH_ObjectLayerFilter *objectLayerFilter)
+bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *query,
+                                       const Transform *transform,
+                                       const float maxDistance,
+                                       JPH_RayCastResult *result,
+                                       JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
+                                       JPH_ObjectLayerFilter *objectLayerFilter)
 {
-    const JPH::RRayCast ray(ToJolt(origin), ToJolt(rotationEulerAngles));
+    const JPH::RRayCast ray(ToJolt(transform->position),
+                            JPH::Quat::sEulerAngles(ToJolt(transform->rotation)) * -JPH::Vec3::sAxisZ() * maxDistance);
     constexpr JPH::RayCastSettings raySettings{};
     JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector;
     const JPH::BodyFilter bodyFilter{};
@@ -6539,7 +6534,7 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *quer
 
 bool JPH_NarrowPhaseQuery_CastRay(const JPH_NarrowPhaseQuery *query,
                                   const JPH_RVec3 *origin,
-                                  const JPH_Vec3 *direction,
+                                  const Vector3 *direction,
                                   JPH_RayCastResult *hit,
                                   JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                   JPH_ObjectLayerFilter *objectLayerFilter,
@@ -6569,7 +6564,7 @@ bool JPH_NarrowPhaseQuery_CastRay(const JPH_NarrowPhaseQuery *query,
 
 bool JPH_NarrowPhaseQuery_CastRay2(const JPH_NarrowPhaseQuery *query,
                                    const JPH_RVec3 *origin,
-                                   const JPH_Vec3 *direction,
+                                   const Vector3 *direction,
                                    const JPH_RayCastSettings *rayCastSettings,
                                    JPH_CastRayCollectorCallback *callback,
                                    void *userData,
@@ -6596,7 +6591,7 @@ bool JPH_NarrowPhaseQuery_CastRay2(const JPH_NarrowPhaseQuery *query,
 
 bool JPH_NarrowPhaseQuery_CastRay3(const JPH_NarrowPhaseQuery *query,
                                    const JPH_RVec3 *origin,
-                                   const JPH_Vec3 *direction,
+                                   const Vector3 *direction,
                                    const JPH_RayCastSettings *rayCastSettings,
                                    const JPH_CollisionCollectorType collectorType,
                                    JPH_CastRayResultCallback *callback,
@@ -6801,7 +6796,7 @@ bool JPH_NarrowPhaseQuery_CollidePoint2(const JPH_NarrowPhaseQuery *query,
 
 bool JPH_NarrowPhaseQuery_CollideShape(const JPH_NarrowPhaseQuery *query,
                                        const JPH_Shape *shape,
-                                       const JPH_Vec3 *scale,
+                                       const Vector3 *scale,
                                        const JPH_RMatrix4x4 *centerOfMassTransform,
                                        const JPH_CollideShapeSettings *settings,
                                        JPH_RVec3 *baseOffset,
@@ -6832,7 +6827,7 @@ bool JPH_NarrowPhaseQuery_CollideShape(const JPH_NarrowPhaseQuery *query,
 
 bool JPH_NarrowPhaseQuery_CollideShape2(const JPH_NarrowPhaseQuery *query,
                                         const JPH_Shape *shape,
-                                        const JPH_Vec3 *scale,
+                                        const Vector3 *scale,
                                         const JPH_RMatrix4x4 *centerOfMassTransform,
                                         const JPH_CollideShapeSettings *settings,
                                         JPH_RVec3 *baseOffset,
@@ -6941,7 +6936,7 @@ bool JPH_NarrowPhaseQuery_CollideShape2(const JPH_NarrowPhaseQuery *query,
 bool JPH_NarrowPhaseQuery_CastShape(const JPH_NarrowPhaseQuery *query,
                                     const JPH_Shape *shape,
                                     const JPH_RMatrix4x4 *worldTransform,
-                                    const JPH_Vec3 *direction,
+                                    const Vector3 *direction,
                                     const JPH_ShapeCastSettings *settings,
                                     JPH_RVec3 *baseOffset,
                                     JPH_CastShapeCollectorCallback *callback,
@@ -6981,7 +6976,7 @@ bool JPH_NarrowPhaseQuery_CastShape(const JPH_NarrowPhaseQuery *query,
 bool JPH_NarrowPhaseQuery_CastShape2(const JPH_NarrowPhaseQuery *query,
                                      const JPH_Shape *shape,
                                      const JPH_RMatrix4x4 *worldTransform,
-                                     const JPH_Vec3 *direction,
+                                     const Vector3 *direction,
                                      const JPH_ShapeCastSettings *settings,
                                      JPH_RVec3 *baseOffset,
                                      JPH_CollisionCollectorType collectorType,
@@ -7281,70 +7276,70 @@ void JPH_Body_SetRestitution(JPH_Body *body, const float restitution)
     reinterpret_cast<JPH::Body *>(body)->SetRestitution(restitution);
 }
 
-void JPH_Body_GetLinearVelocity(JPH_Body *body, JPH_Vec3 *velocity)
+void JPH_Body_GetLinearVelocity(JPH_Body *body, Vector3 *velocity)
 {
     const JPH::Vec3 joltVector = reinterpret_cast<JPH::Body *>(body)->GetLinearVelocity();
     FromJolt(joltVector, velocity);
 }
 
-void JPH_Body_SetLinearVelocity(JPH_Body *body, const JPH_Vec3 *velocity)
+void JPH_Body_SetLinearVelocity(JPH_Body *body, const Vector3 *velocity)
 {
     reinterpret_cast<JPH::Body *>(body)->SetLinearVelocity(ToJolt(velocity));
 }
 
-void JPH_Body_SetLinearVelocityClamped(JPH_Body *body, const JPH_Vec3 *velocity)
+void JPH_Body_SetLinearVelocityClamped(JPH_Body *body, const Vector3 *velocity)
 {
     reinterpret_cast<JPH::Body *>(body)->SetLinearVelocityClamped(ToJolt(velocity));
 }
 
-void JPH_Body_GetAngularVelocity(JPH_Body *body, JPH_Vec3 *velocity)
+void JPH_Body_GetAngularVelocity(JPH_Body *body, Vector3 *velocity)
 {
     const JPH::Vec3 joltVector = reinterpret_cast<JPH::Body *>(body)->GetAngularVelocity();
     FromJolt(joltVector, velocity);
 }
 
-void JPH_Body_SetAngularVelocity(JPH_Body *body, const JPH_Vec3 *velocity)
+void JPH_Body_SetAngularVelocity(JPH_Body *body, const Vector3 *velocity)
 {
     AsBody(body)->SetAngularVelocity(ToJolt(velocity));
 }
 
-void JPH_Body_SetAngularVelocityClamped(JPH_Body *body, const JPH_Vec3 *velocity)
+void JPH_Body_SetAngularVelocityClamped(JPH_Body *body, const Vector3 *velocity)
 {
     AsBody(body)->SetAngularVelocityClamped(ToJolt(velocity));
 }
 
-void JPH_Body_GetPointVelocityCOM(JPH_Body *body, const JPH_Vec3 *pointRelativeToCOM, JPH_Vec3 *velocity)
+void JPH_Body_GetPointVelocityCOM(JPH_Body *body, const Vector3 *pointRelativeToCOM, Vector3 *velocity)
 {
     FromJolt(AsBody(body)->GetPointVelocityCOM(ToJolt(pointRelativeToCOM)), velocity);
 }
 
-void JPH_Body_GetPointVelocity(JPH_Body *body, const JPH_RVec3 *point, JPH_Vec3 *velocity)
+void JPH_Body_GetPointVelocity(JPH_Body *body, const JPH_RVec3 *point, Vector3 *velocity)
 {
     FromJolt(AsBody(body)->GetPointVelocity(ToJolt(point)), velocity);
 }
 
-void JPH_Body_AddForce(JPH_Body *body, const JPH_Vec3 *force)
+void JPH_Body_AddForce(JPH_Body *body, const Vector3 *force)
 {
     AsBody(body)->AddForce(ToJolt(force));
 }
 
-void JPH_Body_AddForceAtPosition(JPH_Body *body, const JPH_Vec3 *force, const JPH_RVec3 *position)
+void JPH_Body_AddForceAtPosition(JPH_Body *body, const Vector3 *force, const JPH_RVec3 *position)
 {
     AsBody(body)->AddForce(ToJolt(force), ToJolt(position));
 }
 
-void JPH_Body_AddTorque(JPH_Body *body, const JPH_Vec3 *force)
+void JPH_Body_AddTorque(JPH_Body *body, const Vector3 *force)
 {
     AsBody(body)->AddTorque(ToJolt(force));
 }
 
-void JPH_Body_GetAccumulatedForce(JPH_Body *body, JPH_Vec3 *force)
+void JPH_Body_GetAccumulatedForce(JPH_Body *body, Vector3 *force)
 {
     const JPH::Vec3 joltVector = AsBody(body)->GetAccumulatedForce();
     FromJolt(joltVector, force);
 }
 
-void JPH_Body_GetAccumulatedTorque(JPH_Body *body, JPH_Vec3 *force)
+void JPH_Body_GetAccumulatedTorque(JPH_Body *body, Vector3 *force)
 {
     const JPH::Vec3 joltVector = AsBody(body)->GetAccumulatedTorque();
     FromJolt(joltVector, force);
@@ -7370,17 +7365,17 @@ void JPH_Body_GetInverseInertia(JPH_Body *body, JPH_Matrix4x4 *result)
     FromJolt(AsBody(body)->GetInverseInertia(), result);
 }
 
-void JPH_Body_AddImpulse(JPH_Body *body, const JPH_Vec3 *impulse)
+void JPH_Body_AddImpulse(JPH_Body *body, const Vector3 *impulse)
 {
     AsBody(body)->AddImpulse(ToJolt(impulse));
 }
 
-void JPH_Body_AddImpulseAtPosition(JPH_Body *body, const JPH_Vec3 *impulse, const JPH_RVec3 *position)
+void JPH_Body_AddImpulseAtPosition(JPH_Body *body, const Vector3 *impulse, const JPH_RVec3 *position)
 {
     AsBody(body)->AddImpulse(ToJolt(impulse), ToJolt(position));
 }
 
-void JPH_Body_AddAngularImpulse(JPH_Body *body, const JPH_Vec3 *angularImpulse)
+void JPH_Body_AddAngularImpulse(JPH_Body *body, const Vector3 *angularImpulse)
 {
     AsBody(body)->AddAngularImpulse(ToJolt(angularImpulse));
 }
@@ -7395,12 +7390,12 @@ void JPH_Body_MoveKinematic(JPH_Body *body,
 
 bool JPH_Body_ApplyBuoyancyImpulse(JPH_Body *body,
                                    const JPH_RVec3 *surfacePosition,
-                                   const JPH_Vec3 *surfaceNormal,
+                                   const Vector3 *surfaceNormal,
                                    const float buoyancy,
                                    const float linearDrag,
                                    const float angularDrag,
-                                   const JPH_Vec3 *fluidVelocity,
-                                   const JPH_Vec3 *gravity,
+                                   const Vector3 *fluidVelocity,
+                                   const Vector3 *gravity,
                                    const float deltaTime)
 {
     return AsBody(body)->ApplyBuoyancyImpulse(ToJolt(surfacePosition),
@@ -7466,7 +7461,7 @@ void JPH_Body_GetWorldSpaceBounds(const JPH_Body *body, JPH_AABox *result)
 void JPH_Body_GetWorldSpaceSurfaceNormal(const JPH_Body *body,
                                          const JPH_SubShapeId subShapeID,
                                          const JPH_RVec3 *position,
-                                         JPH_Vec3 *normal)
+                                         Vector3 *normal)
 {
     JPH::SubShapeID joltSubShapeID = JPH::SubShapeID();
     joltSubShapeID.SetValue(subShapeID);
@@ -7640,7 +7635,7 @@ void JPH_BodyActivationListener_Destroy(JPH_BodyActivationListener *listener)
 }
 
 /* ContactManifold */
-void JPH_ContactManifold_GetWorldSpaceNormal(const JPH_ContactManifold *manifold, JPH_Vec3 *result)
+void JPH_ContactManifold_GetWorldSpaceNormal(const JPH_ContactManifold *manifold, Vector3 *result)
 {
     FromJolt(AsContactManifold(manifold)->mWorldSpaceNormal, result);
 }
@@ -7750,22 +7745,22 @@ void JPH_ContactSettings_SetIsSensor(JPH_ContactSettings *settings, const bool s
     reinterpret_cast<JPH::ContactSettings *>(settings)->mIsSensor = sensor;
 }
 
-void JPH_ContactSettings_GetRelativeLinearSurfaceVelocity(JPH_ContactSettings *settings, JPH_Vec3 *result)
+void JPH_ContactSettings_GetRelativeLinearSurfaceVelocity(JPH_ContactSettings *settings, Vector3 *result)
 {
     FromJolt(reinterpret_cast<JPH::ContactSettings *>(settings)->mRelativeLinearSurfaceVelocity, result);
 }
 
-void JPH_ContactSettings_SetRelativeLinearSurfaceVelocity(JPH_ContactSettings *settings, const JPH_Vec3 *velocity)
+void JPH_ContactSettings_SetRelativeLinearSurfaceVelocity(JPH_ContactSettings *settings, const Vector3 *velocity)
 {
     reinterpret_cast<JPH::ContactSettings *>(settings)->mRelativeLinearSurfaceVelocity = ToJolt(velocity);
 }
 
-void JPH_ContactSettings_GetRelativeAngularSurfaceVelocity(JPH_ContactSettings *settings, JPH_Vec3 *result)
+void JPH_ContactSettings_GetRelativeAngularSurfaceVelocity(JPH_ContactSettings *settings, Vector3 *result)
 {
     FromJolt(reinterpret_cast<JPH::ContactSettings *>(settings)->mRelativeAngularSurfaceVelocity, result);
 }
 
-void JPH_ContactSettings_SetRelativeAngularSurfaceVelocity(JPH_ContactSettings *settings, const JPH_Vec3 *velocity)
+void JPH_ContactSettings_SetRelativeAngularSurfaceVelocity(JPH_ContactSettings *settings, const Vector3 *velocity)
 {
     reinterpret_cast<JPH::ContactSettings *>(settings)->mRelativeAngularSurfaceVelocity = ToJolt(velocity);
 }
@@ -7774,11 +7769,11 @@ void JPH_ContactSettings_SetRelativeAngularSurfaceVelocity(JPH_ContactSettings *
 void JPH_CharacterBaseSettings_Init(const JPH::CharacterBaseSettings &joltSettings, JPH_CharacterBaseSettings *settings)
 {
     // Copy defaults from jolt
-    if (JPH_Vec3_IsNearZero(&settings->up, 1.0e-12f))
+    if (Vector3_IsNearZero(&settings->up, 1.0e-12f))
     {
         FromJolt(joltSettings.mUp, &settings->up);
     }
-    if (settings->supportingVolume.distance == 0 && JPH_Vec3_IsNearZero(&settings->supportingVolume.normal, 1.0e-12f))
+    if (settings->supportingVolume.distance == 0 && Vector3_IsNearZero(&settings->supportingVolume.normal, 1.0e-12f))
     {
         FromJolt(joltSettings.mSupportingVolume, &settings->supportingVolume);
     }
@@ -7793,7 +7788,7 @@ void JPH_CharacterBaseSettings_Init(const JPH::CharacterBaseSettings &joltSettin
             settings->shape = ToShape(joltSettings.mShape.GetPtr());
         } else
         {
-            constexpr JPH_Vec3 vec = {0.0f, 0.0f, 0.0f};
+            constexpr Vector3 vec = {0.0f, 0.0f, 0.0f};
             const JPH_EmptyShapeSettings *empty_shape_settings = JPH_EmptyShapeSettings_Create(&vec);
             const JPH_EmptyShape *shape = JPH_EmptyShapeSettings_CreateShape(empty_shape_settings);
             settings->shape = reinterpret_cast<const JPH_Shape *>(shape);
@@ -7823,18 +7818,18 @@ void JPH_CharacterBase_SetMaxSlopeAngle(JPH_CharacterBase *character, const floa
     joltCharacter->SetMaxSlopeAngle(maxSlopeAngle);
 }
 
-void JPH_CharacterBase_GetUp(JPH_CharacterBase *character, JPH_Vec3 *result)
+void JPH_CharacterBase_GetUp(JPH_CharacterBase *character, Vector3 *result)
 {
     FromJolt(reinterpret_cast<JPH::CharacterBase *>(character)->GetUp(), result);
 }
 
-void JPH_CharacterBase_SetUp(JPH_CharacterBase *character, const JPH_Vec3 *value)
+void JPH_CharacterBase_SetUp(JPH_CharacterBase *character, const Vector3 *value)
 {
     JPH::CharacterBase *const joltCharacter = reinterpret_cast<JPH::CharacterBase *>(character);
     joltCharacter->SetUp(ToJolt(value));
 }
 
-bool JPH_CharacterBase_IsSlopeTooSteep(JPH_CharacterBase *character, const JPH_Vec3 *value)
+bool JPH_CharacterBase_IsSlopeTooSteep(JPH_CharacterBase *character, const Vector3 *value)
 {
     const JPH::CharacterBase *const joltCharacter = reinterpret_cast<JPH::CharacterBase *>(character);
     return joltCharacter->IsSlopeTooSteep(ToJolt(value));
@@ -7865,14 +7860,14 @@ void JPH_CharacterBase_GetGroundPosition(JPH_CharacterBase *character, JPH_RVec3
     FromJolt(jolt_vector, position);
 }
 
-void JPH_CharacterBase_GetGroundNormal(JPH_CharacterBase *character, JPH_Vec3 *normal)
+void JPH_CharacterBase_GetGroundNormal(JPH_CharacterBase *character, Vector3 *normal)
 {
     const JPH::CharacterBase *const joltCharacter = reinterpret_cast<JPH::CharacterBase *>(character);
     const JPH::Vec3 jolt_vector = joltCharacter->GetGroundNormal();
     FromJolt(jolt_vector, normal);
 }
 
-void JPH_CharacterBase_GetGroundVelocity(JPH_CharacterBase *character, JPH_Vec3 *velocity)
+void JPH_CharacterBase_GetGroundVelocity(JPH_CharacterBase *character, Vector3 *velocity)
 {
     const JPH::CharacterBase *const joltCharacter = reinterpret_cast<JPH::CharacterBase *>(character);
     const JPH::Vec3 jolt_vector = joltCharacter->GetGroundVelocity();
@@ -7978,29 +7973,29 @@ void JPH_Character_PostSimulation(JPH_Character *character, const float maxSepar
 }
 
 void JPH_Character_SetLinearAndAngularVelocity(JPH_Character *character,
-                                               const JPH_Vec3 *linearVelocity,
-                                               const JPH_Vec3 *angularVelocity,
+                                               const Vector3 *linearVelocity,
+                                               const Vector3 *angularVelocity,
                                                const bool lockBodies)
 {
     AsCharacter(character)->SetLinearAndAngularVelocity(ToJolt(linearVelocity), ToJolt(angularVelocity), lockBodies);
 }
 
-void JPH_Character_GetLinearVelocity(JPH_Character *character, JPH_Vec3 *result)
+void JPH_Character_GetLinearVelocity(JPH_Character *character, Vector3 *result)
 {
     FromJolt(AsCharacter(character)->GetLinearVelocity(), result);
 }
 
-void JPH_Character_SetLinearVelocity(JPH_Character *character, const JPH_Vec3 *value, const bool lockBodies)
+void JPH_Character_SetLinearVelocity(JPH_Character *character, const Vector3 *value, const bool lockBodies)
 {
     AsCharacter(character)->SetLinearVelocity(ToJolt(value), lockBodies);
 }
 
-void JPH_Character_AddLinearVelocity(JPH_Character *character, const JPH_Vec3 *value, const bool lockBodies)
+void JPH_Character_AddLinearVelocity(JPH_Character *character, const Vector3 *value, const bool lockBodies)
 {
     AsCharacter(character)->AddLinearVelocity(ToJolt(value), lockBodies);
 }
 
-void JPH_Character_AddImpulse(JPH_Character *character, const JPH_Vec3 *value, const bool lockBodies)
+void JPH_Character_AddImpulse(JPH_Character *character, const Vector3 *value, const bool lockBodies)
 {
     AsCharacter(character)->AddImpulse(ToJolt(value), lockBodies);
 }
@@ -8099,8 +8094,8 @@ void JPH_CharacterVirtualSettings_Init(JPH_CharacterVirtualSettings *settings)
     settings->ID = settings->ID == 0 ? joltSettings.mID.GetValue() : settings->ID;
     settings->mass = settings->mass == 0 ? joltSettings.mMass : settings->mass;
     settings->maxStrength = settings->maxStrength == 0 ? joltSettings.mMaxStrength : settings->maxStrength;
-    settings->shapeOffset = JPH_Vec3_IsNearZero(&settings->shapeOffset, 1.0e-12f) ? FromJolt(joltSettings.mShapeOffset)
-                                                                                  : settings->shapeOffset;
+    settings->shapeOffset = Vector3_IsNearZero(&settings->shapeOffset, 1.0e-12f) ? FromJolt(joltSettings.mShapeOffset)
+                                                                                 : settings->shapeOffset;
     settings->backFaceMode = settings->backFaceMode == 0 ? static_cast<JPH_BackFaceMode>(joltSettings.mBackFaceMode)
                                                          : settings->backFaceMode;
     settings->predictiveContactDistance = settings->predictiveContactDistance == 0
@@ -8228,12 +8223,12 @@ void JPH_CharacterVirtual_SetCharacterVsCharacterCollision(JPH_CharacterVirtual 
     }
 }
 
-void JPH_CharacterVirtual_GetLinearVelocity(JPH_CharacterVirtual *character, JPH_Vec3 *velocity)
+void JPH_CharacterVirtual_GetLinearVelocity(JPH_CharacterVirtual *character, Vector3 *velocity)
 {
     FromJolt(AsCharacterVirtual(character)->GetLinearVelocity(), velocity);
 }
 
-void JPH_CharacterVirtual_SetLinearVelocity(JPH_CharacterVirtual *character, const JPH_Vec3 *velocity)
+void JPH_CharacterVirtual_SetLinearVelocity(JPH_CharacterVirtual *character, const Vector3 *velocity)
 {
     AsCharacterVirtual(character)->SetLinearVelocity(ToJolt(velocity));
 }
@@ -8341,13 +8336,13 @@ bool JPH_CharacterVirtual_GetMaxHitsExceeded(JPH_CharacterVirtual *character)
     return AsCharacterVirtual(character)->GetMaxHitsExceeded();
 }
 
-void JPH_CharacterVirtual_GetShapeOffset(JPH_CharacterVirtual *character, JPH_Vec3 *result)
+void JPH_CharacterVirtual_GetShapeOffset(JPH_CharacterVirtual *character, Vector3 *result)
 {
     const JPH::Vec3 joltVector = AsCharacterVirtual(character)->GetShapeOffset();
     FromJolt(joltVector, result);
 }
 
-void JPH_CharacterVirtual_SetShapeOffset(JPH_CharacterVirtual *character, const JPH_Vec3 *value)
+void JPH_CharacterVirtual_SetShapeOffset(JPH_CharacterVirtual *character, const Vector3 *value)
 {
     AsCharacterVirtual(character)->SetShapeOffset(ToJolt(value));
 }
@@ -8368,8 +8363,8 @@ JPH_BodyId JPH_CharacterVirtual_GetInnerBodyID(const JPH_CharacterVirtual *chara
 }
 
 void JPH_CharacterVirtual_CancelVelocityTowardsSteepSlopes(JPH_CharacterVirtual *character,
-                                                           const JPH_Vec3 *desiredVelocity,
-                                                           JPH_Vec3 *velocity)
+                                                           const Vector3 *desiredVelocity,
+                                                           Vector3 *velocity)
 {
     FromJolt(AsCharacterVirtual(character)->CancelVelocityTowardsSteepSlopes(ToJolt(desiredVelocity)), velocity);
 }
@@ -8444,17 +8439,17 @@ void JPH_CharacterVirtual_RefreshContacts(JPH_CharacterVirtual *character,
                                                    *s_TempAllocator);
 }
 
-bool JPH_CharacterVirtual_CanWalkStairs(JPH_CharacterVirtual *character, const JPH_Vec3 *linearVelocity)
+bool JPH_CharacterVirtual_CanWalkStairs(JPH_CharacterVirtual *character, const Vector3 *linearVelocity)
 {
     return AsCharacterVirtual(character)->CanWalkStairs(ToJolt(linearVelocity));
 }
 
 bool JPH_CharacterVirtual_WalkStairs(JPH_CharacterVirtual *character,
                                      const float deltaTime,
-                                     const JPH_Vec3 *stepUp,
-                                     const JPH_Vec3 *stepForward,
-                                     const JPH_Vec3 *stepForwardTest,
-                                     const JPH_Vec3 *stepDownExtra,
+                                     const Vector3 *stepUp,
+                                     const Vector3 *stepForward,
+                                     const Vector3 *stepForwardTest,
+                                     const Vector3 *stepDownExtra,
                                      const JPH_ObjectLayer layer,
                                      const JPH_PhysicsSystem *system,
                                      const JPH_BodyFilter *bodyFilter,
@@ -8473,7 +8468,7 @@ bool JPH_CharacterVirtual_WalkStairs(JPH_CharacterVirtual *character,
 }
 
 bool JPH_CharacterVirtual_StickToFloor(JPH_CharacterVirtual *character,
-                                       const JPH_Vec3 *stepDown,
+                                       const Vector3 *stepDown,
                                        const JPH_ObjectLayer layer,
                                        const JPH_PhysicsSystem *system,
                                        const JPH_BodyFilter *bodyFilter,
@@ -8552,8 +8547,8 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
                                   JPH::Vec3 &ioLinearVelocity,
                                   JPH::Vec3 &ioAngularVelocity) override
         {
-            JPH_Vec3 linearVelocity;
-            JPH_Vec3 angularVelocity;
+            Vector3 linearVelocity;
+            Vector3 angularVelocity;
             FromJolt(ioLinearVelocity, &linearVelocity);
             FromJolt(ioAngularVelocity, &angularVelocity);
 
@@ -8607,7 +8602,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
             if (impl != nullptr && impl->OnContactAdded != nullptr)
             {
                 JPH_RVec3 contactPosition;
-                JPH_Vec3 contactNormal;
+                Vector3 contactNormal;
 
                 FromJolt(inContactPosition, &contactPosition);
                 FromJolt(inContactNormal, &contactNormal);
@@ -8638,7 +8633,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
             if (impl != nullptr && impl->OnContactPersisted != nullptr)
             {
                 JPH_RVec3 contactPosition;
-                JPH_Vec3 contactNormal;
+                Vector3 contactNormal;
 
                 FromJolt(inContactPosition, &contactPosition);
                 FromJolt(inContactNormal, &contactNormal);
@@ -8681,7 +8676,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
             if (impl != nullptr && impl->OnCharacterContactAdded != nullptr)
             {
                 JPH_RVec3 contactPosition;
-                JPH_Vec3 contactNormal;
+                Vector3 contactNormal;
 
                 FromJolt(inContactPosition, &contactPosition);
                 FromJolt(inContactNormal, &contactNormal);
@@ -8712,7 +8707,7 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
             if (impl != nullptr && impl->OnCharacterContactPersisted != nullptr)
             {
                 JPH_RVec3 contactPosition;
-                JPH_Vec3 contactNormal;
+                Vector3 contactNormal;
 
                 FromJolt(inContactPosition, &contactPosition);
                 FromJolt(inContactNormal, &contactNormal);
@@ -8758,10 +8753,10 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
             if (impl != nullptr && impl->OnContactSolve != nullptr)
             {
                 JPH_RVec3 contactPosition;
-                JPH_Vec3 contactNormal;
-                JPH_Vec3 contactVelocity;
-                JPH_Vec3 characterVelocity;
-                JPH_Vec3 newCharacterVelocity;
+                Vector3 contactNormal;
+                Vector3 contactVelocity;
+                Vector3 characterVelocity;
+                Vector3 newCharacterVelocity;
 
                 FromJolt(inContactPosition, &contactPosition);
                 FromJolt(inContactNormal, &contactNormal);
@@ -8796,10 +8791,10 @@ class ManagedCharacterContactListener final: public JPH::CharacterContactListene
             if (impl != nullptr && impl->OnCharacterContactSolve != nullptr)
             {
                 JPH_RVec3 contactPosition;
-                JPH_Vec3 contactNormal;
-                JPH_Vec3 contactVelocity;
-                JPH_Vec3 characterVelocity;
-                JPH_Vec3 newCharacterVelocity;
+                Vector3 contactNormal;
+                Vector3 contactVelocity;
+                Vector3 characterVelocity;
+                Vector3 newCharacterVelocity;
 
                 FromJolt(inContactPosition, &contactPosition);
                 FromJolt(inContactNormal, &contactNormal);
@@ -8886,7 +8881,7 @@ class ManagedCharacterVsCharacterCollision final: public JPH::CharacterVsCharact
             if (s_Impl != nullptr && s_Impl->CastCharacter != nullptr)
             {
                 JPH_RMatrix4x4 centerOfMassTransform;
-                JPH_Vec3 direction;
+                Vector3 direction;
                 JPH_RVec3 baseOffset;
 
                 const JPH_ShapeCastSettings shapeCastSettings = FromJolt(inShapeCastSettings);
@@ -8948,8 +8943,8 @@ void JPH_CharacterVsCharacterCollision_Destroy(JPH_CharacterVsCharacterCollision
 /* CollisionDispatch */
 bool JPH_CollisionDispatch_CollideShapeVsShape(const JPH_Shape *shape1,
                                                const JPH_Shape *shape2,
-                                               const JPH_Vec3 *scale1,
-                                               const JPH_Vec3 *scale2,
+                                               const Vector3 *scale1,
+                                               const Vector3 *scale2,
                                                const JPH_Matrix4x4 *centerOfMassTransform1,
                                                const JPH_Matrix4x4 *centerOfMassTransform2,
                                                const JPH_CollideShapeSettings *collideShapeSettings,
@@ -8974,11 +8969,11 @@ bool JPH_CollisionDispatch_CollideShapeVsShape(const JPH_Shape *shape1,
     return collector.hadHit;
 }
 
-bool JPH_CollisionDispatch_CastShapeVsShapeLocalSpace(const JPH_Vec3 *direction,
+bool JPH_CollisionDispatch_CastShapeVsShapeLocalSpace(const Vector3 *direction,
                                                       const JPH_Shape *shape1,
                                                       const JPH_Shape *shape2,
-                                                      const JPH_Vec3 *scale1InShape2LocalSpace,
-                                                      const JPH_Vec3 *scale2,
+                                                      const Vector3 *scale1InShape2LocalSpace,
+                                                      const Vector3 *scale2,
                                                       const JPH_Matrix4x4 *centerOfMassTransform1InShape2LocalSpace,
                                                       const JPH_Matrix4x4 *centerOfMassWorldTransform2,
                                                       const JPH_ShapeCastSettings *shapeCastSettings,
@@ -9006,11 +9001,11 @@ bool JPH_CollisionDispatch_CastShapeVsShapeLocalSpace(const JPH_Vec3 *direction,
     return collector.hadHit;
 }
 
-bool JPH_CollisionDispatch_CastShapeVsShapeWorldSpace(const JPH_Vec3 *direction,
+bool JPH_CollisionDispatch_CastShapeVsShapeWorldSpace(const Vector3 *direction,
                                                       const JPH_Shape *shape1,
                                                       const JPH_Shape *shape2,
-                                                      const JPH_Vec3 *scale1,
-                                                      const JPH_Vec3 *scale2,
+                                                      const Vector3 *scale1,
+                                                      const Vector3 *scale2,
                                                       const JPH_Matrix4x4 *centerOfMassWorldTransform1,
                                                       const JPH_Matrix4x4 *centerOfMassWorldTransform2,
                                                       const JPH_ShapeCastSettings *shapeCastSettings,
@@ -9229,7 +9224,7 @@ void JPH_DebugRenderer_DrawCoordinateSystem(JPH_DebugRenderer *renderer, const J
 
 void JPH_DebugRenderer_DrawPlane(JPH_DebugRenderer *renderer,
                                  const JPH_RVec3 *point,
-                                 const JPH_Vec3 *normal,
+                                 const Vector3 *normal,
                                  const JPH_Color color,
                                  const float size)
 {
@@ -9380,8 +9375,8 @@ void JPH_DebugRenderer_DrawCylinder(JPH_DebugRenderer *renderer,
 
 void JPH_DebugRenderer_DrawOpenCone(JPH_DebugRenderer *renderer,
                                     const JPH_RVec3 *top,
-                                    const JPH_Vec3 *axis,
-                                    const JPH_Vec3 *perpendicular,
+                                    const Vector3 *axis,
+                                    const Vector3 *perpendicular,
                                     const float halfAngle,
                                     const float length,
                                     const JPH_Color color,
@@ -9443,8 +9438,8 @@ void JPH_DebugRenderer_DrawSwingPyramidLimits(JPH_DebugRenderer *renderer,
 void JPH_DebugRenderer_DrawPie(JPH_DebugRenderer *renderer,
                                const JPH_RVec3 *center,
                                const float radius,
-                               const JPH_Vec3 *normal,
-                               const JPH_Vec3 *axis,
+                               const Vector3 *normal,
+                               const Vector3 *axis,
                                const float minAngle,
                                const float maxAngle,
                                const JPH_Color color,
@@ -9710,62 +9705,62 @@ void JPH_WheelSettings_Destroy(JPH_WheelSettings *settings)
     }
 }
 
-void JPH_WheelSettings_GetPosition(const JPH_WheelSettings *settings, JPH_Vec3 *result)
+void JPH_WheelSettings_GetPosition(const JPH_WheelSettings *settings, Vector3 *result)
 {
     FromJolt(AsWheelSettings(settings)->mPosition, result);
 }
 
-void JPH_WheelSettings_SetPosition(JPH_WheelSettings *settings, const JPH_Vec3 *value)
+void JPH_WheelSettings_SetPosition(JPH_WheelSettings *settings, const Vector3 *value)
 {
     AsWheelSettings(settings)->mPosition = ToJolt(value);
 }
 
-void JPH_WheelSettings_GetSuspensionForcePoint(const JPH_WheelSettings *settings, JPH_Vec3 *result)
+void JPH_WheelSettings_GetSuspensionForcePoint(const JPH_WheelSettings *settings, Vector3 *result)
 {
     FromJolt(AsWheelSettings(settings)->mSuspensionForcePoint, result);
 }
 
-void JPH_WheelSettings_SetSuspensionForcePoint(JPH_WheelSettings *settings, const JPH_Vec3 *value)
+void JPH_WheelSettings_SetSuspensionForcePoint(JPH_WheelSettings *settings, const Vector3 *value)
 {
     AsWheelSettings(settings)->mSuspensionForcePoint = ToJolt(value);
 }
 
-void JPH_WheelSettings_GetSuspensionDirection(const JPH_WheelSettings *settings, JPH_Vec3 *result)
+void JPH_WheelSettings_GetSuspensionDirection(const JPH_WheelSettings *settings, Vector3 *result)
 {
     FromJolt(AsWheelSettings(settings)->mSuspensionDirection, result);
 }
 
-void JPH_WheelSettings_SetSuspensionDirection(JPH_WheelSettings *settings, const JPH_Vec3 *value)
+void JPH_WheelSettings_SetSuspensionDirection(JPH_WheelSettings *settings, const Vector3 *value)
 {
     AsWheelSettings(settings)->mSuspensionDirection = ToJolt(value);
 }
 
-void JPH_WheelSettings_GetSteeringAxis(const JPH_WheelSettings *settings, JPH_Vec3 *result)
+void JPH_WheelSettings_GetSteeringAxis(const JPH_WheelSettings *settings, Vector3 *result)
 {
     FromJolt(AsWheelSettings(settings)->mSteeringAxis, result);
 }
 
-void JPH_WheelSettings_SetSteeringAxis(JPH_WheelSettings *settings, const JPH_Vec3 *value)
+void JPH_WheelSettings_SetSteeringAxis(JPH_WheelSettings *settings, const Vector3 *value)
 {
     AsWheelSettings(settings)->mSteeringAxis = ToJolt(value);
 }
 
-void JPH_WheelSettings_GetWheelUp(const JPH_WheelSettings *settings, JPH_Vec3 *result)
+void JPH_WheelSettings_GetWheelUp(const JPH_WheelSettings *settings, Vector3 *result)
 {
     FromJolt(AsWheelSettings(settings)->mWheelUp, result);
 }
 
-void JPH_WheelSettings_SetWheelUp(JPH_WheelSettings *settings, const JPH_Vec3 *value)
+void JPH_WheelSettings_SetWheelUp(JPH_WheelSettings *settings, const Vector3 *value)
 {
     AsWheelSettings(settings)->mWheelUp = ToJolt(value);
 }
 
-void JPH_WheelSettings_GetWheelForward(const JPH_WheelSettings *settings, JPH_Vec3 *result)
+void JPH_WheelSettings_GetWheelForward(const JPH_WheelSettings *settings, Vector3 *result)
 {
     FromJolt(AsWheelSettings(settings)->mWheelForward, result);
 }
 
-void JPH_WheelSettings_SetWheelForward(JPH_WheelSettings *settings, const JPH_Vec3 *value)
+void JPH_WheelSettings_SetWheelForward(JPH_WheelSettings *settings, const Vector3 *value)
 {
     AsWheelSettings(settings)->mWheelForward = ToJolt(value);
 }
@@ -9911,22 +9906,22 @@ void JPH_Wheel_GetContactPosition(const JPH_Wheel *wheel, JPH_RVec3 *result)
     FromJolt(AsWheel(wheel)->GetContactPosition(), result);
 }
 
-void JPH_Wheel_GetContactPointVelocity(const JPH_Wheel *wheel, JPH_Vec3 *result)
+void JPH_Wheel_GetContactPointVelocity(const JPH_Wheel *wheel, Vector3 *result)
 {
     FromJolt(AsWheel(wheel)->GetContactPointVelocity(), result);
 }
 
-void JPH_Wheel_GetContactNormal(const JPH_Wheel *wheel, JPH_Vec3 *result)
+void JPH_Wheel_GetContactNormal(const JPH_Wheel *wheel, Vector3 *result)
 {
     FromJolt(AsWheel(wheel)->GetContactNormal(), result);
 }
 
-void JPH_Wheel_GetContactLongitudinal(const JPH_Wheel *wheel, JPH_Vec3 *result)
+void JPH_Wheel_GetContactLongitudinal(const JPH_Wheel *wheel, Vector3 *result)
 {
     FromJolt(AsWheel(wheel)->GetContactLongitudinal(), result);
 }
 
-void JPH_Wheel_GetContactLateral(const JPH_Wheel *wheel, JPH_Vec3 *result)
+void JPH_Wheel_GetContactLateral(const JPH_Wheel *wheel, Vector3 *result)
 {
     FromJolt(AsWheel(wheel)->GetContactLateral(), result);
 }
@@ -10230,7 +10225,7 @@ void JPH_VehicleCollisionTester_SetObjectLayer(JPH_VehicleCollisionTester *teste
 }
 
 JPH_VehicleCollisionTesterRay *JPH_VehicleCollisionTesterRay_Create(const JPH_ObjectLayer layer,
-                                                                    const JPH_Vec3 *up,
+                                                                    const Vector3 *up,
                                                                     const float maxSlopeAngle)
 {
     JPH::VehicleCollisionTesterRay *const tester = new JPH::VehicleCollisionTesterRay(layer, ToJolt(up), maxSlopeAngle);
@@ -10241,7 +10236,7 @@ JPH_VehicleCollisionTesterRay *JPH_VehicleCollisionTesterRay_Create(const JPH_Ob
 
 JPH_VehicleCollisionTesterCastSphere *JPH_VehicleCollisionTesterCastSphere_Create(const JPH_ObjectLayer layer,
                                                                                   const float radius,
-                                                                                  const JPH_Vec3 *up,
+                                                                                  const Vector3 *up,
                                                                                   const float maxSlopeAngle)
 {
     JPH::VehicleCollisionTesterCastSphere *const tester = new JPH::VehicleCollisionTesterCastSphere(layer,
@@ -10360,7 +10355,7 @@ void JPH_VehicleConstraint_SetVehicleCollisionTester(JPH_VehicleConstraint *cons
     AsVehicleConstraint(constraint)->SetVehicleCollisionTester(AsVehicleCollisionTester(tester));
 }
 
-void JPH_VehicleConstraint_OverrideGravity(JPH_VehicleConstraint *constraint, const JPH_Vec3 *value)
+void JPH_VehicleConstraint_OverrideGravity(JPH_VehicleConstraint *constraint, const Vector3 *value)
 {
     AsVehicleConstraint(constraint)->OverrideGravity(ToJolt(value));
 }
@@ -10370,7 +10365,7 @@ bool JPH_VehicleConstraint_IsGravityOverridden(const JPH_VehicleConstraint *cons
     return AsVehicleConstraint(constraint)->IsGravityOverridden();
 }
 
-void JPH_VehicleConstraint_GetGravityOverride(const JPH_VehicleConstraint *constraint, JPH_Vec3 *result)
+void JPH_VehicleConstraint_GetGravityOverride(const JPH_VehicleConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsVehicleConstraint(constraint)->GetGravityOverride(), result);
 }
@@ -10380,17 +10375,17 @@ void JPH_VehicleConstraint_ResetGravityOverride(JPH_VehicleConstraint *constrain
     AsVehicleConstraint(constraint)->ResetGravityOverride();
 }
 
-void JPH_VehicleConstraint_GetLocalForward(const JPH_VehicleConstraint *constraint, JPH_Vec3 *result)
+void JPH_VehicleConstraint_GetLocalForward(const JPH_VehicleConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsVehicleConstraint(constraint)->GetLocalForward(), result);
 }
 
-void JPH_VehicleConstraint_GetLocalUp(const JPH_VehicleConstraint *constraint, JPH_Vec3 *result)
+void JPH_VehicleConstraint_GetLocalUp(const JPH_VehicleConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsVehicleConstraint(constraint)->GetLocalUp(), result);
 }
 
-void JPH_VehicleConstraint_GetWorldUp(const JPH_VehicleConstraint *constraint, JPH_Vec3 *result)
+void JPH_VehicleConstraint_GetWorldUp(const JPH_VehicleConstraint *constraint, Vector3 *result)
 {
     FromJolt(AsVehicleConstraint(constraint)->GetWorldUp(), result);
 }
@@ -10417,9 +10412,9 @@ JPH_Wheel *JPH_VehicleConstraint_GetWheel(JPH_VehicleConstraint *constraint, con
 
 void JPH_VehicleConstraint_GetWheelLocalBasis(JPH_VehicleConstraint *constraint,
                                               const JPH_Wheel *wheel,
-                                              JPH_Vec3 *outForward,
-                                              JPH_Vec3 *outUp,
-                                              JPH_Vec3 *outRight)
+                                              Vector3 *outForward,
+                                              Vector3 *outUp,
+                                              Vector3 *outRight)
 {
     JPH::Vec3 forward;
     JPH::Vec3 up;
@@ -10433,8 +10428,8 @@ void JPH_VehicleConstraint_GetWheelLocalBasis(JPH_VehicleConstraint *constraint,
 
 void JPH_VehicleConstraint_GetWheelLocalTransform(JPH_VehicleConstraint *constraint,
                                                   const uint32_t wheelIndex,
-                                                  const JPH_Vec3 *wheelRight,
-                                                  const JPH_Vec3 *wheelUp,
+                                                  const Vector3 *wheelRight,
+                                                  const Vector3 *wheelUp,
                                                   JPH_Matrix4x4 *result)
 {
     const JPH::Mat44 joltResult = AsVehicleConstraint(constraint)
@@ -10444,8 +10439,8 @@ void JPH_VehicleConstraint_GetWheelLocalTransform(JPH_VehicleConstraint *constra
 
 void JPH_VehicleConstraint_GetWheelWorldTransform(JPH_VehicleConstraint *constraint,
                                                   const uint32_t wheelIndex,
-                                                  const JPH_Vec3 *wheelRight,
-                                                  const JPH_Vec3 *wheelUp,
+                                                  const Vector3 *wheelRight,
+                                                  const Vector3 *wheelUp,
                                                   JPH_RMatrix4x4 *result)
 {
     const JPH::RMat44 joltResult = AsVehicleConstraint(constraint)

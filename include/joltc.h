@@ -372,32 +372,20 @@ typedef enum JPH_TransmissionMode: uint32_t
     JPH_TransmissionMode_Manual = 1,
 } JPH_TransmissionMode;
 
-typedef struct JPH_Vec3
+typedef struct Vector3
 {
         float x;
         float y;
         float z;
-} JPH_Vec3;
+} Vector3;
 
-static const JPH_Vec3 JPH_Vec3_Zero = {0.0f, 0.0f, 0.0f};
-static const JPH_Vec3 JPH_Vec3_One = {1.0f, 1.0f, 1.0f};
-static const JPH_Vec3 JPH_Vec3_NaN = {NAN, NAN, NAN};
-static const JPH_Vec3 JPH_Vec3_AxisX = {1.0f, 0.0f, 0.0f};
-static const JPH_Vec3 JPH_Vec3_AxisY = {0.0f, 1.0f, 0.0f};
-static const JPH_Vec3 JPH_Vec3_AxisZ = {0.0f, 0.0f, 1.0f};
-static const JPH_Vec3 JPH_Vec3_Forward = {0.0f, 0.0f, -1.0f};
-
-typedef struct JPH_Vec4
-{
-        float x;
-        float y;
-        float z;
-        float w;
-} JPH_Vec4;
-
-static const JPH_Vec4 JPH_Vec4_Zero = {0.0f, 0.0f, 0.0f, 0.0f};
-static const JPH_Vec4 JPH_Vec4_One = {1.0f, 1.0f, 1.0f, 1.0f};
-static const JPH_Vec4 JPH_Vec4_NaN = {NAN, NAN, NAN, NAN};
+static const Vector3 Vector3_Zero = {0.0f, 0.0f, 0.0f};
+static const Vector3 Vector3_One = {1.0f, 1.0f, 1.0f};
+static const Vector3 Vector3_NaN = {NAN, NAN, NAN};
+static const Vector3 Vector3_AxisX = {1.0f, 0.0f, 0.0f};
+static const Vector3 Vector3_AxisY = {0.0f, 1.0f, 0.0f};
+static const Vector3 Vector3_AxisZ = {0.0f, 0.0f, 1.0f};
+static const Vector3 Vector3_Forward = {0.0f, 0.0f, -1.0f};
 
 typedef struct JPH_Quat
 {
@@ -410,9 +398,15 @@ typedef struct JPH_Quat
 static const JPH_Quat JPH_Quat_Zero = {0.0f, 0.0f, 0.0f, 0.0f};
 static const JPH_Quat JPH_Quat_Identity = {0.0f, 0.0f, 0.0f, 1.0f};
 
+typedef struct Transform
+{
+        Vector3 position;
+        Vector3 rotation;
+} Transform;
+
 typedef struct JPH_Plane
 {
-        JPH_Vec3 normal;
+        Vector3 normal;
         float distance;
 } JPH_Plane;
 
@@ -448,7 +442,7 @@ typedef struct JPH_RMatrix4x4
         double m41, m42, m43, m44;
 } JPH_RMatrix4x4;
 #else
-typedef JPH_Vec3 JPH_RVec3;
+typedef Vector3 JPH_RVec3;
 typedef JPH_Matrix4x4 JPH_RMatrix4x4;
 #endif
 
@@ -456,15 +450,15 @@ typedef uint32_t JPH_Color;
 
 typedef struct JPH_AABox
 {
-        JPH_Vec3 min;
-        JPH_Vec3 max;
+        Vector3 min;
+        Vector3 max;
 } JPH_AABox;
 
 typedef struct JPH_Triangle
 {
-        JPH_Vec3 v1;
-        JPH_Vec3 v2;
-        JPH_Vec3 v3;
+        Vector3 v1;
+        Vector3 v2;
+        Vector3 v3;
         uint32_t materialIndex;
 } JPH_Triangle;
 
@@ -505,7 +499,7 @@ typedef struct JPH_CollideSettingsBase
         float penetrationTolerance /* = JPH_DEFAULT_PENETRATION_TOLERANCE*/;
 
         /// When mActiveEdgeMode is CollideOnlyWithActive a movement direction can be provided. When hitting an inactive edge, the system will select the triangle normal as penetration depth only if it impedes the movement less than with the calculated penetration depth.
-        JPH_Vec3 activeEdgeMovementDirection /* = Vec3::sZero()*/;
+        Vector3 activeEdgeMovementDirection /* = Vec3::sZero()*/;
 } JPH_CollideSettingsBase;
 
 /* CollideShapeSettings */
@@ -594,24 +588,24 @@ typedef struct JPH_CollidePointResult
 
 typedef struct JPH_CollideShapeResult
 {
-        JPH_Vec3 contactPointOn1;
-        JPH_Vec3 contactPointOn2;
-        JPH_Vec3 penetrationAxis;
+        Vector3 contactPointOn1;
+        Vector3 contactPointOn2;
+        Vector3 penetrationAxis;
         float penetrationDepth;
         JPH_SubShapeId subShapeID1;
         JPH_SubShapeId subShapeID2;
         JPH_BodyId bodyID2;
         uint32_t shape1FaceCount;
-        JPH_Vec3 *shape1Faces;
+        Vector3 *shape1Faces;
         uint32_t shape2FaceCount;
-        JPH_Vec3 *shape2Faces;
+        Vector3 *shape2Faces;
 } JPH_CollideShapeResult;
 
 typedef struct JPH_ShapeCastResult
 {
-        JPH_Vec3 contactPointOn1;
-        JPH_Vec3 contactPointOn2;
-        JPH_Vec3 penetrationAxis;
+        Vector3 contactPointOn1;
+        Vector3 contactPointOn2;
+        Vector3 penetrationAxis;
         float penetrationDepth;
         JPH_SubShapeId subShapeID1;
         JPH_SubShapeId subShapeID2;
@@ -648,7 +642,7 @@ typedef struct JPH_DrawSettings
 typedef struct JPH_SupportingFace
 {
         uint32_t count;
-        JPH_Vec3 vertices[32];
+        Vector3 vertices[32];
 } JPH_SupportingFace;
 
 typedef struct JPH_CollisionGroup
@@ -681,13 +675,13 @@ typedef struct JPH_CollisionEstimationResultImpulse
 
 typedef struct JPH_CollisionEstimationResult
 {
-        JPH_Vec3 linearVelocity1;
-        JPH_Vec3 angularVelocity1;
-        JPH_Vec3 linearVelocity2;
-        JPH_Vec3 angularVelocity2;
+        Vector3 linearVelocity1;
+        Vector3 angularVelocity1;
+        Vector3 linearVelocity2;
+        Vector3 angularVelocity2;
 
-        JPH_Vec3 tangent1;
-        JPH_Vec3 tangent2;
+        Vector3 tangent1;
+        Vector3 tangent2;
 
         uint32_t impulseCount;
         JPH_CollisionEstimationResultImpulse *impulses;
@@ -742,11 +736,11 @@ typedef struct JPH_FixedConstraintSettings
         JPH_ConstraintSpace space;
         bool autoDetectPoint;
         JPH_RVec3 point1;
-        JPH_Vec3 axisX1;
-        JPH_Vec3 axisY1;
+        Vector3 axisX1;
+        Vector3 axisY1;
         JPH_RVec3 point2;
-        JPH_Vec3 axisX2;
-        JPH_Vec3 axisY2;
+        Vector3 axisX2;
+        Vector3 axisY2;
 } JPH_FixedConstraintSettings;
 
 typedef struct JPH_DistanceConstraintSettings
@@ -776,11 +770,11 @@ typedef struct JPH_HingeConstraintSettings
 
         JPH_ConstraintSpace space;
         JPH_RVec3 point1;
-        JPH_Vec3 hingeAxis1;
-        JPH_Vec3 normalAxis1;
+        Vector3 hingeAxis1;
+        Vector3 normalAxis1;
         JPH_RVec3 point2;
-        JPH_Vec3 hingeAxis2;
-        JPH_Vec3 normalAxis2;
+        Vector3 hingeAxis2;
+        Vector3 normalAxis2;
         float limitsMin;
         float limitsMax;
         JPH_SpringSettings limitsSpringSettings;
@@ -795,11 +789,11 @@ typedef struct JPH_SliderConstraintSettings
         JPH_ConstraintSpace space;
         bool autoDetectPoint;
         JPH_RVec3 point1;
-        JPH_Vec3 sliderAxis1;
-        JPH_Vec3 normalAxis1;
+        Vector3 sliderAxis1;
+        Vector3 normalAxis1;
         JPH_RVec3 point2;
-        JPH_Vec3 sliderAxis2;
-        JPH_Vec3 normalAxis2;
+        Vector3 sliderAxis2;
+        Vector3 normalAxis2;
         float limitsMin;
         float limitsMax;
         JPH_SpringSettings limitsSpringSettings;
@@ -813,9 +807,9 @@ typedef struct JPH_ConeConstraintSettings
 
         JPH_ConstraintSpace space;
         JPH_RVec3 point1;
-        JPH_Vec3 twistAxis1;
+        Vector3 twistAxis1;
         JPH_RVec3 point2;
-        JPH_Vec3 twistAxis2;
+        Vector3 twistAxis2;
         float halfConeAngle;
 } JPH_ConeConstraintSettings;
 
@@ -825,11 +819,11 @@ typedef struct JPH_SwingTwistConstraintSettings
 
         JPH_ConstraintSpace space;
         JPH_RVec3 position1;
-        JPH_Vec3 twistAxis1;
-        JPH_Vec3 planeAxis1;
+        Vector3 twistAxis1;
+        Vector3 planeAxis1;
         JPH_RVec3 position2;
-        JPH_Vec3 twistAxis2;
-        JPH_Vec3 planeAxis2;
+        Vector3 twistAxis2;
+        Vector3 planeAxis2;
         JPH_SwingType swingType;
         float normalHalfConeAngle;
         float planeHalfConeAngle;
@@ -846,11 +840,11 @@ typedef struct JPH_SixDOFConstraintSettings
 
         JPH_ConstraintSpace space;
         JPH_RVec3 position1;
-        JPH_Vec3 axisX1;
-        JPH_Vec3 axisY1;
+        Vector3 axisX1;
+        Vector3 axisY1;
         JPH_RVec3 position2;
-        JPH_Vec3 axisX2;
-        JPH_Vec3 axisY2;
+        Vector3 axisX2;
+        Vector3 axisY2;
         float maxFriction[_JPH_SixDOFConstraintAxis_Num];
         JPH_SwingType swingType;
         float limitMin[_JPH_SixDOFConstraintAxis_Num];
@@ -865,8 +859,8 @@ typedef struct JPH_GearConstraintSettings
         JPH_ConstraintSettings base; /* Inherits JPH_ConstraintSettings */
 
         JPH_ConstraintSpace space;
-        JPH_Vec3 hingeAxis1;
-        JPH_Vec3 hingeAxis2;
+        Vector3 hingeAxis1;
+        Vector3 hingeAxis2;
         float ratio;
 } JPH_GearConstraintSettings;
 
@@ -889,17 +883,17 @@ typedef struct JPH_BodyLockMultiWrite JPH_BodyLockMultiWrite;
 
 typedef struct JPH_ExtendedUpdateSettings
 {
-        JPH_Vec3 stickToFloorStepDown;
-        JPH_Vec3 walkStairsStepUp;
+        Vector3 stickToFloorStepDown;
+        Vector3 walkStairsStepUp;
         float walkStairsMinStepForward;
         float walkStairsStepForwardTest;
         float walkStairsCosAngleForwardContact;
-        JPH_Vec3 walkStairsStepDownExtra;
+        Vector3 walkStairsStepDownExtra;
 } JPH_ExtendedUpdateSettings;
 
 typedef struct JPH_CharacterBaseSettings
 {
-        JPH_Vec3 up;
+        Vector3 up;
         JPH_Plane supportingVolume;
         float maxSlopeAngle;
         bool enhancedInternalEdgeRemoval;
@@ -924,7 +918,7 @@ typedef struct JPH_CharacterVirtualSettings
         JPH_CharacterId ID;
         float mass;
         float maxStrength;
-        JPH_Vec3 shapeOffset;
+        Vector3 shapeOffset;
         JPH_BackFaceMode backFaceMode;
         float predictiveContactDistance;
         uint32_t maxCollisionIterations;
@@ -953,9 +947,9 @@ typedef struct JPH_CharacterVirtualContact
         JPH_CharacterId characterIDB;
         JPH_SubShapeId subShapeIDB;
         JPH_RVec3 position;
-        JPH_Vec3 linearVelocity;
-        JPH_Vec3 contactNormal;
-        JPH_Vec3 surfaceNormal;
+        Vector3 linearVelocity;
+        Vector3 contactNormal;
+        Vector3 surfaceNormal;
         float distance;
         float fraction;
         JPH_MotionType motionTypeB;
@@ -1126,8 +1120,8 @@ JPH_CAPI uint32_t JPH_PhysicsSystem_GetNumActiveBodies(const JPH_PhysicsSystem *
 JPH_CAPI uint32_t JPH_PhysicsSystem_GetMaxBodies(const JPH_PhysicsSystem *system);
 JPH_CAPI uint32_t JPH_PhysicsSystem_GetNumConstraints(const JPH_PhysicsSystem *system);
 
-JPH_CAPI void JPH_PhysicsSystem_SetGravity(JPH_PhysicsSystem *system, const JPH_Vec3 *value);
-JPH_CAPI void JPH_PhysicsSystem_GetGravity(JPH_PhysicsSystem *system, JPH_Vec3 *result);
+JPH_CAPI void JPH_PhysicsSystem_SetGravity(JPH_PhysicsSystem *system, const Vector3 *value);
+JPH_CAPI void JPH_PhysicsSystem_GetGravity(JPH_PhysicsSystem *system, Vector3 *result);
 
 JPH_CAPI void JPH_PhysicsSystem_AddConstraint(JPH_PhysicsSystem *system, JPH_Constraint *constraint);
 JPH_CAPI void JPH_PhysicsSystem_RemoveConstraint(JPH_PhysicsSystem *system, JPH_Constraint *constraint);
@@ -1172,17 +1166,17 @@ JPH_CAPI JPH_PhysicsStepListener *JPH_PhysicsStepListener_Create(void *userData)
 JPH_CAPI void JPH_PhysicsStepListener_Destroy(JPH_PhysicsStepListener *listener);
 
 /* Math */
-JPH_CAPI void JPH_Quaternion_FromTo(const JPH_Vec3 *from, const JPH_Vec3 *to, JPH_Quat *quat);
-JPH_CAPI void JPH_Quat_GetAxisAngle(const JPH_Quat *quat, JPH_Vec3 *outAxis, float *outAngle);
-JPH_CAPI void JPH_Quat_GetEulerAngles(const JPH_Quat *quat, JPH_Vec3 *result);
-JPH_CAPI void JPH_Quat_RotateAxisX(const JPH_Quat *quat, JPH_Vec3 *result);
-JPH_CAPI void JPH_Quat_RotateAxisY(const JPH_Quat *quat, JPH_Vec3 *result);
-JPH_CAPI void JPH_Quat_RotateAxisZ(const JPH_Quat *quat, JPH_Vec3 *result);
+JPH_CAPI void JPH_Quaternion_FromTo(const Vector3 *from, const Vector3 *to, JPH_Quat *quat);
+JPH_CAPI void JPH_Quat_GetAxisAngle(const JPH_Quat *quat, Vector3 *outAxis, float *outAngle);
+JPH_CAPI void JPH_Quat_GetEulerAngles(const JPH_Quat *quat, Vector3 *result);
+JPH_CAPI void JPH_Quat_RotateAxisX(const JPH_Quat *quat, Vector3 *result);
+JPH_CAPI void JPH_Quat_RotateAxisY(const JPH_Quat *quat, Vector3 *result);
+JPH_CAPI void JPH_Quat_RotateAxisZ(const JPH_Quat *quat, Vector3 *result);
 JPH_CAPI void JPH_Quat_Inversed(const JPH_Quat *quat, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_GetPerpendicular(const JPH_Quat *quat, JPH_Quat *result);
-JPH_CAPI float JPH_Quat_GetRotationAngle(const JPH_Quat *quat, const JPH_Vec3 *axis);
-JPH_CAPI void JPH_Quat_Rotation(const JPH_Vec3 *inAxis, float inAngle, JPH_Quat *result);
-JPH_CAPI void JPH_Quat_FromEulerAngles(const JPH_Vec3 *angles, JPH_Quat *result);
+JPH_CAPI float JPH_Quat_GetRotationAngle(const JPH_Quat *quat, const Vector3 *axis);
+JPH_CAPI void JPH_Quat_Rotation(const Vector3 *inAxis, float inAngle, JPH_Quat *result);
+JPH_CAPI void JPH_Quat_FromEulerAngles(const Vector3 *angles, JPH_Quat *result);
 
 JPH_CAPI void JPH_Quat_Add(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_Subtract(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result);
@@ -1192,41 +1186,41 @@ JPH_CAPI void JPH_Quat_DivideScalar(const JPH_Quat *q, float scalar, JPH_Quat *r
 JPH_CAPI void JPH_Quat_Dot(const JPH_Quat *q1, const JPH_Quat *q2, float *result);
 
 JPH_CAPI void JPH_Quat_Conjugated(const JPH_Quat *quat, JPH_Quat *result);
-JPH_CAPI void JPH_Quat_GetTwist(const JPH_Quat *quat, const JPH_Vec3 *axis, JPH_Quat *result);
+JPH_CAPI void JPH_Quat_GetTwist(const JPH_Quat *quat, const Vector3 *axis, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_GetSwingTwist(const JPH_Quat *quat, JPH_Quat *outSwing, JPH_Quat *outTwist);
 JPH_CAPI void JPH_Quat_Lerp(const JPH_Quat *from, const JPH_Quat *to, float fraction, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_Slerp(const JPH_Quat *from, const JPH_Quat *to, float fraction, JPH_Quat *result);
-JPH_CAPI void JPH_Quat_Rotate(const JPH_Quat *quat, const JPH_Vec3 *vec, JPH_Vec3 *result);
-JPH_CAPI void JPH_Quat_InverseRotate(const JPH_Quat *quat, const JPH_Vec3 *vec, JPH_Vec3 *result);
+JPH_CAPI void JPH_Quat_Rotate(const JPH_Quat *quat, const Vector3 *vec, Vector3 *result);
+JPH_CAPI void JPH_Quat_InverseRotate(const JPH_Quat *quat, const Vector3 *vec, Vector3 *result);
 
-JPH_CAPI bool JPH_Vec3_IsClose(const JPH_Vec3 *v1, const JPH_Vec3 *v2, float maxDistSq);
+JPH_CAPI bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistSq);
 /**
  * Test if vector is near zero
  * @param vector The vector to check
  * @param maxDistSq Defaults to 1.0e-12f in Jolt
  * @return True if the vector has a magnitude which is nearly zero
  */
-JPH_CAPI bool JPH_Vec3_IsNearZero(const JPH_Vec3 *vector, float maxDistSq);
-JPH_CAPI bool JPH_Vec3_IsNormalized(const JPH_Vec3 *v, float tolerance);
-JPH_CAPI bool JPH_Vec3_IsNaN(const JPH_Vec3 *v);
+JPH_CAPI bool Vector3_IsNearZero(const Vector3 *vector, float maxDistSq);
+JPH_CAPI bool Vector3_IsNormalized(const Vector3 *v, float tolerance);
+JPH_CAPI bool Vector3_IsNaN(const Vector3 *v);
 
-JPH_CAPI void JPH_Vec3_Negate(const JPH_Vec3 *v, JPH_Vec3 *result);
-JPH_CAPI void JPH_Vec3_Normalized(const JPH_Vec3 *v, JPH_Vec3 *result);
-JPH_CAPI void JPH_Vec3_Cross(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result);
-JPH_CAPI void JPH_Vec3_Abs(const JPH_Vec3 *v, JPH_Vec3 *result);
+JPH_CAPI void Vector3_Negate(const Vector3 *v, Vector3 *result);
+JPH_CAPI void Vector3_Normalized(const Vector3 *v, Vector3 *result);
+JPH_CAPI void Vector3_Cross(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
+JPH_CAPI void Vector3_Abs(const Vector3 *v, Vector3 *result);
 
-JPH_CAPI float JPH_Vec3_Length(const JPH_Vec3 *v);
-JPH_CAPI float JPH_Vec3_LengthSquared(const JPH_Vec3 *v);
+JPH_CAPI float Vector3_Length(const Vector3 *v);
+JPH_CAPI float Vector3_LengthSquared(const Vector3 *v);
 
-JPH_CAPI void JPH_Vec3_DotProduct(const JPH_Vec3 *v1, const JPH_Vec3 *v2, float *result);
-JPH_CAPI void JPH_Vec3_Normalize(const JPH_Vec3 *v, JPH_Vec3 *result);
+JPH_CAPI void Vector3_DotProduct(const Vector3 *v1, const Vector3 *v2, float *result);
+JPH_CAPI void Vector3_Normalize(const Vector3 *v, Vector3 *result);
 
-JPH_CAPI void JPH_Vec3_Add(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result);
-JPH_CAPI void JPH_Vec3_Subtract(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result);
-JPH_CAPI void JPH_Vec3_Multiply(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result);
-JPH_CAPI void JPH_Vec3_MultiplyScalar(const JPH_Vec3 *v, float scalar, JPH_Vec3 *result);
-JPH_CAPI void JPH_Vec3_Divide(const JPH_Vec3 *v1, const JPH_Vec3 *v2, JPH_Vec3 *result);
-JPH_CAPI void JPH_Vec3_DivideScalar(const JPH_Vec3 *v, float scalar, JPH_Vec3 *result);
+JPH_CAPI void Vector3_Add(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
+JPH_CAPI void Vector3_Subtract(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
+JPH_CAPI void Vector3_Multiply(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
+JPH_CAPI void Vector3_MultiplyScalar(const Vector3 *v, float scalar, Vector3 *result);
+JPH_CAPI void Vector3_Divide(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
+JPH_CAPI void Vector3_DivideScalar(const Vector3 *v, float scalar, Vector3 *result);
 
 JPH_CAPI void JPH_Matrix4x4_Add(const JPH_Matrix4x4 *m1, const JPH_Matrix4x4 *m2, JPH_Matrix4x4 *result);
 JPH_CAPI void JPH_Matrix4x4_Subtract(const JPH_Matrix4x4 *m1, const JPH_Matrix4x4 *m2, JPH_Matrix4x4 *result);
@@ -1234,14 +1228,14 @@ JPH_CAPI void JPH_Matrix4x4_Multiply(const JPH_Matrix4x4 *m1, const JPH_Matrix4x
 JPH_CAPI void JPH_Matrix4x4_MultiplyScalar(const JPH_Matrix4x4 *m, float scalar, JPH_Matrix4x4 *result);
 
 JPH_CAPI void JPH_Matrix4x4_Rotation(JPH_Matrix4x4 *result, const JPH_Quat *rotation);
-JPH_CAPI void JPH_Matrix4x4_Translation(JPH_Matrix4x4 *result, const JPH_Vec3 *translation);
+JPH_CAPI void JPH_Matrix4x4_Translation(JPH_Matrix4x4 *result, const Vector3 *translation);
 JPH_CAPI void JPH_Matrix4x4_RotationTranslation(JPH_Matrix4x4 *result,
                                                 const JPH_Quat *rotation,
-                                                const JPH_Vec3 *translation);
+                                                const Vector3 *translation);
 JPH_CAPI void JPH_Matrix4x4_InverseRotationTranslation(JPH_Matrix4x4 *result,
                                                        const JPH_Quat *rotation,
-                                                       const JPH_Vec3 *translation);
-JPH_CAPI void JPH_Matrix4x4_Scale(JPH_Matrix4x4 *result, const JPH_Vec3 *scale);
+                                                       const Vector3 *translation);
+JPH_CAPI void JPH_Matrix4x4_Scale(JPH_Matrix4x4 *result, const Vector3 *scale);
 JPH_CAPI void JPH_Matrix4x4_Inversed(const JPH_Matrix4x4 *m, JPH_Matrix4x4 *result);
 JPH_CAPI void JPH_Matrix4x4_Transposed(const JPH_Matrix4x4 *m, JPH_Matrix4x4 *result);
 
@@ -1255,13 +1249,13 @@ JPH_CAPI void JPH_RMatrix4x4_RotationTranslation(JPH_RMatrix4x4 *result,
 JPH_CAPI void JPH_RMatrix4x4_InverseRotationTranslation(JPH_RMatrix4x4 *result,
                                                         const JPH_Quat *rotation,
                                                         const JPH_RVec3 *translation);
-JPH_CAPI void JPH_RMatrix4x4_Scale(JPH_RMatrix4x4 *result, const JPH_Vec3 *scale);
+JPH_CAPI void JPH_RMatrix4x4_Scale(JPH_RMatrix4x4 *result, const Vector3 *scale);
 JPH_CAPI void JPH_RMatrix4x4_Inversed(const JPH_RMatrix4x4 *matrix, JPH_RMatrix4x4 *result);
 
-JPH_CAPI void JPH_Matrix4x4_GetAxisX(const JPH_Matrix4x4 *matrix, JPH_Vec3 *result);
-JPH_CAPI void JPH_Matrix4x4_GetAxisY(const JPH_Matrix4x4 *matrix, JPH_Vec3 *result);
-JPH_CAPI void JPH_Matrix4x4_GetAxisZ(const JPH_Matrix4x4 *matrix, JPH_Vec3 *result);
-JPH_CAPI void JPH_Matrix4x4_GetTranslation(const JPH_Matrix4x4 *matrix, JPH_Vec3 *result);
+JPH_CAPI void JPH_Matrix4x4_GetAxisX(const JPH_Matrix4x4 *matrix, Vector3 *result);
+JPH_CAPI void JPH_Matrix4x4_GetAxisY(const JPH_Matrix4x4 *matrix, Vector3 *result);
+JPH_CAPI void JPH_Matrix4x4_GetAxisZ(const JPH_Matrix4x4 *matrix, Vector3 *result);
+JPH_CAPI void JPH_Matrix4x4_GetTranslation(const JPH_Matrix4x4 *matrix, Vector3 *result);
 JPH_CAPI void JPH_Matrix4x4_GetQuaternion(const JPH_Matrix4x4 *matrix, JPH_Quat *result);
 
 /* Material */
@@ -1299,12 +1293,12 @@ JPH_CAPI JPH_ShapeSubType JPH_Shape_GetSubType(const JPH_Shape *shape);
 JPH_CAPI uint64_t JPH_Shape_GetUserData(const JPH_Shape *shape);
 JPH_CAPI void JPH_Shape_SetUserData(JPH_Shape *shape, uint64_t userData);
 JPH_CAPI bool JPH_Shape_MustBeStatic(const JPH_Shape *shape);
-JPH_CAPI void JPH_Shape_GetCenterOfMass(const JPH_Shape *shape, JPH_Vec3 *result);
+JPH_CAPI void JPH_Shape_GetCenterOfMass(const JPH_Shape *shape, Vector3 *result);
 JPH_CAPI void JPH_Shape_GetLocalBounds(const JPH_Shape *shape, JPH_AABox *result);
 JPH_CAPI uint32_t JPH_Shape_GetSubShapeIDBitsRecursive(const JPH_Shape *shape);
 JPH_CAPI void JPH_Shape_GetWorldSpaceBounds(const JPH_Shape *shape,
                                             const JPH_RMatrix4x4 *centerOfMassTransform,
-                                            const JPH_Vec3 *scale,
+                                            const Vector3 *scale,
                                             JPH_AABox *result);
 JPH_CAPI float JPH_Shape_GetInnerRadius(const JPH_Shape *shape);
 JPH_CAPI void JPH_Shape_GetMassProperties(const JPH_Shape *shape, JPH_MassProperties *result);
@@ -1314,33 +1308,33 @@ JPH_CAPI const JPH_Shape *JPH_Shape_GetLeafShape(const JPH_Shape *shape,
 JPH_CAPI const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, JPH_SubShapeId subShapeID);
 JPH_CAPI void JPH_Shape_GetSurfaceNormal(const JPH_Shape *shape,
                                          JPH_SubShapeId subShapeID,
-                                         const JPH_Vec3 *localPosition,
-                                         JPH_Vec3 *normal);
+                                         const Vector3 *localPosition,
+                                         Vector3 *normal);
 JPH_CAPI void JPH_Shape_GetSupportingFace(const JPH_Shape *shape,
                                           JPH_SubShapeId subShapeID,
-                                          const JPH_Vec3 *direction,
-                                          const JPH_Vec3 *scale,
+                                          const Vector3 *direction,
+                                          const Vector3 *scale,
                                           const JPH_Matrix4x4 *centerOfMassTransform,
                                           JPH_SupportingFace *outVertices);
 JPH_CAPI float JPH_Shape_GetVolume(const JPH_Shape *shape);
-JPH_CAPI bool JPH_Shape_IsValidScale(const JPH_Shape *shape, const JPH_Vec3 *scale);
-JPH_CAPI void JPH_Shape_MakeScaleValid(const JPH_Shape *shape, const JPH_Vec3 *scale, JPH_Vec3 *result);
-JPH_CAPI JPH_Shape *JPH_Shape_ScaleShape(const JPH_Shape *shape, const JPH_Vec3 *scale);
+JPH_CAPI bool JPH_Shape_IsValidScale(const JPH_Shape *shape, const Vector3 *scale);
+JPH_CAPI void JPH_Shape_MakeScaleValid(const JPH_Shape *shape, const Vector3 *scale, Vector3 *result);
+JPH_CAPI JPH_Shape *JPH_Shape_ScaleShape(const JPH_Shape *shape, const Vector3 *scale);
 JPH_CAPI bool JPH_Shape_CastRay(const JPH_Shape *shape,
-                                const JPH_Vec3 *origin,
-                                const JPH_Vec3 *direction,
+                                const Vector3 *origin,
+                                const Vector3 *direction,
                                 JPH_RayCastResult *hit);
 JPH_CAPI bool JPH_Shape_CastRay2(const JPH_Shape *shape,
-                                 const JPH_Vec3 *origin,
-                                 const JPH_Vec3 *direction,
+                                 const Vector3 *origin,
+                                 const Vector3 *direction,
                                  const JPH_RayCastSettings *rayCastSettings,
                                  JPH_CollisionCollectorType collectorType,
                                  JPH_CastRayResultCallback *callback,
                                  void *userData,
                                  const JPH_ShapeFilter *shapeFilter);
-JPH_CAPI bool JPH_Shape_CollidePoint(const JPH_Shape *shape, const JPH_Vec3 *point, const JPH_ShapeFilter *shapeFilter);
+JPH_CAPI bool JPH_Shape_CollidePoint(const JPH_Shape *shape, const Vector3 *point, const JPH_ShapeFilter *shapeFilter);
 JPH_CAPI bool JPH_Shape_CollidePoint2(const JPH_Shape *shape,
-                                      const JPH_Vec3 *point,
+                                      const Vector3 *point,
                                       JPH_CollisionCollectorType collectorType,
                                       JPH_CollidePointResultCallback *callback,
                                       void *userData,
@@ -1353,11 +1347,11 @@ JPH_CAPI float JPH_ConvexShape_GetDensity(const JPH_ConvexShape *shape);
 JPH_CAPI void JPH_ConvexShape_SetDensity(JPH_ConvexShape *shape, float density);
 
 /* BoxShape */
-JPH_CAPI JPH_BoxShapeSettings *JPH_BoxShapeSettings_Create(const JPH_Vec3 *halfExtent, float convexRadius);
+JPH_CAPI JPH_BoxShapeSettings *JPH_BoxShapeSettings_Create(const Vector3 *halfExtent, float convexRadius);
 JPH_CAPI JPH_BoxShape *JPH_BoxShapeSettings_CreateShape(const JPH_BoxShapeSettings *settings);
 
-JPH_CAPI JPH_BoxShape *JPH_BoxShape_Create(const JPH_Vec3 *halfExtent, float convexRadius);
-JPH_CAPI void JPH_BoxShape_GetHalfExtent(const JPH_BoxShape *shape, JPH_Vec3 *halfExtent);
+JPH_CAPI JPH_BoxShape *JPH_BoxShape_Create(const Vector3 *halfExtent, float convexRadius);
+JPH_CAPI void JPH_BoxShape_GetHalfExtent(const JPH_BoxShape *shape, Vector3 *halfExtent);
 JPH_CAPI float JPH_BoxShape_GetConvexRadius(const JPH_BoxShape *shape);
 
 /* SphereShape */
@@ -1381,20 +1375,20 @@ JPH_CAPI void JPH_PlaneShape_GetPlane(const JPH_PlaneShape *shape, JPH_Plane *re
 JPH_CAPI float JPH_PlaneShape_GetHalfExtent(const JPH_PlaneShape *shape);
 
 /* TriangleShape */
-JPH_CAPI JPH_TriangleShapeSettings *JPH_TriangleShapeSettings_Create(const JPH_Vec3 *v1,
-                                                                     const JPH_Vec3 *v2,
-                                                                     const JPH_Vec3 *v3,
+JPH_CAPI JPH_TriangleShapeSettings *JPH_TriangleShapeSettings_Create(const Vector3 *v1,
+                                                                     const Vector3 *v2,
+                                                                     const Vector3 *v3,
                                                                      float convexRadius);
 JPH_CAPI JPH_TriangleShape *JPH_TriangleShapeSettings_CreateShape(const JPH_TriangleShapeSettings *settings);
 
-JPH_CAPI JPH_TriangleShape *JPH_TriangleShape_Create(const JPH_Vec3 *v1,
-                                                     const JPH_Vec3 *v2,
-                                                     const JPH_Vec3 *v3,
+JPH_CAPI JPH_TriangleShape *JPH_TriangleShape_Create(const Vector3 *v1,
+                                                     const Vector3 *v2,
+                                                     const Vector3 *v3,
                                                      float convexRadius);
 JPH_CAPI float JPH_TriangleShape_GetConvexRadius(const JPH_TriangleShape *shape);
-JPH_CAPI void JPH_TriangleShape_GetVertex1(const JPH_TriangleShape *shape, JPH_Vec3 *result);
-JPH_CAPI void JPH_TriangleShape_GetVertex2(const JPH_TriangleShape *shape, JPH_Vec3 *result);
-JPH_CAPI void JPH_TriangleShape_GetVertex3(const JPH_TriangleShape *shape, JPH_Vec3 *result);
+JPH_CAPI void JPH_TriangleShape_GetVertex1(const JPH_TriangleShape *shape, Vector3 *result);
+JPH_CAPI void JPH_TriangleShape_GetVertex2(const JPH_TriangleShape *shape, Vector3 *result);
+JPH_CAPI void JPH_TriangleShape_GetVertex3(const JPH_TriangleShape *shape, Vector3 *result);
 
 /* CapsuleShape */
 JPH_CAPI JPH_CapsuleShapeSettings *JPH_CapsuleShapeSettings_Create(float halfHeightOfCylinder, float radius);
@@ -1428,12 +1422,12 @@ JPH_CAPI float JPH_TaperedCylinderShape_GetConvexRadius(const JPH_TaperedCylinde
 JPH_CAPI float JPH_TaperedCylinderShape_GetHalfHeight(const JPH_TaperedCylinderShape *shape);
 
 /* ConvexHullShape */
-JPH_CAPI JPH_ConvexHullShapeSettings *JPH_ConvexHullShapeSettings_Create(const JPH_Vec3 *points,
+JPH_CAPI JPH_ConvexHullShapeSettings *JPH_ConvexHullShapeSettings_Create(const Vector3 *points,
                                                                          uint32_t pointsCount,
                                                                          float maxConvexRadius);
 JPH_CAPI JPH_ConvexHullShape *JPH_ConvexHullShapeSettings_CreateShape(const JPH_ConvexHullShapeSettings *settings);
 JPH_CAPI uint32_t JPH_ConvexHullShape_GetNumPoints(const JPH_ConvexHullShape *shape);
-JPH_CAPI void JPH_ConvexHullShape_GetPoint(const JPH_ConvexHullShape *shape, uint32_t index, JPH_Vec3 *result);
+JPH_CAPI void JPH_ConvexHullShape_GetPoint(const JPH_ConvexHullShape *shape, uint32_t index, Vector3 *result);
 JPH_CAPI uint32_t JPH_ConvexHullShape_GetNumFaces(const JPH_ConvexHullShape *shape);
 JPH_CAPI uint32_t JPH_ConvexHullShape_GetNumVerticesInFace(const JPH_ConvexHullShape *shape, uint32_t faceIndex);
 JPH_CAPI uint32_t JPH_ConvexHullShape_GetFaceVertices(const JPH_ConvexHullShape *shape,
@@ -1443,7 +1437,7 @@ JPH_CAPI uint32_t JPH_ConvexHullShape_GetFaceVertices(const JPH_ConvexHullShape 
 
 /* MeshShape */
 JPH_CAPI JPH_MeshShapeSettings *JPH_MeshShapeSettings_Create(const JPH_Triangle *triangles, uint32_t triangleCount);
-JPH_CAPI JPH_MeshShapeSettings *JPH_MeshShapeSettings_Create2(const JPH_Vec3 *vertices,
+JPH_CAPI JPH_MeshShapeSettings *JPH_MeshShapeSettings_Create2(const Vector3 *vertices,
                                                               uint32_t verticesCount,
                                                               const JPH_IndexedTriangle *triangles,
                                                               uint32_t triangleCount);
@@ -1462,8 +1456,8 @@ JPH_CAPI uint32_t JPH_MeshShape_GetTriangleUserData(const JPH_MeshShape *shape, 
 
 /* HeightFieldShape */
 JPH_CAPI JPH_HeightFieldShapeSettings *JPH_HeightFieldShapeSettings_Create(const float *samples,
-                                                                           const JPH_Vec3 *offset,
-                                                                           const JPH_Vec3 *scale,
+                                                                           const Vector3 *offset,
+                                                                           const Vector3 *scale,
                                                                            uint32_t sampleCount);
 JPH_CAPI JPH_HeightFieldShape *JPH_HeightFieldShapeSettings_CreateShape(JPH_HeightFieldShapeSettings *settings);
 JPH_CAPI void JPH_HeightFieldShapeSettings_DetermineMinAndMaxSample(const JPH_HeightFieldShapeSettings *settings,
@@ -1482,11 +1476,11 @@ JPH_CAPI const JPH_PhysicsMaterial *JPH_HeightFieldShape_GetMaterial(const JPH_H
 JPH_CAPI void JPH_HeightFieldShape_GetPosition(const JPH_HeightFieldShape *shape,
                                                uint32_t x,
                                                uint32_t y,
-                                               JPH_Vec3 *result);
+                                               Vector3 *result);
 JPH_CAPI bool JPH_HeightFieldShape_IsNoCollision(const JPH_HeightFieldShape *shape, uint32_t x, uint32_t y);
 JPH_CAPI bool JPH_HeightFieldShape_ProjectOntoSurface(const JPH_HeightFieldShape *shape,
-                                                      const JPH_Vec3 *localPosition,
-                                                      JPH_Vec3 *outSurfacePosition,
+                                                      const Vector3 *localPosition,
+                                                      Vector3 *outSurfacePosition,
                                                       JPH_SubShapeId *outSubShapeID);
 JPH_CAPI float JPH_HeightFieldShape_GetMinHeightValue(const JPH_HeightFieldShape *shape);
 JPH_CAPI float JPH_HeightFieldShape_GetMaxHeightValue(const JPH_HeightFieldShape *shape);
@@ -1504,12 +1498,12 @@ JPH_CAPI float JPH_TaperedCapsuleShape_GetHalfHeight(const JPH_TaperedCapsuleSha
 
 /* CompoundShape */
 JPH_CAPI void JPH_CompoundShapeSettings_AddShape(JPH_CompoundShapeSettings *settings,
-                                                 const JPH_Vec3 *position,
+                                                 const Vector3 *position,
                                                  const JPH_Quat *rotation,
                                                  const JPH_ShapeSettings *shapeSettings,
                                                  uint32_t userData);
 JPH_CAPI void JPH_CompoundShapeSettings_AddShape2(JPH_CompoundShapeSettings *settings,
-                                                  const JPH_Vec3 *position,
+                                                  const Vector3 *position,
                                                   const JPH_Quat *rotation,
                                                   const JPH_Shape *shape,
                                                   uint32_t userData);
@@ -1517,7 +1511,7 @@ JPH_CAPI uint32_t JPH_CompoundShape_GetNumSubShapes(const JPH_CompoundShape *sha
 JPH_CAPI void JPH_CompoundShape_GetSubShape(const JPH_CompoundShape *shape,
                                             uint32_t index,
                                             const JPH_Shape **subShape,
-                                            JPH_Vec3 *positionCOM,
+                                            Vector3 *positionCOM,
                                             JPH_Quat *rotation,
                                             uint32_t *userData);
 JPH_CAPI uint32_t JPH_CompoundShape_GetSubShapeIndexFromID(const JPH_CompoundShape *shape,
@@ -1533,7 +1527,7 @@ JPH_CAPI JPH_MutableCompoundShapeSettings *JPH_MutableCompoundShapeSettings_Crea
 JPH_CAPI JPH_MutableCompoundShape *JPH_MutableCompoundShape_Create(const JPH_MutableCompoundShapeSettings *settings);
 
 JPH_CAPI uint32_t JPH_MutableCompoundShape_AddShape(JPH_MutableCompoundShape *shape,
-                                                    const JPH_Vec3 *position,
+                                                    const Vector3 *position,
                                                     const JPH_Quat *rotation,
                                                     const JPH_Shape *child,
                                                     uint32_t userData /* = 0 */,
@@ -1541,11 +1535,11 @@ JPH_CAPI uint32_t JPH_MutableCompoundShape_AddShape(JPH_MutableCompoundShape *sh
 JPH_CAPI void JPH_MutableCompoundShape_RemoveShape(JPH_MutableCompoundShape *shape, uint32_t index);
 JPH_CAPI void JPH_MutableCompoundShape_ModifyShape(JPH_MutableCompoundShape *shape,
                                                    uint32_t index,
-                                                   const JPH_Vec3 *position,
+                                                   const Vector3 *position,
                                                    const JPH_Quat *rotation);
 JPH_CAPI void JPH_MutableCompoundShape_ModifyShape2(JPH_MutableCompoundShape *shape,
                                                     uint32_t index,
-                                                    const JPH_Vec3 *position,
+                                                    const Vector3 *position,
                                                     const JPH_Quat *rotation,
                                                     const JPH_Shape *newShape);
 JPH_CAPI void JPH_MutableCompoundShape_AdjustCenterOfMass(JPH_MutableCompoundShape *shape);
@@ -1554,44 +1548,43 @@ JPH_CAPI void JPH_MutableCompoundShape_AdjustCenterOfMass(JPH_MutableCompoundSha
 JPH_CAPI const JPH_Shape *JPH_DecoratedShape_GetInnerShape(const JPH_DecoratedShape *shape);
 
 /* RotatedTranslatedShape */
-JPH_CAPI JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create(const JPH_Vec3 *position,
+JPH_CAPI JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create(const Vector3 *position,
                                                                                        const JPH_Quat *rotation,
                                                                                        const JPH_ShapeSettings
                                                                                                *shapeSettings);
-JPH_CAPI JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create2(const JPH_Vec3 *position,
+JPH_CAPI JPH_RotatedTranslatedShapeSettings *JPH_RotatedTranslatedShapeSettings_Create2(const Vector3 *position,
                                                                                         const JPH_Quat *rotation,
                                                                                         const JPH_Shape *shape);
 JPH_CAPI JPH_RotatedTranslatedShape *JPH_RotatedTranslatedShapeSettings_CreateShape(
         const JPH_RotatedTranslatedShapeSettings *settings);
-JPH_CAPI JPH_RotatedTranslatedShape *JPH_RotatedTranslatedShape_Create(const JPH_Vec3 *position,
+JPH_CAPI JPH_RotatedTranslatedShape *JPH_RotatedTranslatedShape_Create(const Vector3 *position,
                                                                        const JPH_Quat *rotation,
                                                                        const JPH_Shape *shape);
-JPH_CAPI void JPH_RotatedTranslatedShape_GetPosition(const JPH_RotatedTranslatedShape *shape, JPH_Vec3 *position);
+JPH_CAPI void JPH_RotatedTranslatedShape_GetPosition(const JPH_RotatedTranslatedShape *shape, Vector3 *position);
 JPH_CAPI void JPH_RotatedTranslatedShape_GetRotation(const JPH_RotatedTranslatedShape *shape, JPH_Quat *rotation);
 
 /* ScaledShape */
 JPH_CAPI JPH_ScaledShapeSettings *JPH_ScaledShapeSettings_Create(const JPH_ShapeSettings *shapeSettings,
-                                                                 const JPH_Vec3 *scale);
-JPH_CAPI JPH_ScaledShapeSettings *JPH_ScaledShapeSettings_Create2(const JPH_Shape *shape, const JPH_Vec3 *scale);
+                                                                 const Vector3 *scale);
+JPH_CAPI JPH_ScaledShapeSettings *JPH_ScaledShapeSettings_Create2(const JPH_Shape *shape, const Vector3 *scale);
 JPH_CAPI JPH_ScaledShape *JPH_ScaledShapeSettings_CreateShape(const JPH_ScaledShapeSettings *settings);
-JPH_CAPI JPH_ScaledShape *JPH_ScaledShape_Create(const JPH_Shape *shape, const JPH_Vec3 *scale);
-JPH_CAPI void JPH_ScaledShape_GetScale(const JPH_ScaledShape *shape, JPH_Vec3 *result);
+JPH_CAPI JPH_ScaledShape *JPH_ScaledShape_Create(const JPH_Shape *shape, const Vector3 *scale);
+JPH_CAPI void JPH_ScaledShape_GetScale(const JPH_ScaledShape *shape, Vector3 *result);
 
 /* OffsetCenterOfMassShape */
-JPH_CAPI JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create(const JPH_Vec3 *offset,
+JPH_CAPI JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create(const Vector3 *offset,
                                                                                          const JPH_ShapeSettings
                                                                                                  *shapeSettings);
-JPH_CAPI JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create2(const JPH_Vec3 *offset,
+JPH_CAPI JPH_OffsetCenterOfMassShapeSettings *JPH_OffsetCenterOfMassShapeSettings_Create2(const Vector3 *offset,
                                                                                           const JPH_Shape *shape);
 JPH_CAPI JPH_OffsetCenterOfMassShape *JPH_OffsetCenterOfMassShapeSettings_CreateShape(
         const JPH_OffsetCenterOfMassShapeSettings *settings);
 
-JPH_CAPI JPH_OffsetCenterOfMassShape *JPH_OffsetCenterOfMassShape_Create(const JPH_Vec3 *offset,
-                                                                         const JPH_Shape *shape);
-JPH_CAPI void JPH_OffsetCenterOfMassShape_GetOffset(const JPH_OffsetCenterOfMassShape *shape, JPH_Vec3 *result);
+JPH_CAPI JPH_OffsetCenterOfMassShape *JPH_OffsetCenterOfMassShape_Create(const Vector3 *offset, const JPH_Shape *shape);
+JPH_CAPI void JPH_OffsetCenterOfMassShape_GetOffset(const JPH_OffsetCenterOfMassShape *shape, Vector3 *result);
 
 /* EmptyShape */
-JPH_CAPI JPH_EmptyShapeSettings *JPH_EmptyShapeSettings_Create(const JPH_Vec3 *centerOfMass);
+JPH_CAPI JPH_EmptyShapeSettings *JPH_EmptyShapeSettings_Create(const Vector3 *centerOfMass);
 JPH_CAPI JPH_EmptyShape *JPH_EmptyShapeSettings_CreateShape(const JPH_EmptyShapeSettings *settings);
 
 /* JPH_BodyCreationSettings */
@@ -1614,11 +1607,11 @@ JPH_CAPI void JPH_BodyCreationSettings_SetPosition(JPH_BodyCreationSettings *set
 JPH_CAPI void JPH_BodyCreationSettings_GetRotation(JPH_BodyCreationSettings *settings, JPH_Quat *result);
 JPH_CAPI void JPH_BodyCreationSettings_SetRotation(JPH_BodyCreationSettings *settings, const JPH_Quat *value);
 
-JPH_CAPI void JPH_BodyCreationSettings_GetLinearVelocity(JPH_BodyCreationSettings *settings, JPH_Vec3 *velocity);
-JPH_CAPI void JPH_BodyCreationSettings_SetLinearVelocity(JPH_BodyCreationSettings *settings, const JPH_Vec3 *velocity);
+JPH_CAPI void JPH_BodyCreationSettings_GetLinearVelocity(JPH_BodyCreationSettings *settings, Vector3 *velocity);
+JPH_CAPI void JPH_BodyCreationSettings_SetLinearVelocity(JPH_BodyCreationSettings *settings, const Vector3 *velocity);
 
-JPH_CAPI void JPH_BodyCreationSettings_GetAngularVelocity(JPH_BodyCreationSettings *settings, JPH_Vec3 *velocity);
-JPH_CAPI void JPH_BodyCreationSettings_SetAngularVelocity(JPH_BodyCreationSettings *settings, const JPH_Vec3 *velocity);
+JPH_CAPI void JPH_BodyCreationSettings_GetAngularVelocity(JPH_BodyCreationSettings *settings, Vector3 *velocity);
+JPH_CAPI void JPH_BodyCreationSettings_SetAngularVelocity(JPH_BodyCreationSettings *settings, const Vector3 *velocity);
 
 JPH_CAPI uint64_t JPH_BodyCreationSettings_GetUserData(const JPH_BodyCreationSettings *settings);
 JPH_CAPI void JPH_BodyCreationSettings_SetUserData(JPH_BodyCreationSettings *settings, uint64_t value);
@@ -1719,9 +1712,7 @@ JPH_CAPI bool JPH_Constraint_GetEnabled(const JPH_Constraint *constraint);
 JPH_CAPI void JPH_Constraint_SetEnabled(JPH_Constraint *constraint, bool enabled);
 JPH_CAPI uint64_t JPH_Constraint_GetUserData(const JPH_Constraint *constraint);
 JPH_CAPI void JPH_Constraint_SetUserData(JPH_Constraint *constraint, uint64_t userData);
-JPH_CAPI void JPH_Constraint_NotifyShapeChanged(JPH_Constraint *constraint,
-                                                JPH_BodyId bodyID,
-                                                const JPH_Vec3 *deltaCOM);
+JPH_CAPI void JPH_Constraint_NotifyShapeChanged(JPH_Constraint *constraint, JPH_BodyId bodyID, const Vector3 *deltaCOM);
 JPH_CAPI void JPH_Constraint_ResetWarmStart(JPH_Constraint *constraint);
 JPH_CAPI bool JPH_Constraint_IsActive(const JPH_Constraint *constraint);
 JPH_CAPI void JPH_Constraint_SetupVelocityConstraint(JPH_Constraint *constraint, float deltaTime);
@@ -1744,8 +1735,8 @@ JPH_CAPI JPH_FixedConstraint *JPH_FixedConstraint_Create(const JPH_FixedConstrai
                                                          JPH_Body *body2);
 JPH_CAPI void JPH_FixedConstraint_GetSettings(const JPH_FixedConstraint *constraint,
                                               JPH_FixedConstraintSettings *settings);
-JPH_CAPI void JPH_FixedConstraint_GetTotalLambdaPosition(const JPH_FixedConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_FixedConstraint_GetTotalLambdaRotation(const JPH_FixedConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_FixedConstraint_GetTotalLambdaPosition(const JPH_FixedConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_FixedConstraint_GetTotalLambdaRotation(const JPH_FixedConstraint *constraint, Vector3 *result);
 
 /* JPH_DistanceConstraint */
 JPH_CAPI void JPH_DistanceConstraintSettings_Init(JPH_DistanceConstraintSettings *settings);
@@ -1778,9 +1769,9 @@ JPH_CAPI void JPH_PointConstraint_SetPoint1(JPH_PointConstraint *constraint,
 JPH_CAPI void JPH_PointConstraint_SetPoint2(JPH_PointConstraint *constraint,
                                             JPH_ConstraintSpace space,
                                             const JPH_RVec3 *value);
-JPH_CAPI void JPH_PointConstraint_GetLocalSpacePoint1(const JPH_PointConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_PointConstraint_GetLocalSpacePoint2(const JPH_PointConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_PointConstraint_GetTotalLambdaPosition(const JPH_PointConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_PointConstraint_GetLocalSpacePoint1(const JPH_PointConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_PointConstraint_GetLocalSpacePoint2(const JPH_PointConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_PointConstraint_GetTotalLambdaPosition(const JPH_PointConstraint *constraint, Vector3 *result);
 
 /* JPH_HingeConstraint */
 JPH_CAPI void JPH_HingeConstraintSettings_Init(JPH_HingeConstraintSettings *settings);
@@ -1788,12 +1779,12 @@ JPH_CAPI JPH_HingeConstraint *JPH_HingeConstraint_Create(const JPH_HingeConstrai
                                                          JPH_Body *body1,
                                                          JPH_Body *body2);
 JPH_CAPI void JPH_HingeConstraint_GetSettings(JPH_HingeConstraint *constraint, JPH_HingeConstraintSettings *settings);
-JPH_CAPI void JPH_HingeConstraint_GetLocalSpacePoint1(const JPH_HingeConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_HingeConstraint_GetLocalSpacePoint2(const JPH_HingeConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_HingeConstraint_GetLocalSpaceHingeAxis1(const JPH_HingeConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_HingeConstraint_GetLocalSpaceHingeAxis2(const JPH_HingeConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_HingeConstraint_GetLocalSpaceNormalAxis1(const JPH_HingeConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_HingeConstraint_GetLocalSpaceNormalAxis2(const JPH_HingeConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_HingeConstraint_GetLocalSpacePoint1(const JPH_HingeConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_HingeConstraint_GetLocalSpacePoint2(const JPH_HingeConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_HingeConstraint_GetLocalSpaceHingeAxis1(const JPH_HingeConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_HingeConstraint_GetLocalSpaceHingeAxis2(const JPH_HingeConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_HingeConstraint_GetLocalSpaceNormalAxis1(const JPH_HingeConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_HingeConstraint_GetLocalSpaceNormalAxis2(const JPH_HingeConstraint *constraint, Vector3 *result);
 JPH_CAPI float JPH_HingeConstraint_GetCurrentAngle(JPH_HingeConstraint *constraint);
 JPH_CAPI void JPH_HingeConstraint_SetMaxFrictionTorque(JPH_HingeConstraint *constraint, float frictionTorque);
 JPH_CAPI float JPH_HingeConstraint_GetMaxFrictionTorque(JPH_HingeConstraint *constraint);
@@ -1812,14 +1803,14 @@ JPH_CAPI bool JPH_HingeConstraint_HasLimits(JPH_HingeConstraint *constraint);
 JPH_CAPI void JPH_HingeConstraint_GetLimitsSpringSettings(JPH_HingeConstraint *constraint, JPH_SpringSettings *result);
 JPH_CAPI void JPH_HingeConstraint_SetLimitsSpringSettings(JPH_HingeConstraint *constraint,
                                                           const JPH_SpringSettings *settings);
-JPH_CAPI void JPH_HingeConstraint_GetTotalLambdaPosition(const JPH_HingeConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_HingeConstraint_GetTotalLambdaPosition(const JPH_HingeConstraint *constraint, Vector3 *result);
 JPH_CAPI void JPH_HingeConstraint_GetTotalLambdaRotation(const JPH_HingeConstraint *constraint, float rotation[2]);
 JPH_CAPI float JPH_HingeConstraint_GetTotalLambdaRotationLimits(const JPH_HingeConstraint *constraint);
 JPH_CAPI float JPH_HingeConstraint_GetTotalLambdaMotor(const JPH_HingeConstraint *constraint);
 
 /* JPH_SliderConstraint */
 JPH_CAPI void JPH_SliderConstraintSettings_Init(JPH_SliderConstraintSettings *settings);
-JPH_CAPI void JPH_SliderConstraintSettings_SetSliderAxis(JPH_SliderConstraintSettings *settings, const JPH_Vec3 *axis);
+JPH_CAPI void JPH_SliderConstraintSettings_SetSliderAxis(JPH_SliderConstraintSettings *settings, const Vector3 *axis);
 
 JPH_CAPI JPH_SliderConstraint *JPH_SliderConstraint_Create(const JPH_SliderConstraintSettings *settings,
                                                            JPH_Body *body1,
@@ -1848,7 +1839,7 @@ JPH_CAPI void JPH_SliderConstraint_SetLimitsSpringSettings(JPH_SliderConstraint 
                                                            const JPH_SpringSettings *settings);
 JPH_CAPI void JPH_SliderConstraint_GetTotalLambdaPosition(const JPH_SliderConstraint *constraint, float position[2]);
 JPH_CAPI float JPH_SliderConstraint_GetTotalLambdaPositionLimits(const JPH_SliderConstraint *constraint);
-JPH_CAPI void JPH_SliderConstraint_GetTotalLambdaRotation(const JPH_SliderConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_SliderConstraint_GetTotalLambdaRotation(const JPH_SliderConstraint *constraint, Vector3 *result);
 JPH_CAPI float JPH_SliderConstraint_GetTotalLambdaMotor(const JPH_SliderConstraint *constraint);
 
 /* JPH_ConeConstraint */
@@ -1859,7 +1850,7 @@ JPH_CAPI JPH_ConeConstraint *JPH_ConeConstraint_Create(const JPH_ConeConstraintS
 JPH_CAPI void JPH_ConeConstraint_GetSettings(JPH_ConeConstraint *constraint, JPH_ConeConstraintSettings *settings);
 JPH_CAPI void JPH_ConeConstraint_SetHalfConeAngle(JPH_ConeConstraint *constraint, float halfConeAngle);
 JPH_CAPI float JPH_ConeConstraint_GetCosHalfConeAngle(const JPH_ConeConstraint *constraint);
-JPH_CAPI void JPH_ConeConstraint_GetTotalLambdaPosition(const JPH_ConeConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_ConeConstraint_GetTotalLambdaPosition(const JPH_ConeConstraint *constraint, Vector3 *result);
 JPH_CAPI float JPH_ConeConstraint_GetTotalLambdaRotation(const JPH_ConeConstraint *constraint);
 
 /* JPH_SwingTwistConstraint */
@@ -1871,12 +1862,11 @@ JPH_CAPI void JPH_SwingTwistConstraint_GetSettings(JPH_SwingTwistConstraint *con
                                                    JPH_SwingTwistConstraintSettings *settings);
 JPH_CAPI float JPH_SwingTwistConstraint_GetNormalHalfConeAngle(JPH_SwingTwistConstraint *constraint);
 JPH_CAPI void JPH_SwingTwistConstraint_GetTotalLambdaPosition(const JPH_SwingTwistConstraint *constraint,
-                                                              JPH_Vec3 *result);
+                                                              Vector3 *result);
 JPH_CAPI float JPH_SwingTwistConstraint_GetTotalLambdaTwist(const JPH_SwingTwistConstraint *constraint);
 JPH_CAPI float JPH_SwingTwistConstraint_GetTotalLambdaSwingY(const JPH_SwingTwistConstraint *constraint);
 JPH_CAPI float JPH_SwingTwistConstraint_GetTotalLambdaSwingZ(const JPH_SwingTwistConstraint *constraint);
-JPH_CAPI void JPH_SwingTwistConstraint_GetTotalLambdaMotor(const JPH_SwingTwistConstraint *constraint,
-                                                           JPH_Vec3 *result);
+JPH_CAPI void JPH_SwingTwistConstraint_GetTotalLambdaMotor(const JPH_SwingTwistConstraint *constraint, Vector3 *result);
 
 /* JPH_SixDOFConstraint */
 JPH_CAPI void JPH_SixDOFConstraintSettings_Init(JPH_SixDOFConstraintSettings *settings);
@@ -1900,16 +1890,15 @@ JPH_CAPI void JPH_SixDOFConstraint_GetSettings(JPH_SixDOFConstraint *constraint,
                                                JPH_SixDOFConstraintSettings *settings);
 JPH_CAPI float JPH_SixDOFConstraint_GetLimitsMin(JPH_SixDOFConstraint *constraint, JPH_SixDOFConstraintAxis axis);
 JPH_CAPI float JPH_SixDOFConstraint_GetLimitsMax(JPH_SixDOFConstraint *constraint, JPH_SixDOFConstraintAxis axis);
-JPH_CAPI void JPH_SixDOFConstraint_GetTotalLambdaPosition(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_SixDOFConstraint_GetTotalLambdaRotation(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_GetTotalLambdaPosition(const JPH_SixDOFConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_GetTotalLambdaRotation(const JPH_SixDOFConstraint *constraint, Vector3 *result);
 JPH_CAPI void JPH_SixDOFConstraint_GetTotalLambdaMotorTranslation(const JPH_SixDOFConstraint *constraint,
-                                                                  JPH_Vec3 *result);
-JPH_CAPI void JPH_SixDOFConstraint_GetTotalLambdaMotorRotation(const JPH_SixDOFConstraint *constraint,
-                                                               JPH_Vec3 *result);
-JPH_CAPI void JPH_SixDOFConstraint_GetTranslationLimitsMin(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_SixDOFConstraint_GetTranslationLimitsMax(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_SixDOFConstraint_GetRotationLimitsMin(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_SixDOFConstraint_GetRotationLimitsMax(const JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
+                                                                  Vector3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_GetTotalLambdaMotorRotation(const JPH_SixDOFConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_GetTranslationLimitsMin(const JPH_SixDOFConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_GetTranslationLimitsMax(const JPH_SixDOFConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_GetRotationLimitsMin(const JPH_SixDOFConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_GetRotationLimitsMax(const JPH_SixDOFConstraint *constraint, Vector3 *result);
 JPH_CAPI bool JPH_SixDOFConstraint_IsFixedAxis(const JPH_SixDOFConstraint *constraint, JPH_SixDOFConstraintAxis axis);
 JPH_CAPI bool JPH_SixDOFConstraint_IsFreeAxis(const JPH_SixDOFConstraint *constraint, JPH_SixDOFConstraintAxis axis);
 JPH_CAPI void JPH_SixDOFConstraint_GetLimitsSpringSettings(JPH_SixDOFConstraint *constraint,
@@ -1931,13 +1920,13 @@ JPH_CAPI void JPH_SixDOFConstraint_SetMotorState(JPH_SixDOFConstraint *constrain
                                                  JPH_MotorState state);
 JPH_CAPI JPH_MotorState JPH_SixDOFConstraint_GetMotorState(JPH_SixDOFConstraint *constraint,
                                                            JPH_SixDOFConstraintAxis axis);
-JPH_CAPI void JPH_SixDOFConstraint_SetTargetVelocityCS(JPH_SixDOFConstraint *constraint, const JPH_Vec3 *inVelocity);
-JPH_CAPI void JPH_SixDOFConstraint_GetTargetVelocityCS(JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_SetTargetVelocityCS(JPH_SixDOFConstraint *constraint, const Vector3 *inVelocity);
+JPH_CAPI void JPH_SixDOFConstraint_GetTargetVelocityCS(JPH_SixDOFConstraint *constraint, Vector3 *result);
 JPH_CAPI void JPH_SixDOFConstraint_SetTargetAngularVelocityCS(JPH_SixDOFConstraint *constraint,
-                                                              const JPH_Vec3 *inAngularVelocity);
-JPH_CAPI void JPH_SixDOFConstraint_GetTargetAngularVelocityCS(JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_SixDOFConstraint_SetTargetPositionCS(JPH_SixDOFConstraint *constraint, const JPH_Vec3 *inPosition);
-JPH_CAPI void JPH_SixDOFConstraint_GetTargetPositionCS(JPH_SixDOFConstraint *constraint, JPH_Vec3 *result);
+                                                              const Vector3 *inAngularVelocity);
+JPH_CAPI void JPH_SixDOFConstraint_GetTargetAngularVelocityCS(JPH_SixDOFConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_SixDOFConstraint_SetTargetPositionCS(JPH_SixDOFConstraint *constraint, const Vector3 *inPosition);
+JPH_CAPI void JPH_SixDOFConstraint_GetTargetPositionCS(JPH_SixDOFConstraint *constraint, Vector3 *result);
 JPH_CAPI void JPH_SixDOFConstraint_SetTargetOrientationCS(JPH_SixDOFConstraint *constraint,
                                                           const JPH_Quat *inOrientation);
 JPH_CAPI void JPH_SixDOFConstraint_GetTargetOrientationCS(JPH_SixDOFConstraint *constraint, JPH_Quat *result);
@@ -1991,8 +1980,8 @@ JPH_CAPI JPH_BodyType JPH_BodyInterface_GetBodyType(JPH_BodyInterface *interface
 
 JPH_CAPI void JPH_BodyInterface_SetLinearVelocity(JPH_BodyInterface *interface,
                                                   JPH_BodyId bodyID,
-                                                  const JPH_Vec3 *velocity);
-JPH_CAPI void JPH_BodyInterface_GetLinearVelocity(JPH_BodyInterface *interface, JPH_BodyId bodyID, JPH_Vec3 *velocity);
+                                                  const Vector3 *velocity);
+JPH_CAPI void JPH_BodyInterface_GetLinearVelocity(JPH_BodyInterface *interface, JPH_BodyId bodyID, Vector3 *velocity);
 JPH_CAPI void JPH_BodyInterface_GetCenterOfMassPosition(JPH_BodyInterface *interface,
                                                         JPH_BodyId bodyID,
                                                         JPH_RVec3 *position);
@@ -2039,8 +2028,8 @@ JPH_CAPI void JPH_BodyInterface_SetPositionRotationAndVelocity(JPH_BodyInterface
                                                                JPH_BodyId bodyId,
                                                                const JPH_RVec3 *position,
                                                                const JPH_Quat *rotation,
-                                                               const JPH_Vec3 *linearVelocity,
-                                                               const JPH_Vec3 *angularVelocity);
+                                                               const Vector3 *linearVelocity,
+                                                               const Vector3 *angularVelocity);
 
 JPH_CAPI void JPH_BodyInterface_GetCollisionGroup(JPH_BodyInterface *interface,
                                                   JPH_BodyId bodyId,
@@ -2057,7 +2046,7 @@ JPH_CAPI void JPH_BodyInterface_SetShape(JPH_BodyInterface *interface,
                                          JPH_Activation activationMode);
 JPH_CAPI void JPH_BodyInterface_NotifyShapeChanged(JPH_BodyInterface *interface,
                                                    JPH_BodyId bodyId,
-                                                   const JPH_Vec3 *previousCenterOfMass,
+                                                   const Vector3 *previousCenterOfMass,
                                                    bool updateMassProperties,
                                                    JPH_Activation activationMode);
 
@@ -2082,62 +2071,62 @@ JPH_CAPI void JPH_BodyInterface_MoveKinematic(JPH_BodyInterface *interface,
 JPH_CAPI bool JPH_BodyInterface_ApplyBuoyancyImpulse(JPH_BodyInterface *interface,
                                                      JPH_BodyId bodyId,
                                                      const JPH_RVec3 *surfacePosition,
-                                                     const JPH_Vec3 *surfaceNormal,
+                                                     const Vector3 *surfaceNormal,
                                                      float buoyancy,
                                                      float linearDrag,
                                                      float angularDrag,
-                                                     const JPH_Vec3 *fluidVelocity,
-                                                     const JPH_Vec3 *gravity,
+                                                     const Vector3 *fluidVelocity,
+                                                     const Vector3 *gravity,
                                                      float deltaTime);
 
 JPH_CAPI void JPH_BodyInterface_SetLinearAndAngularVelocity(JPH_BodyInterface *interface,
                                                             JPH_BodyId bodyId,
-                                                            const JPH_Vec3 *linearVelocity,
-                                                            const JPH_Vec3 *angularVelocity);
+                                                            const Vector3 *linearVelocity,
+                                                            const Vector3 *angularVelocity);
 JPH_CAPI void JPH_BodyInterface_GetLinearAndAngularVelocity(JPH_BodyInterface *interface,
                                                             JPH_BodyId bodyId,
-                                                            JPH_Vec3 *linearVelocity,
-                                                            JPH_Vec3 *angularVelocity);
+                                                            Vector3 *linearVelocity,
+                                                            Vector3 *angularVelocity);
 
 JPH_CAPI void JPH_BodyInterface_AddLinearVelocity(JPH_BodyInterface *interface,
                                                   JPH_BodyId bodyId,
-                                                  const JPH_Vec3 *linearVelocity);
+                                                  const Vector3 *linearVelocity);
 JPH_CAPI void JPH_BodyInterface_AddLinearAndAngularVelocity(JPH_BodyInterface *interface,
                                                             JPH_BodyId bodyId,
-                                                            const JPH_Vec3 *linearVelocity,
-                                                            const JPH_Vec3 *angularVelocity);
+                                                            const Vector3 *linearVelocity,
+                                                            const Vector3 *angularVelocity);
 
 JPH_CAPI void JPH_BodyInterface_SetAngularVelocity(JPH_BodyInterface *interface,
                                                    JPH_BodyId bodyId,
-                                                   const JPH_Vec3 *angularVelocity);
+                                                   const Vector3 *angularVelocity);
 JPH_CAPI void JPH_BodyInterface_GetAngularVelocity(JPH_BodyInterface *interface,
                                                    JPH_BodyId bodyId,
-                                                   JPH_Vec3 *angularVelocity);
+                                                   Vector3 *angularVelocity);
 
 JPH_CAPI void JPH_BodyInterface_GetPointVelocity(JPH_BodyInterface *interface,
                                                  JPH_BodyId bodyId,
                                                  const JPH_RVec3 *point,
-                                                 JPH_Vec3 *velocity);
+                                                 Vector3 *velocity);
 
-JPH_CAPI void JPH_BodyInterface_AddForce(JPH_BodyInterface *interface, JPH_BodyId bodyId, const JPH_Vec3 *force);
+JPH_CAPI void JPH_BodyInterface_AddForce(JPH_BodyInterface *interface, JPH_BodyId bodyId, const Vector3 *force);
 JPH_CAPI void JPH_BodyInterface_AddForce2(JPH_BodyInterface *interface,
                                           JPH_BodyId bodyId,
-                                          const JPH_Vec3 *force,
+                                          const Vector3 *force,
                                           const JPH_RVec3 *point);
-JPH_CAPI void JPH_BodyInterface_AddTorque(JPH_BodyInterface *interface, JPH_BodyId bodyId, const JPH_Vec3 *torque);
+JPH_CAPI void JPH_BodyInterface_AddTorque(JPH_BodyInterface *interface, JPH_BodyId bodyId, const Vector3 *torque);
 JPH_CAPI void JPH_BodyInterface_AddForceAndTorque(JPH_BodyInterface *interface,
                                                   JPH_BodyId bodyId,
-                                                  const JPH_Vec3 *force,
-                                                  const JPH_Vec3 *torque);
+                                                  const Vector3 *force,
+                                                  const Vector3 *torque);
 
-JPH_CAPI void JPH_BodyInterface_AddImpulse(JPH_BodyInterface *interface, JPH_BodyId bodyId, const JPH_Vec3 *impulse);
+JPH_CAPI void JPH_BodyInterface_AddImpulse(JPH_BodyInterface *interface, JPH_BodyId bodyId, const Vector3 *impulse);
 JPH_CAPI void JPH_BodyInterface_AddImpulse2(JPH_BodyInterface *interface,
                                             JPH_BodyId bodyId,
-                                            const JPH_Vec3 *impulse,
+                                            const Vector3 *impulse,
                                             const JPH_RVec3 *point);
 JPH_CAPI void JPH_BodyInterface_AddAngularImpulse(JPH_BodyInterface *interface,
                                                   JPH_BodyId bodyId,
-                                                  const JPH_Vec3 *angularImpulse);
+                                                  const Vector3 *angularImpulse);
 
 JPH_CAPI void JPH_BodyInterface_SetMotionQuality(JPH_BodyInterface *interface,
                                                  JPH_BodyId bodyId,
@@ -2201,22 +2190,22 @@ JPH_CAPI void JPH_MotionProperties_SetMassProperties(JPH_MotionProperties *prope
                                                      const JPH_MassProperties *massProperties);
 JPH_CAPI float JPH_MotionProperties_GetInverseMassUnchecked(JPH_MotionProperties *properties);
 JPH_CAPI void JPH_MotionProperties_SetInverseMass(JPH_MotionProperties *properties, float inverseMass);
-JPH_CAPI void JPH_MotionProperties_GetInverseInertiaDiagonal(JPH_MotionProperties *properties, JPH_Vec3 *result);
+JPH_CAPI void JPH_MotionProperties_GetInverseInertiaDiagonal(JPH_MotionProperties *properties, Vector3 *result);
 JPH_CAPI void JPH_MotionProperties_GetInertiaRotation(JPH_MotionProperties *properties, JPH_Quat *result);
 JPH_CAPI void JPH_MotionProperties_SetInverseInertia(JPH_MotionProperties *properties,
-                                                     const JPH_Vec3 *diagonal,
+                                                     const Vector3 *diagonal,
                                                      const JPH_Quat *rot);
 JPH_CAPI void JPH_MotionProperties_ScaleToMass(JPH_MotionProperties *properties, float mass);
 
 //--------------------------------------------------------------------------------------------------
 // JPH_RayCast
 //--------------------------------------------------------------------------------------------------
-JPH_CAPI void JPH_RayCast_GetPointOnRay(const JPH_Vec3 *origin,
-                                        const JPH_Vec3 *direction,
+JPH_CAPI void JPH_RayCast_GetPointOnRay(const Vector3 *origin,
+                                        const Vector3 *direction,
                                         float fraction,
-                                        JPH_Vec3 *result);
+                                        Vector3 *result);
 JPH_CAPI void JPH_RRayCast_GetPointOnRay(const JPH_RVec3 *origin,
-                                         const JPH_Vec3 *direction,
+                                         const Vector3 *direction,
                                          float fraction,
                                          JPH_RVec3 *result);
 
@@ -2225,11 +2214,9 @@ JPH_CAPI void JPH_RRayCast_GetPointOnRay(const JPH_RVec3 *origin,
 //--------------------------------------------------------------------------------------------------
 JPH_CAPI void JPH_MassProperties_DecomposePrincipalMomentsOfInertia(const JPH_MassProperties *properties,
                                                                     JPH_Matrix4x4 *rotation,
-                                                                    JPH_Vec3 *diagonal);
+                                                                    Vector3 *diagonal);
 JPH_CAPI void JPH_MassProperties_ScaleToMass(JPH_MassProperties *properties, float mass);
-JPH_CAPI void JPH_MassProperties_GetEquivalentSolidBoxSize(float mass,
-                                                           const JPH_Vec3 *inertiaDiagonal,
-                                                           JPH_Vec3 *result);
+JPH_CAPI void JPH_MassProperties_GetEquivalentSolidBoxSize(float mass, const Vector3 *inertiaDiagonal, Vector3 *result);
 
 //--------------------------------------------------------------------------------------------------
 // JPH_CollideShapeSettings
@@ -2245,16 +2232,16 @@ JPH_CAPI void JPH_ShapeCastSettings_Init(JPH_ShapeCastSettings *settings);
 // JPH_BroadPhaseQuery
 //--------------------------------------------------------------------------------------------------
 JPH_CAPI bool JPH_BroadPhaseQuery_CastRay(const JPH_BroadPhaseQuery *query,
-                                          const JPH_Vec3 *origin,
-                                          const JPH_Vec3 *direction,
+                                          const Vector3 *origin,
+                                          const Vector3 *direction,
                                           JPH_RayCastBodyCollectorCallback *callback,
                                           void *userData,
                                           JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                           JPH_ObjectLayerFilter *objectLayerFilter);
 
 JPH_CAPI bool JPH_BroadPhaseQuery_CastRay2(const JPH_BroadPhaseQuery *query,
-                                           const JPH_Vec3 *origin,
-                                           const JPH_Vec3 *direction,
+                                           const Vector3 *origin,
+                                           const Vector3 *direction,
                                            JPH_CollisionCollectorType collectorType,
                                            JPH_RayCastBodyResultCallback *callback,
                                            void *userData,
@@ -2269,7 +2256,7 @@ JPH_CAPI bool JPH_BroadPhaseQuery_CollideAABox(const JPH_BroadPhaseQuery *query,
                                                JPH_ObjectLayerFilter *objectLayerFilter);
 
 JPH_CAPI bool JPH_BroadPhaseQuery_CollideSphere(const JPH_BroadPhaseQuery *query,
-                                                const JPH_Vec3 *center,
+                                                const Vector3 *center,
                                                 float radius,
                                                 JPH_CollideShapeBodyCollectorCallback *callback,
                                                 void *userData,
@@ -2277,7 +2264,7 @@ JPH_CAPI bool JPH_BroadPhaseQuery_CollideSphere(const JPH_BroadPhaseQuery *query
                                                 JPH_ObjectLayerFilter *objectLayerFilter);
 
 JPH_CAPI bool JPH_BroadPhaseQuery_CollidePoint(const JPH_BroadPhaseQuery *query,
-                                               const JPH_Vec3 *point,
+                                               const Vector3 *point,
                                                JPH_CollideShapeBodyCollectorCallback *callback,
                                                void *userData,
                                                JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
@@ -2287,16 +2274,15 @@ JPH_CAPI bool JPH_BroadPhaseQuery_CollidePoint(const JPH_BroadPhaseQuery *query,
 // JPH_NarrowPhaseQuery
 //--------------------------------------------------------------------------------------------------
 JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *query,
-                                                const JPH_RVec3 *origin,
-                                                const JPH_Vec3 *rotationEulerAngles,
-                                                float distance,
+                                                const Transform *transform,
+                                                float maxDistance,
                                                 JPH_RayCastResult *result,
                                                 JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                                 JPH_ObjectLayerFilter *objectLayerFilter);
 
 JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay(const JPH_NarrowPhaseQuery *query,
                                            const JPH_RVec3 *origin,
-                                           const JPH_Vec3 *direction,
+                                           const Vector3 *direction,
                                            JPH_RayCastResult *hit,
                                            JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                            JPH_ObjectLayerFilter *objectLayerFilter,
@@ -2304,7 +2290,7 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay(const JPH_NarrowPhaseQuery *query,
 
 JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay2(const JPH_NarrowPhaseQuery *query,
                                             const JPH_RVec3 *origin,
-                                            const JPH_Vec3 *direction,
+                                            const Vector3 *direction,
                                             const JPH_RayCastSettings *rayCastSettings,
                                             JPH_CastRayCollectorCallback *callback,
                                             void *userData,
@@ -2315,7 +2301,7 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay2(const JPH_NarrowPhaseQuery *query,
 
 JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay3(const JPH_NarrowPhaseQuery *query,
                                             const JPH_RVec3 *origin,
-                                            const JPH_Vec3 *direction,
+                                            const Vector3 *direction,
                                             const JPH_RayCastSettings *rayCastSettings,
                                             JPH_CollisionCollectorType collectorType,
                                             JPH_CastRayResultCallback *callback,
@@ -2346,7 +2332,7 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CollidePoint2(const JPH_NarrowPhaseQuery *que
 
 JPH_CAPI bool JPH_NarrowPhaseQuery_CollideShape(const JPH_NarrowPhaseQuery *query,
                                                 const JPH_Shape *shape,
-                                                const JPH_Vec3 *scale,
+                                                const Vector3 *scale,
                                                 const JPH_RMatrix4x4 *centerOfMassTransform,
                                                 const JPH_CollideShapeSettings *settings,
                                                 JPH_RVec3 *baseOffset,
@@ -2359,7 +2345,7 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CollideShape(const JPH_NarrowPhaseQuery *quer
 
 JPH_CAPI bool JPH_NarrowPhaseQuery_CollideShape2(const JPH_NarrowPhaseQuery *query,
                                                  const JPH_Shape *shape,
-                                                 const JPH_Vec3 *scale,
+                                                 const Vector3 *scale,
                                                  const JPH_RMatrix4x4 *centerOfMassTransform,
                                                  const JPH_CollideShapeSettings *settings,
                                                  JPH_RVec3 *baseOffset,
@@ -2374,7 +2360,7 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CollideShape2(const JPH_NarrowPhaseQuery *que
 JPH_CAPI bool JPH_NarrowPhaseQuery_CastShape(const JPH_NarrowPhaseQuery *query,
                                              const JPH_Shape *shape,
                                              const JPH_RMatrix4x4 *worldTransform,
-                                             const JPH_Vec3 *direction,
+                                             const Vector3 *direction,
                                              const JPH_ShapeCastSettings *settings,
                                              JPH_RVec3 *baseOffset,
                                              JPH_CastShapeCollectorCallback *callback,
@@ -2387,7 +2373,7 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CastShape(const JPH_NarrowPhaseQuery *query,
 JPH_CAPI bool JPH_NarrowPhaseQuery_CastShape2(const JPH_NarrowPhaseQuery *query,
                                               const JPH_Shape *shape,
                                               const JPH_RMatrix4x4 *worldTransform,
-                                              const JPH_Vec3 *direction,
+                                              const Vector3 *direction,
                                               const JPH_ShapeCastSettings *settings,
                                               JPH_RVec3 *baseOffset,
                                               JPH_CollisionCollectorType collectorType,
@@ -2445,42 +2431,42 @@ JPH_CAPI float JPH_Body_GetFriction(const JPH_Body *body);
 JPH_CAPI void JPH_Body_SetFriction(JPH_Body *body, float friction);
 JPH_CAPI float JPH_Body_GetRestitution(const JPH_Body *body);
 JPH_CAPI void JPH_Body_SetRestitution(JPH_Body *body, float restitution);
-JPH_CAPI void JPH_Body_GetLinearVelocity(JPH_Body *body, JPH_Vec3 *velocity);
-JPH_CAPI void JPH_Body_SetLinearVelocity(JPH_Body *body, const JPH_Vec3 *velocity);
-JPH_CAPI void JPH_Body_SetLinearVelocityClamped(JPH_Body *body, const JPH_Vec3 *velocity);
-JPH_CAPI void JPH_Body_GetAngularVelocity(JPH_Body *body, JPH_Vec3 *velocity);
-JPH_CAPI void JPH_Body_SetAngularVelocity(JPH_Body *body, const JPH_Vec3 *velocity);
-JPH_CAPI void JPH_Body_SetAngularVelocityClamped(JPH_Body *body, const JPH_Vec3 *velocity);
+JPH_CAPI void JPH_Body_GetLinearVelocity(JPH_Body *body, Vector3 *velocity);
+JPH_CAPI void JPH_Body_SetLinearVelocity(JPH_Body *body, const Vector3 *velocity);
+JPH_CAPI void JPH_Body_SetLinearVelocityClamped(JPH_Body *body, const Vector3 *velocity);
+JPH_CAPI void JPH_Body_GetAngularVelocity(JPH_Body *body, Vector3 *velocity);
+JPH_CAPI void JPH_Body_SetAngularVelocity(JPH_Body *body, const Vector3 *velocity);
+JPH_CAPI void JPH_Body_SetAngularVelocityClamped(JPH_Body *body, const Vector3 *velocity);
 
-JPH_CAPI void JPH_Body_GetPointVelocityCOM(JPH_Body *body, const JPH_Vec3 *pointRelativeToCOM, JPH_Vec3 *velocity);
-JPH_CAPI void JPH_Body_GetPointVelocity(JPH_Body *body, const JPH_RVec3 *point, JPH_Vec3 *velocity);
+JPH_CAPI void JPH_Body_GetPointVelocityCOM(JPH_Body *body, const Vector3 *pointRelativeToCOM, Vector3 *velocity);
+JPH_CAPI void JPH_Body_GetPointVelocity(JPH_Body *body, const JPH_RVec3 *point, Vector3 *velocity);
 
-JPH_CAPI void JPH_Body_AddForce(JPH_Body *body, const JPH_Vec3 *force);
-JPH_CAPI void JPH_Body_AddForceAtPosition(JPH_Body *body, const JPH_Vec3 *force, const JPH_RVec3 *position);
-JPH_CAPI void JPH_Body_AddTorque(JPH_Body *body, const JPH_Vec3 *force);
-JPH_CAPI void JPH_Body_GetAccumulatedForce(JPH_Body *body, JPH_Vec3 *force);
-JPH_CAPI void JPH_Body_GetAccumulatedTorque(JPH_Body *body, JPH_Vec3 *force);
+JPH_CAPI void JPH_Body_AddForce(JPH_Body *body, const Vector3 *force);
+JPH_CAPI void JPH_Body_AddForceAtPosition(JPH_Body *body, const Vector3 *force, const JPH_RVec3 *position);
+JPH_CAPI void JPH_Body_AddTorque(JPH_Body *body, const Vector3 *force);
+JPH_CAPI void JPH_Body_GetAccumulatedForce(JPH_Body *body, Vector3 *force);
+JPH_CAPI void JPH_Body_GetAccumulatedTorque(JPH_Body *body, Vector3 *force);
 JPH_CAPI void JPH_Body_ResetForce(JPH_Body *body);
 JPH_CAPI void JPH_Body_ResetTorque(JPH_Body *body);
 JPH_CAPI void JPH_Body_ResetMotion(JPH_Body *body);
 
 JPH_CAPI void JPH_Body_GetInverseInertia(JPH_Body *body, JPH_Matrix4x4 *result);
 
-JPH_CAPI void JPH_Body_AddImpulse(JPH_Body *body, const JPH_Vec3 *impulse);
-JPH_CAPI void JPH_Body_AddImpulseAtPosition(JPH_Body *body, const JPH_Vec3 *impulse, const JPH_RVec3 *position);
-JPH_CAPI void JPH_Body_AddAngularImpulse(JPH_Body *body, const JPH_Vec3 *angularImpulse);
+JPH_CAPI void JPH_Body_AddImpulse(JPH_Body *body, const Vector3 *impulse);
+JPH_CAPI void JPH_Body_AddImpulseAtPosition(JPH_Body *body, const Vector3 *impulse, const JPH_RVec3 *position);
+JPH_CAPI void JPH_Body_AddAngularImpulse(JPH_Body *body, const Vector3 *angularImpulse);
 JPH_CAPI void JPH_Body_MoveKinematic(JPH_Body *body,
                                      const JPH_RVec3 *targetPosition,
                                      const JPH_Quat *targetRotation,
                                      float deltaTime);
 JPH_CAPI bool JPH_Body_ApplyBuoyancyImpulse(JPH_Body *body,
                                             const JPH_RVec3 *surfacePosition,
-                                            const JPH_Vec3 *surfaceNormal,
+                                            const Vector3 *surfaceNormal,
                                             float buoyancy,
                                             float linearDrag,
                                             float angularDrag,
-                                            const JPH_Vec3 *fluidVelocity,
-                                            const JPH_Vec3 *gravity,
+                                            const Vector3 *fluidVelocity,
+                                            const Vector3 *gravity,
                                             float deltaTime);
 
 JPH_CAPI bool JPH_Body_IsInBroadPhase(JPH_Body *body);
@@ -2499,7 +2485,7 @@ JPH_CAPI void JPH_Body_GetWorldSpaceBounds(const JPH_Body *body, JPH_AABox *resu
 JPH_CAPI void JPH_Body_GetWorldSpaceSurfaceNormal(const JPH_Body *body,
                                                   JPH_SubShapeId subShapeID,
                                                   const JPH_RVec3 *position,
-                                                  JPH_Vec3 *normal);
+                                                  Vector3 *normal);
 
 JPH_CAPI JPH_MotionProperties *JPH_Body_GetMotionProperties(JPH_Body *body);
 JPH_CAPI JPH_MotionProperties *JPH_Body_GetMotionPropertiesUnchecked(JPH_Body *body);
@@ -2620,7 +2606,7 @@ JPH_CAPI JPH_BodyDrawFilter *JPH_BodyDrawFilter_Create(void *userData);
 JPH_CAPI void JPH_BodyDrawFilter_Destroy(JPH_BodyDrawFilter *filter);
 
 /* ContactManifold */
-JPH_CAPI void JPH_ContactManifold_GetWorldSpaceNormal(const JPH_ContactManifold *manifold, JPH_Vec3 *result);
+JPH_CAPI void JPH_ContactManifold_GetWorldSpaceNormal(const JPH_ContactManifold *manifold, Vector3 *result);
 JPH_CAPI float JPH_ContactManifold_GetPenetrationDepth(const JPH_ContactManifold *manifold);
 JPH_CAPI JPH_SubShapeId JPH_ContactManifold_GetSubShapeID1(const JPH_ContactManifold *manifold);
 JPH_CAPI JPH_SubShapeId JPH_ContactManifold_GetSubShapeID2(const JPH_ContactManifold *manifold);
@@ -2647,27 +2633,27 @@ JPH_CAPI float JPH_ContactSettings_GetInvInertiaScale2(JPH_ContactSettings *sett
 JPH_CAPI void JPH_ContactSettings_SetInvInertiaScale2(JPH_ContactSettings *settings, float scale);
 JPH_CAPI bool JPH_ContactSettings_GetIsSensor(const JPH_ContactSettings *settings);
 JPH_CAPI void JPH_ContactSettings_SetIsSensor(JPH_ContactSettings *settings, bool sensor);
-JPH_CAPI void JPH_ContactSettings_GetRelativeLinearSurfaceVelocity(JPH_ContactSettings *settings, JPH_Vec3 *result);
+JPH_CAPI void JPH_ContactSettings_GetRelativeLinearSurfaceVelocity(JPH_ContactSettings *settings, Vector3 *result);
 JPH_CAPI void JPH_ContactSettings_SetRelativeLinearSurfaceVelocity(JPH_ContactSettings *settings,
-                                                                   const JPH_Vec3 *velocity);
-JPH_CAPI void JPH_ContactSettings_GetRelativeAngularSurfaceVelocity(JPH_ContactSettings *settings, JPH_Vec3 *result);
+                                                                   const Vector3 *velocity);
+JPH_CAPI void JPH_ContactSettings_GetRelativeAngularSurfaceVelocity(JPH_ContactSettings *settings, Vector3 *result);
 JPH_CAPI void JPH_ContactSettings_SetRelativeAngularSurfaceVelocity(JPH_ContactSettings *settings,
-                                                                    const JPH_Vec3 *velocity);
+                                                                    const Vector3 *velocity);
 
 /* CharacterBase */
 JPH_CAPI void JPH_CharacterBase_Destroy(JPH_CharacterBase *character);
 JPH_CAPI float JPH_CharacterBase_GetCosMaxSlopeAngle(JPH_CharacterBase *character);
 JPH_CAPI void JPH_CharacterBase_SetMaxSlopeAngle(JPH_CharacterBase *character, float maxSlopeAngle);
-JPH_CAPI void JPH_CharacterBase_GetUp(JPH_CharacterBase *character, JPH_Vec3 *result);
-JPH_CAPI void JPH_CharacterBase_SetUp(JPH_CharacterBase *character, const JPH_Vec3 *value);
-JPH_CAPI bool JPH_CharacterBase_IsSlopeTooSteep(JPH_CharacterBase *character, const JPH_Vec3 *value);
+JPH_CAPI void JPH_CharacterBase_GetUp(JPH_CharacterBase *character, Vector3 *result);
+JPH_CAPI void JPH_CharacterBase_SetUp(JPH_CharacterBase *character, const Vector3 *value);
+JPH_CAPI bool JPH_CharacterBase_IsSlopeTooSteep(JPH_CharacterBase *character, const Vector3 *value);
 JPH_CAPI const JPH_Shape *JPH_CharacterBase_GetShape(JPH_CharacterBase *character);
 
 JPH_CAPI JPH_GroundState JPH_CharacterBase_GetGroundState(JPH_CharacterBase *character);
 JPH_CAPI bool JPH_CharacterBase_IsSupported(JPH_CharacterBase *character);
 JPH_CAPI void JPH_CharacterBase_GetGroundPosition(JPH_CharacterBase *character, JPH_RVec3 *position);
-JPH_CAPI void JPH_CharacterBase_GetGroundNormal(JPH_CharacterBase *character, JPH_Vec3 *normal);
-JPH_CAPI void JPH_CharacterBase_GetGroundVelocity(JPH_CharacterBase *character, JPH_Vec3 *velocity);
+JPH_CAPI void JPH_CharacterBase_GetGroundNormal(JPH_CharacterBase *character, Vector3 *normal);
+JPH_CAPI void JPH_CharacterBase_GetGroundVelocity(JPH_CharacterBase *character, Vector3 *velocity);
 JPH_CAPI const JPH_PhysicsMaterial *JPH_CharacterBase_GetGroundMaterial(JPH_CharacterBase *character);
 JPH_CAPI JPH_BodyId JPH_CharacterBase_GetGroundBodyId(JPH_CharacterBase *character);
 JPH_CAPI JPH_SubShapeId JPH_CharacterBase_GetGroundSubShapeId(JPH_CharacterBase *character);
@@ -2692,17 +2678,17 @@ JPH_CAPI void JPH_Character_PostSimulation(JPH_Character *character,
                                            float maxSeparationDistance,
                                            bool lockBodies /* = true */);
 JPH_CAPI void JPH_Character_SetLinearAndAngularVelocity(JPH_Character *character,
-                                                        const JPH_Vec3 *linearVelocity,
-                                                        const JPH_Vec3 *angularVelocity,
+                                                        const Vector3 *linearVelocity,
+                                                        const Vector3 *angularVelocity,
                                                         bool lockBodies /* = true */);
-JPH_CAPI void JPH_Character_GetLinearVelocity(JPH_Character *character, JPH_Vec3 *result);
+JPH_CAPI void JPH_Character_GetLinearVelocity(JPH_Character *character, Vector3 *result);
 JPH_CAPI void JPH_Character_SetLinearVelocity(JPH_Character *character,
-                                              const JPH_Vec3 *value,
+                                              const Vector3 *value,
                                               bool lockBodies /* = true */);
 JPH_CAPI void JPH_Character_AddLinearVelocity(JPH_Character *character,
-                                              const JPH_Vec3 *value,
+                                              const Vector3 *value,
                                               bool lockBodies /* = true */);
-JPH_CAPI void JPH_Character_AddImpulse(JPH_Character *character, const JPH_Vec3 *value, bool lockBodies /* = true */);
+JPH_CAPI void JPH_Character_AddImpulse(JPH_Character *character, const Vector3 *value, bool lockBodies /* = true */);
 JPH_CAPI JPH_BodyId JPH_Character_GetBodyID(const JPH_Character *character);
 
 JPH_CAPI void JPH_Character_GetPositionAndRotation(JPH_Character *character,
@@ -2753,8 +2739,8 @@ JPH_CAPI void JPH_CharacterVirtual_SetCharacterVsCharacterCollision(JPH_Characte
                                                                     JPH_CharacterVsCharacterCollision
                                                                             *characterVsCharacterCollision);
 
-JPH_CAPI void JPH_CharacterVirtual_GetLinearVelocity(JPH_CharacterVirtual *character, JPH_Vec3 *velocity);
-JPH_CAPI void JPH_CharacterVirtual_SetLinearVelocity(JPH_CharacterVirtual *character, const JPH_Vec3 *velocity);
+JPH_CAPI void JPH_CharacterVirtual_GetLinearVelocity(JPH_CharacterVirtual *character, Vector3 *velocity);
+JPH_CAPI void JPH_CharacterVirtual_SetLinearVelocity(JPH_CharacterVirtual *character, const Vector3 *velocity);
 JPH_CAPI void JPH_CharacterVirtual_GetPosition(JPH_CharacterVirtual *character, JPH_RVec3 *position);
 JPH_CAPI void JPH_CharacterVirtual_SetPosition(JPH_CharacterVirtual *character, const JPH_RVec3 *position);
 JPH_CAPI void JPH_CharacterVirtual_GetRotation(JPH_CharacterVirtual *character, JPH_Quat *rotation);
@@ -2776,15 +2762,15 @@ JPH_CAPI void JPH_CharacterVirtual_SetMaxNumHits(JPH_CharacterVirtual *character
 JPH_CAPI float JPH_CharacterVirtual_GetHitReductionCosMaxAngle(JPH_CharacterVirtual *character);
 JPH_CAPI void JPH_CharacterVirtual_SetHitReductionCosMaxAngle(JPH_CharacterVirtual *character, float value);
 JPH_CAPI bool JPH_CharacterVirtual_GetMaxHitsExceeded(JPH_CharacterVirtual *character);
-JPH_CAPI void JPH_CharacterVirtual_GetShapeOffset(JPH_CharacterVirtual *character, JPH_Vec3 *result);
-JPH_CAPI void JPH_CharacterVirtual_SetShapeOffset(JPH_CharacterVirtual *character, const JPH_Vec3 *value);
+JPH_CAPI void JPH_CharacterVirtual_GetShapeOffset(JPH_CharacterVirtual *character, Vector3 *result);
+JPH_CAPI void JPH_CharacterVirtual_SetShapeOffset(JPH_CharacterVirtual *character, const Vector3 *value);
 JPH_CAPI uint64_t JPH_CharacterVirtual_GetUserData(const JPH_CharacterVirtual *character);
 JPH_CAPI void JPH_CharacterVirtual_SetUserData(JPH_CharacterVirtual *character, uint64_t value);
 JPH_CAPI JPH_BodyId JPH_CharacterVirtual_GetInnerBodyID(const JPH_CharacterVirtual *character);
 
 JPH_CAPI void JPH_CharacterVirtual_CancelVelocityTowardsSteepSlopes(JPH_CharacterVirtual *character,
-                                                                    const JPH_Vec3 *desiredVelocity,
-                                                                    JPH_Vec3 *velocity);
+                                                                    const Vector3 *desiredVelocity,
+                                                                    Vector3 *velocity);
 JPH_CAPI void JPH_CharacterVirtual_StartTrackingContactChanges(JPH_CharacterVirtual *character);
 JPH_CAPI void JPH_CharacterVirtual_FinishTrackingContactChanges(JPH_CharacterVirtual *character);
 JPH_CAPI void JPH_CharacterVirtual_Update(JPH_CharacterVirtual *character,
@@ -2807,20 +2793,20 @@ JPH_CAPI void JPH_CharacterVirtual_RefreshContacts(JPH_CharacterVirtual *charact
                                                    const JPH_BodyFilter *bodyFilter,
                                                    const JPH_ShapeFilter *shapeFilter);
 
-JPH_CAPI bool JPH_CharacterVirtual_CanWalkStairs(JPH_CharacterVirtual *character, const JPH_Vec3 *linearVelocity);
+JPH_CAPI bool JPH_CharacterVirtual_CanWalkStairs(JPH_CharacterVirtual *character, const Vector3 *linearVelocity);
 JPH_CAPI bool JPH_CharacterVirtual_WalkStairs(JPH_CharacterVirtual *character,
                                               float deltaTime,
-                                              const JPH_Vec3 *stepUp,
-                                              const JPH_Vec3 *stepForward,
-                                              const JPH_Vec3 *stepForwardTest,
-                                              const JPH_Vec3 *stepDownExtra,
+                                              const Vector3 *stepUp,
+                                              const Vector3 *stepForward,
+                                              const Vector3 *stepForwardTest,
+                                              const Vector3 *stepDownExtra,
                                               JPH_ObjectLayer layer,
                                               const JPH_PhysicsSystem *system,
                                               const JPH_BodyFilter *bodyFilter,
                                               const JPH_ShapeFilter *shapeFilter);
 
 JPH_CAPI bool JPH_CharacterVirtual_StickToFloor(JPH_CharacterVirtual *character,
-                                                const JPH_Vec3 *stepDown,
+                                                const Vector3 *stepDown,
                                                 JPH_ObjectLayer layer,
                                                 const JPH_PhysicsSystem *system,
                                                 const JPH_BodyFilter *bodyFilter,
@@ -2851,8 +2837,8 @@ typedef struct JPH_CharacterContactListener_Impl
 {
         void(JPH_API_CALL *OnAdjustBodyVelocity)(const JPH_CharacterVirtual *character,
                                                  const JPH_Body *body2,
-                                                 JPH_Vec3 *ioLinearVelocity,
-                                                 JPH_Vec3 *ioAngularVelocity);
+                                                 Vector3 *ioLinearVelocity,
+                                                 Vector3 *ioAngularVelocity);
 
         bool(JPH_API_CALL *OnContactValidate)(const JPH_CharacterVirtual *character,
                                               JPH_BodyId bodyID2,
@@ -2866,14 +2852,14 @@ typedef struct JPH_CharacterContactListener_Impl
                                            JPH_BodyId bodyID2,
                                            JPH_SubShapeId subShapeID2,
                                            const JPH_RVec3 *contactPosition,
-                                           const JPH_Vec3 *contactNormal,
+                                           const Vector3 *contactNormal,
                                            JPH_CharacterContactSettings *ioSettings);
 
         void(JPH_API_CALL *OnContactPersisted)(const JPH_CharacterVirtual *character,
                                                JPH_BodyId bodyID2,
                                                JPH_SubShapeId subShapeID2,
                                                const JPH_RVec3 *contactPosition,
-                                               const JPH_Vec3 *contactNormal,
+                                               const Vector3 *contactNormal,
                                                JPH_CharacterContactSettings *ioSettings);
 
         void(JPH_API_CALL *OnContactRemoved)(const JPH_CharacterVirtual *character,
@@ -2884,14 +2870,14 @@ typedef struct JPH_CharacterContactListener_Impl
                                                     const JPH_CharacterVirtual *otherCharacter,
                                                     JPH_SubShapeId subShapeID2,
                                                     const JPH_RVec3 *contactPosition,
-                                                    const JPH_Vec3 *contactNormal,
+                                                    const Vector3 *contactNormal,
                                                     JPH_CharacterContactSettings *ioSettings);
 
         void(JPH_API_CALL *OnCharacterContactPersisted)(const JPH_CharacterVirtual *character,
                                                         const JPH_CharacterVirtual *otherCharacter,
                                                         JPH_SubShapeId subShapeID2,
                                                         const JPH_RVec3 *contactPosition,
-                                                        const JPH_Vec3 *contactNormal,
+                                                        const Vector3 *contactNormal,
                                                         JPH_CharacterContactSettings *ioSettings);
 
         void(JPH_API_CALL *OnCharacterContactRemoved)(const JPH_CharacterVirtual *character,
@@ -2902,21 +2888,21 @@ typedef struct JPH_CharacterContactListener_Impl
                                            JPH_BodyId bodyID2,
                                            JPH_SubShapeId subShapeID2,
                                            const JPH_RVec3 *contactPosition,
-                                           const JPH_Vec3 *contactNormal,
-                                           const JPH_Vec3 *contactVelocity,
+                                           const Vector3 *contactNormal,
+                                           const Vector3 *contactVelocity,
                                            const JPH_PhysicsMaterial *contactMaterial,
-                                           const JPH_Vec3 *characterVelocity,
-                                           JPH_Vec3 *newCharacterVelocity);
+                                           const Vector3 *characterVelocity,
+                                           Vector3 *newCharacterVelocity);
 
         void(JPH_API_CALL *OnCharacterContactSolve)(const JPH_CharacterVirtual *character,
                                                     const JPH_CharacterVirtual *otherCharacter,
                                                     JPH_SubShapeId subShapeID2,
                                                     const JPH_RVec3 *contactPosition,
-                                                    const JPH_Vec3 *contactNormal,
-                                                    const JPH_Vec3 *contactVelocity,
+                                                    const Vector3 *contactNormal,
+                                                    const Vector3 *contactVelocity,
                                                     const JPH_PhysicsMaterial *contactMaterial,
-                                                    const JPH_Vec3 *characterVelocity,
-                                                    JPH_Vec3 *newCharacterVelocity);
+                                                    const Vector3 *characterVelocity,
+                                                    Vector3 *newCharacterVelocity);
 } JPH_CharacterContactListener_Impl;
 
 JPH_CAPI JPH_CharacterContactListener *JPH_CharacterContactListener_Create(const JPH_CharacterContactListener_Impl
@@ -2937,7 +2923,7 @@ typedef struct JPH_CharacterVsCharacterCollision_Impl
         void(JPH_API_CALL *CastCharacter)(void *userData,
                                           const JPH_CharacterVirtual *character,
                                           const JPH_RMatrix4x4 *centerOfMassTransform,
-                                          const JPH_Vec3 *direction,
+                                          const Vector3 *direction,
                                           const JPH_ShapeCastSettings *shapeCastSettings,
                                           const JPH_RVec3 *baseOffset);
 } JPH_CharacterVsCharacterCollision_Impl;
@@ -2956,8 +2942,8 @@ JPH_CAPI void JPH_CharacterVsCharacterCollision_Destroy(JPH_CharacterVsCharacter
 /* CollisionDispatch */
 JPH_CAPI bool JPH_CollisionDispatch_CollideShapeVsShape(const JPH_Shape *shape1,
                                                         const JPH_Shape *shape2,
-                                                        const JPH_Vec3 *scale1,
-                                                        const JPH_Vec3 *scale2,
+                                                        const Vector3 *scale1,
+                                                        const Vector3 *scale2,
                                                         const JPH_Matrix4x4 *centerOfMassTransform1,
                                                         const JPH_Matrix4x4 *centerOfMassTransform2,
                                                         const JPH_CollideShapeSettings *collideShapeSettings,
@@ -2965,11 +2951,11 @@ JPH_CAPI bool JPH_CollisionDispatch_CollideShapeVsShape(const JPH_Shape *shape1,
                                                         void *userData,
                                                         const JPH_ShapeFilter *shapeFilter);
 
-JPH_CAPI bool JPH_CollisionDispatch_CastShapeVsShapeLocalSpace(const JPH_Vec3 *direction,
+JPH_CAPI bool JPH_CollisionDispatch_CastShapeVsShapeLocalSpace(const Vector3 *direction,
                                                                const JPH_Shape *shape1,
                                                                const JPH_Shape *shape2,
-                                                               const JPH_Vec3 *scale1InShape2LocalSpace,
-                                                               const JPH_Vec3 *scale2,
+                                                               const Vector3 *scale1InShape2LocalSpace,
+                                                               const Vector3 *scale2,
                                                                const JPH_Matrix4x4
                                                                        *centerOfMassTransform1InShape2LocalSpace,
                                                                const JPH_Matrix4x4 *centerOfMassWorldTransform2,
@@ -2978,11 +2964,11 @@ JPH_CAPI bool JPH_CollisionDispatch_CastShapeVsShapeLocalSpace(const JPH_Vec3 *d
                                                                void *userData,
                                                                const JPH_ShapeFilter *shapeFilter);
 
-JPH_CAPI bool JPH_CollisionDispatch_CastShapeVsShapeWorldSpace(const JPH_Vec3 *direction,
+JPH_CAPI bool JPH_CollisionDispatch_CastShapeVsShapeWorldSpace(const Vector3 *direction,
                                                                const JPH_Shape *shape1,
                                                                const JPH_Shape *shape2,
-                                                               const JPH_Vec3 *scale1,
-                                                               const JPH_Vec3 *scale2,
+                                                               const Vector3 *scale1,
+                                                               const Vector3 *scale2,
                                                                const JPH_Matrix4x4 *centerOfMassWorldTransform1,
                                                                const JPH_Matrix4x4 *centerOfMassWorldTransform2,
                                                                const JPH_ShapeCastSettings *shapeCastSettings,
@@ -3036,7 +3022,7 @@ JPH_CAPI void JPH_DebugRenderer_DrawCoordinateSystem(JPH_DebugRenderer *renderer
                                                      float size);
 JPH_CAPI void JPH_DebugRenderer_DrawPlane(JPH_DebugRenderer *renderer,
                                           const JPH_RVec3 *point,
-                                          const JPH_Vec3 *normal,
+                                          const Vector3 *normal,
                                           JPH_Color color,
                                           float size);
 JPH_CAPI void JPH_DebugRenderer_DrawWireTriangle(JPH_DebugRenderer *renderer,
@@ -3097,8 +3083,8 @@ JPH_CAPI void JPH_DebugRenderer_DrawCylinder(JPH_DebugRenderer *renderer,
                                              JPH_DebugRenderer_DrawMode drawMode);
 JPH_CAPI void JPH_DebugRenderer_DrawOpenCone(JPH_DebugRenderer *renderer,
                                              const JPH_RVec3 *top,
-                                             const JPH_Vec3 *axis,
-                                             const JPH_Vec3 *perpendicular,
+                                             const Vector3 *axis,
+                                             const Vector3 *perpendicular,
                                              float halfAngle,
                                              float length,
                                              JPH_Color color,
@@ -3125,8 +3111,8 @@ JPH_CAPI void JPH_DebugRenderer_DrawSwingPyramidLimits(JPH_DebugRenderer *render
 JPH_CAPI void JPH_DebugRenderer_DrawPie(JPH_DebugRenderer *renderer,
                                         const JPH_RVec3 *center,
                                         float radius,
-                                        const JPH_Vec3 *normal,
-                                        const JPH_Vec3 *axis,
+                                        const Vector3 *normal,
+                                        const Vector3 *axis,
                                         float minAngle,
                                         float maxAngle,
                                         JPH_Color color,
@@ -3243,8 +3229,8 @@ typedef struct JPH_VehicleConstraintSettings
 {
         JPH_ConstraintSettings base; /* Inherits JPH_ConstraintSettings */
 
-        JPH_Vec3 up;
-        JPH_Vec3 forward;
+        Vector3 up;
+        Vector3 forward;
         float maxPitchRollAngle;
         uint32_t wheelsCount;
         JPH_WheelSettings **wheels;
@@ -3283,14 +3269,14 @@ JPH_CAPI void JPH_VehicleConstraint_SetMaxPitchRollAngle(JPH_VehicleConstraint *
 JPH_CAPI void JPH_VehicleConstraint_SetVehicleCollisionTester(JPH_VehicleConstraint *constraint,
                                                               const JPH_VehicleCollisionTester *tester);
 
-JPH_CAPI void JPH_VehicleConstraint_OverrideGravity(JPH_VehicleConstraint *constraint, const JPH_Vec3 *value);
+JPH_CAPI void JPH_VehicleConstraint_OverrideGravity(JPH_VehicleConstraint *constraint, const Vector3 *value);
 JPH_CAPI bool JPH_VehicleConstraint_IsGravityOverridden(const JPH_VehicleConstraint *constraint);
-JPH_CAPI void JPH_VehicleConstraint_GetGravityOverride(const JPH_VehicleConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_VehicleConstraint_GetGravityOverride(const JPH_VehicleConstraint *constraint, Vector3 *result);
 JPH_CAPI void JPH_VehicleConstraint_ResetGravityOverride(JPH_VehicleConstraint *constraint);
 
-JPH_CAPI void JPH_VehicleConstraint_GetLocalForward(const JPH_VehicleConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_VehicleConstraint_GetLocalUp(const JPH_VehicleConstraint *constraint, JPH_Vec3 *result);
-JPH_CAPI void JPH_VehicleConstraint_GetWorldUp(const JPH_VehicleConstraint *constraint, JPH_Vec3 *result);
+JPH_CAPI void JPH_VehicleConstraint_GetLocalForward(const JPH_VehicleConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_VehicleConstraint_GetLocalUp(const JPH_VehicleConstraint *constraint, Vector3 *result);
+JPH_CAPI void JPH_VehicleConstraint_GetWorldUp(const JPH_VehicleConstraint *constraint, Vector3 *result);
 
 JPH_CAPI const JPH_Body *JPH_VehicleConstraint_GetVehicleBody(const JPH_VehicleConstraint *constraint);
 JPH_CAPI JPH_VehicleController *JPH_VehicleConstraint_GetController(JPH_VehicleConstraint *constraint);
@@ -3298,35 +3284,35 @@ JPH_CAPI uint32_t JPH_VehicleConstraint_GetWheelsCount(JPH_VehicleConstraint *co
 JPH_CAPI JPH_Wheel *JPH_VehicleConstraint_GetWheel(JPH_VehicleConstraint *constraint, uint32_t index);
 JPH_CAPI void JPH_VehicleConstraint_GetWheelLocalBasis(JPH_VehicleConstraint *constraint,
                                                        const JPH_Wheel *wheel,
-                                                       JPH_Vec3 *outForward,
-                                                       JPH_Vec3 *outUp,
-                                                       JPH_Vec3 *outRight);
+                                                       Vector3 *outForward,
+                                                       Vector3 *outUp,
+                                                       Vector3 *outRight);
 JPH_CAPI void JPH_VehicleConstraint_GetWheelLocalTransform(JPH_VehicleConstraint *constraint,
                                                            uint32_t wheelIndex,
-                                                           const JPH_Vec3 *wheelRight,
-                                                           const JPH_Vec3 *wheelUp,
+                                                           const Vector3 *wheelRight,
+                                                           const Vector3 *wheelUp,
                                                            JPH_Matrix4x4 *result);
 JPH_CAPI void JPH_VehicleConstraint_GetWheelWorldTransform(JPH_VehicleConstraint *constraint,
                                                            uint32_t wheelIndex,
-                                                           const JPH_Vec3 *wheelRight,
-                                                           const JPH_Vec3 *wheelUp,
+                                                           const Vector3 *wheelRight,
+                                                           const Vector3 *wheelUp,
                                                            JPH_RMatrix4x4 *result);
 
 /* Wheel */
 JPH_CAPI JPH_WheelSettings *JPH_WheelSettings_Create(void);
 JPH_CAPI void JPH_WheelSettings_Destroy(JPH_WheelSettings *settings);
-JPH_CAPI void JPH_WheelSettings_GetPosition(const JPH_WheelSettings *settings, JPH_Vec3 *result);
-JPH_CAPI void JPH_WheelSettings_SetPosition(JPH_WheelSettings *settings, const JPH_Vec3 *value);
-JPH_CAPI void JPH_WheelSettings_GetSuspensionForcePoint(const JPH_WheelSettings *settings, JPH_Vec3 *result);
-JPH_CAPI void JPH_WheelSettings_SetSuspensionForcePoint(JPH_WheelSettings *settings, const JPH_Vec3 *value);
-JPH_CAPI void JPH_WheelSettings_GetSuspensionDirection(const JPH_WheelSettings *settings, JPH_Vec3 *result);
-JPH_CAPI void JPH_WheelSettings_SetSuspensionDirection(JPH_WheelSettings *settings, const JPH_Vec3 *value);
-JPH_CAPI void JPH_WheelSettings_GetSteeringAxis(const JPH_WheelSettings *settings, JPH_Vec3 *result);
-JPH_CAPI void JPH_WheelSettings_SetSteeringAxis(JPH_WheelSettings *settings, const JPH_Vec3 *value);
-JPH_CAPI void JPH_WheelSettings_GetWheelUp(const JPH_WheelSettings *settings, JPH_Vec3 *result);
-JPH_CAPI void JPH_WheelSettings_SetWheelUp(JPH_WheelSettings *settings, const JPH_Vec3 *value);
-JPH_CAPI void JPH_WheelSettings_GetWheelForward(const JPH_WheelSettings *settings, JPH_Vec3 *result);
-JPH_CAPI void JPH_WheelSettings_SetWheelForward(JPH_WheelSettings *settings, const JPH_Vec3 *value);
+JPH_CAPI void JPH_WheelSettings_GetPosition(const JPH_WheelSettings *settings, Vector3 *result);
+JPH_CAPI void JPH_WheelSettings_SetPosition(JPH_WheelSettings *settings, const Vector3 *value);
+JPH_CAPI void JPH_WheelSettings_GetSuspensionForcePoint(const JPH_WheelSettings *settings, Vector3 *result);
+JPH_CAPI void JPH_WheelSettings_SetSuspensionForcePoint(JPH_WheelSettings *settings, const Vector3 *value);
+JPH_CAPI void JPH_WheelSettings_GetSuspensionDirection(const JPH_WheelSettings *settings, Vector3 *result);
+JPH_CAPI void JPH_WheelSettings_SetSuspensionDirection(JPH_WheelSettings *settings, const Vector3 *value);
+JPH_CAPI void JPH_WheelSettings_GetSteeringAxis(const JPH_WheelSettings *settings, Vector3 *result);
+JPH_CAPI void JPH_WheelSettings_SetSteeringAxis(JPH_WheelSettings *settings, const Vector3 *value);
+JPH_CAPI void JPH_WheelSettings_GetWheelUp(const JPH_WheelSettings *settings, Vector3 *result);
+JPH_CAPI void JPH_WheelSettings_SetWheelUp(JPH_WheelSettings *settings, const Vector3 *value);
+JPH_CAPI void JPH_WheelSettings_GetWheelForward(const JPH_WheelSettings *settings, Vector3 *result);
+JPH_CAPI void JPH_WheelSettings_SetWheelForward(JPH_WheelSettings *settings, const Vector3 *value);
 JPH_CAPI float JPH_WheelSettings_GetSuspensionMinLength(const JPH_WheelSettings *settings);
 JPH_CAPI void JPH_WheelSettings_SetSuspensionMinLength(JPH_WheelSettings *settings, float value);
 JPH_CAPI float JPH_WheelSettings_GetSuspensionMaxLength(const JPH_WheelSettings *settings);
@@ -3356,10 +3342,10 @@ JPH_CAPI bool JPH_Wheel_HasContact(const JPH_Wheel *wheel);
 JPH_CAPI JPH_BodyId JPH_Wheel_GetContactBodyID(const JPH_Wheel *wheel);
 JPH_CAPI JPH_SubShapeId JPH_Wheel_GetContactSubShapeID(const JPH_Wheel *wheel);
 JPH_CAPI void JPH_Wheel_GetContactPosition(const JPH_Wheel *wheel, JPH_RVec3 *result);
-JPH_CAPI void JPH_Wheel_GetContactPointVelocity(const JPH_Wheel *wheel, JPH_Vec3 *result);
-JPH_CAPI void JPH_Wheel_GetContactNormal(const JPH_Wheel *wheel, JPH_Vec3 *result);
-JPH_CAPI void JPH_Wheel_GetContactLongitudinal(const JPH_Wheel *wheel, JPH_Vec3 *result);
-JPH_CAPI void JPH_Wheel_GetContactLateral(const JPH_Wheel *wheel, JPH_Vec3 *result);
+JPH_CAPI void JPH_Wheel_GetContactPointVelocity(const JPH_Wheel *wheel, Vector3 *result);
+JPH_CAPI void JPH_Wheel_GetContactNormal(const JPH_Wheel *wheel, Vector3 *result);
+JPH_CAPI void JPH_Wheel_GetContactLongitudinal(const JPH_Wheel *wheel, Vector3 *result);
+JPH_CAPI void JPH_Wheel_GetContactLateral(const JPH_Wheel *wheel, Vector3 *result);
 JPH_CAPI float JPH_Wheel_GetSuspensionLength(const JPH_Wheel *wheel);
 JPH_CAPI float JPH_Wheel_GetSuspensionLambda(const JPH_Wheel *wheel);
 JPH_CAPI float JPH_Wheel_GetLongitudinalLambda(const JPH_Wheel *wheel);
@@ -3427,11 +3413,11 @@ JPH_CAPI JPH_ObjectLayer JPH_VehicleCollisionTester_GetObjectLayer(const JPH_Veh
 JPH_CAPI void JPH_VehicleCollisionTester_SetObjectLayer(JPH_VehicleCollisionTester *tester, JPH_ObjectLayer value);
 
 JPH_CAPI JPH_VehicleCollisionTesterRay *JPH_VehicleCollisionTesterRay_Create(JPH_ObjectLayer layer,
-                                                                             const JPH_Vec3 *up,
+                                                                             const Vector3 *up,
                                                                              float maxSlopeAngle);
 JPH_CAPI JPH_VehicleCollisionTesterCastSphere *JPH_VehicleCollisionTesterCastSphere_Create(JPH_ObjectLayer layer,
                                                                                            float radius,
-                                                                                           const JPH_Vec3 *up,
+                                                                                           const Vector3 *up,
                                                                                            float maxSlopeAngle);
 JPH_CAPI JPH_VehicleCollisionTesterCastCylinder *JPH_VehicleCollisionTesterCastCylinder_Create(
         JPH_ObjectLayer layer,
