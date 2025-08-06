@@ -821,6 +821,7 @@ void JPH_BroadPhaseLayerInterface_Destroy(JPH_BroadPhaseLayerInterface *broadPha
 void JPH_BroadPhaseLayerInterface_SetImpl(JPH_BroadPhaseLayerInterface *broadPhaseLayerInterface,
                                           const JPH_BroadPhaseLayerInterface_Impl *impl)
 {
+    JPH_ASSERT(broadPhaseLayerInterface);
     reinterpret_cast<ManagedBroadPhaseLayerInterface *>(broadPhaseLayerInterface)->impl = impl;
 }
 
@@ -856,6 +857,7 @@ void JPH_ObjectLayerPairFilter_Destroy(JPH_ObjectLayerPairFilter *filter)
 
 void JPH_ObjectLayerPairFilter_SetImpl(JPH_ObjectLayerPairFilter *filter, const JPH_ObjectLayerPairFilter_Impl *impl)
 {
+    JPH_ASSERT(filter);
     reinterpret_cast<ManagedObjectLayerPairFilter *>(filter)->impl = impl;
 }
 
@@ -893,6 +895,7 @@ void JPH_ObjectVsBroadPhaseLayerFilter_Destroy(JPH_ObjectVsBroadPhaseLayerFilter
 void JPH_ObjectVsBroadPhaseLayerFilter_SetImpl(JPH_ObjectVsBroadPhaseLayerFilter *filter,
                                                const JPH_ObjectVsBroadPhaseLayerFilter_Impl *impl)
 {
+    JPH_ASSERT(filter);
     reinterpret_cast<ManagedObjectVsBroadPhaseLayerFilter *>(filter)->impl = impl;
 }
 
@@ -1082,42 +1085,37 @@ const JPH_BodyLockInterface *JPH_PhysicsSystem_GetBodyLockInterfaceNoLock(const 
 }
 
 /* JPH_BroadPhaseLayerFilter */
-static const JPH::BroadPhaseLayerFilter &ToJolt(JPH_BroadPhaseLayerFilter *bpFilter)
+static inline const JPH::BroadPhaseLayerFilter &ToJolt(JPH_BroadPhaseLayerFilter *filter)
 {
-    static const JPH::BroadPhaseLayerFilter g_defaultBroadPhaseLayerFilter = {};
-    return bpFilter != nullptr ? *reinterpret_cast<JPH::BroadPhaseLayerFilter *>(bpFilter)
-                               : g_defaultBroadPhaseLayerFilter;
+    static const JPH::BroadPhaseLayerFilter defaultBroadPhaseLayerFilter = {};
+    return filter != nullptr ? *reinterpret_cast<JPH::BroadPhaseLayerFilter *>(filter) : defaultBroadPhaseLayerFilter;
 }
 
 class ManagedBroadPhaseLayerFilter final: public JPH::BroadPhaseLayerFilter
 {
     public:
-        static const JPH_BroadPhaseLayerFilter_Impl *s_Impl;
-        void *userData = nullptr;
-
-        explicit ManagedBroadPhaseLayerFilter(void *userData_): userData(userData_) {}
+        explicit ManagedBroadPhaseLayerFilter(void *userData, const JPH_BroadPhaseLayerFilter_Impl *impl):
+            userData(userData),
+            impl(impl)
+        {}
 
         [[nodiscard]] bool ShouldCollide(const JPH::BroadPhaseLayer inLayer) const override
         {
-            if (s_Impl != nullptr && s_Impl->ShouldCollide != nullptr)
+            if (impl != nullptr && impl->ShouldCollide != nullptr)
             {
-                return s_Impl->ShouldCollide(userData, static_cast<JPH_BroadPhaseLayer>(inLayer));
+                return impl->ShouldCollide(userData, static_cast<JPH_BroadPhaseLayer>(inLayer));
             }
 
             return true;
         }
+
+        void *userData{};
+        const JPH_BroadPhaseLayerFilter_Impl *impl;
 };
 
-const JPH_BroadPhaseLayerFilter_Impl *ManagedBroadPhaseLayerFilter::s_Impl = nullptr;
-
-void JPH_BroadPhaseLayerFilter_SetImpl(const JPH_BroadPhaseLayerFilter_Impl *impl)
+JPH_BroadPhaseLayerFilter *JPH_BroadPhaseLayerFilter_Create(void *userData, const JPH_BroadPhaseLayerFilter_Impl *impl)
 {
-    ManagedBroadPhaseLayerFilter::s_Impl = impl;
-}
-
-JPH_BroadPhaseLayerFilter *JPH_BroadPhaseLayerFilter_Create(void *userData)
-{
-    ManagedBroadPhaseLayerFilter *const filter = new ManagedBroadPhaseLayerFilter(userData);
+    ManagedBroadPhaseLayerFilter *const filter = new ManagedBroadPhaseLayerFilter(userData, impl);
     return reinterpret_cast<JPH_BroadPhaseLayerFilter *>(filter);
 }
 
@@ -1129,51 +1127,68 @@ void JPH_BroadPhaseLayerFilter_Destroy(JPH_BroadPhaseLayerFilter *filter)
     }
 }
 
-/* JPH_ObjectLayerFilter */
-static const JPH::ObjectLayerFilter &ToJolt(JPH_ObjectLayerFilter *opFilter)
+void JPH_BroadPhaseLayerFilter_SetUserData(JPH_BroadPhaseLayerFilter *filter, void *userData)
 {
-    static const JPH::ObjectLayerFilter g_defaultObjectLayerFilter = {};
-    return opFilter != nullptr ? *reinterpret_cast<JPH::ObjectLayerFilter *>(opFilter) : g_defaultObjectLayerFilter;
+    JPH_ASSERT(filter);
+    reinterpret_cast<ManagedBroadPhaseLayerFilter *>(filter)->userData = userData;
+}
+
+void JPH_BroadPhaseLayerFilter_SetImpl(JPH_BroadPhaseLayerFilter *filter, const JPH_BroadPhaseLayerFilter_Impl *impl)
+{
+    JPH_ASSERT(filter);
+    reinterpret_cast<ManagedBroadPhaseLayerFilter *>(filter)->impl = impl;
+}
+
+/* JPH_ObjectLayerFilter */
+static inline const JPH::ObjectLayerFilter &ToJolt(JPH_ObjectLayerFilter *filter)
+{
+    static const JPH::ObjectLayerFilter defaultObjectLayerFilter = {};
+    return filter != nullptr ? *reinterpret_cast<JPH::ObjectLayerFilter *>(filter) : defaultObjectLayerFilter;
 }
 
 class ManagedObjectLayerFilter final: public JPH::ObjectLayerFilter
 {
     public:
-        static const JPH_ObjectLayerFilter_Impl *s_Impl;
-        void *userData = nullptr;
-
-        explicit ManagedObjectLayerFilter(void *userData_): userData(userData_) {}
+        explicit ManagedObjectLayerFilter(void *userData, const JPH_ObjectLayerFilter_Impl *impl):
+            userData(userData),
+            impl(impl)
+        {}
 
         [[nodiscard]] bool ShouldCollide(const JPH::ObjectLayer inLayer) const override
         {
-            if (s_Impl != nullptr && s_Impl->ShouldCollide != nullptr)
+            if (impl != nullptr && impl->ShouldCollide != nullptr)
             {
-                return s_Impl->ShouldCollide(userData, inLayer);
+                return impl->ShouldCollide(userData, inLayer);
             }
 
             return true;
         }
+
+        void *userData{};
+        const JPH_ObjectLayerFilter_Impl *impl{};
 };
 
-const JPH_ObjectLayerFilter_Impl *ManagedObjectLayerFilter::s_Impl = nullptr;
-
-void JPH_ObjectLayerFilter_SetImpl(const JPH_ObjectLayerFilter_Impl *impl)
+JPH_ObjectLayerFilter *JPH_ObjectLayerFilter_Create(void *userData, const JPH_ObjectLayerFilter_Impl *impl)
 {
-    ManagedObjectLayerFilter::s_Impl = impl;
-}
-
-JPH_ObjectLayerFilter *JPH_ObjectLayerFilter_Create(void *userData)
-{
-    ManagedObjectLayerFilter *const filter = new ManagedObjectLayerFilter(userData);
+    ManagedObjectLayerFilter *const filter = new ManagedObjectLayerFilter(userData, impl);
     return reinterpret_cast<JPH_ObjectLayerFilter *>(filter);
 }
 
 void JPH_ObjectLayerFilter_Destroy(JPH_ObjectLayerFilter *filter)
 {
-    if (filter != nullptr)
-    {
-        delete reinterpret_cast<ManagedObjectLayerFilter *>(filter);
-    }
+    delete reinterpret_cast<ManagedObjectLayerFilter *>(filter);
+}
+
+void JPH_ObjectLayerFilter_SetUserData(JPH_ObjectLayerFilter *filter, void *userData)
+{
+    JPH_ASSERT(filter);
+    reinterpret_cast<ManagedObjectLayerFilter *>(filter)->userData = userData;
+}
+
+void JPH_ObjectLayerFilter_SetImpl(JPH_ObjectLayerFilter *filter, const JPH_ObjectLayerFilter_Impl *impl)
+{
+    JPH_ASSERT(filter);
+    reinterpret_cast<ManagedObjectLayerFilter *>(filter)->impl = impl;
 }
 
 /* JPH_BodyFilter */
@@ -1186,16 +1201,13 @@ static const JPH::BodyFilter &ToJolt(const JPH_BodyFilter *bodyFilter)
 class ManagedBodyFilter final: public JPH::BodyFilter
 {
     public:
-        static const JPH_BodyFilter_Impl *s_Impl;
-        void *userData = nullptr;
-
-        explicit ManagedBodyFilter(void *userData_): userData(userData_) {}
+        explicit ManagedBodyFilter(void *userData, const JPH_BodyFilter_Impl *impl): userData(userData), impl(impl) {}
 
         [[nodiscard]] bool ShouldCollide(const JPH::BodyID &bodyID) const override
         {
-            if (s_Impl != nullptr && s_Impl->ShouldCollide != nullptr)
+            if (impl != nullptr && impl->ShouldCollide != nullptr)
             {
-                return s_Impl->ShouldCollide(userData, bodyID.GetIndexAndSequenceNumber());
+                return impl->ShouldCollide(userData, bodyID.GetIndexAndSequenceNumber());
             }
 
             return true;
@@ -1203,103 +1215,105 @@ class ManagedBodyFilter final: public JPH::BodyFilter
 
         [[nodiscard]] bool ShouldCollideLocked(const JPH::Body &body) const override
         {
-            if (s_Impl != nullptr && s_Impl->ShouldCollideLocked != nullptr)
+            if (impl != nullptr && impl->ShouldCollideLocked != nullptr)
             {
-                return s_Impl->ShouldCollideLocked(userData, reinterpret_cast<const JPH_Body *>(&body));
+                return impl->ShouldCollideLocked(userData, reinterpret_cast<const JPH_Body *>(&body));
             }
 
             return true;
         }
+
+        void *userData{};
+        const JPH_BodyFilter_Impl *impl{};
 };
 
-const JPH_BodyFilter_Impl *ManagedBodyFilter::s_Impl = nullptr;
-
-void JPH_BodyFilter_SetImpl(const JPH_BodyFilter_Impl *impl)
+JPH_BodyFilter *JPH_BodyFilter_Create(void *userData, const JPH_BodyFilter_Impl *impl)
 {
-    ManagedBodyFilter::s_Impl = impl;
-}
-
-JPH_BodyFilter *JPH_BodyFilter_Create(void *userData)
-{
-    ManagedBodyFilter *const filter = new ManagedBodyFilter(userData);
+    ManagedBodyFilter *const filter = new ManagedBodyFilter(userData, impl);
     return reinterpret_cast<JPH_BodyFilter *>(filter);
 }
 
 void JPH_BodyFilter_Destroy(JPH_BodyFilter *filter)
 {
-    if (filter != nullptr)
-    {
-        delete reinterpret_cast<ManagedBodyFilter *>(filter);
-    }
+    delete reinterpret_cast<ManagedBodyFilter *>(filter);
+}
+
+void JPH_BodyFilter_SetUserData(JPH_BodyFilter *filter, void *userData)
+{
+    JPH_ASSERT(filter);
+    reinterpret_cast<ManagedBodyFilter *>(filter)->userData = userData;
+}
+
+void JPH_BodyFilter_SetImpl(JPH_BodyFilter *filter, const JPH_BodyFilter_Impl *impl)
+{
+    JPH_ASSERT(filter);
+    reinterpret_cast<ManagedBodyFilter *>(filter)->impl = impl;
 }
 
 /* JPH_ShapeFilter */
-static const JPH::ShapeFilter &ToJolt(const JPH_ShapeFilter *filter)
+static inline const JPH::ShapeFilter &ToJolt(const JPH_ShapeFilter *filter)
 {
-    static const JPH::ShapeFilter g_defaultBodyFilter = {};
-    return filter != nullptr ? *reinterpret_cast<const JPH::ShapeFilter *>(filter) : g_defaultBodyFilter;
+    static const JPH::ShapeFilter defaultBodyFilter = {};
+    return filter != nullptr ? *reinterpret_cast<const JPH::ShapeFilter *>(filter) : defaultBodyFilter;
 }
 
 class ManagedShapeFilter final: public JPH::ShapeFilter
 {
     public:
-        static const JPH_ShapeFilter_Impl *s_Impl;
-        void *userData = nullptr;
+        explicit ManagedShapeFilter(void *userData, const JPH_ShapeFilter_Impl *impl): userData(userData), impl(impl) {}
 
-        explicit ManagedShapeFilter(void *userData_): userData(userData_) {}
-
-        bool ShouldCollide([[maybe_unused]] const JPH::Shape *inShape2,
-                           [[maybe_unused]] const JPH::SubShapeID &inSubShapeIDOfShape2) const override
+        bool ShouldCollide(const JPH::Shape *inShape2, const JPH::SubShapeID &inSubShapeIDOfShape2) const override
         {
-            if (s_Impl != nullptr && s_Impl->ShouldCollide != nullptr)
+            if (impl != nullptr && impl->ShouldCollide != nullptr)
             {
-                const JPH::uint32 subShapeIDOfShape2 = inSubShapeIDOfShape2.GetValue();
-                return s_Impl->ShouldCollide(userData, ToShape(inShape2), &subShapeIDOfShape2);
+                return impl->ShouldCollide(userData, ToShape(inShape2), inSubShapeIDOfShape2.GetValue());
             }
 
             return true;
         }
 
-        bool ShouldCollide([[maybe_unused]] const JPH::Shape *inShape1,
-                           [[maybe_unused]] const JPH::SubShapeID &inSubShapeIDOfShape1,
-                           [[maybe_unused]] const JPH::Shape *inShape2,
-                           [[maybe_unused]] const JPH::SubShapeID &inSubShapeIDOfShape2) const override
+        bool ShouldCollide(const JPH::Shape *inShape1,
+                           const JPH::SubShapeID &inSubShapeIDOfShape1,
+                           const JPH::Shape *inShape2,
+                           const JPH::SubShapeID &inSubShapeIDOfShape2) const override
         {
-            if (s_Impl != nullptr && s_Impl->ShouldCollide2 != nullptr)
+            if (impl != nullptr && impl->ShouldCollide2 != nullptr)
             {
-                const JPH::uint32 subShapeIDOfShape1 = inSubShapeIDOfShape1.GetValue();
-                const JPH::uint32 subShapeIDOfShape2 = inSubShapeIDOfShape2.GetValue();
-
-                return s_Impl->ShouldCollide2(userData,
-                                              ToShape(inShape1),
-                                              &subShapeIDOfShape1,
-                                              ToShape(inShape2),
-                                              &subShapeIDOfShape2);
+                return impl->ShouldCollide2(userData,
+                                            ToShape(inShape1),
+                                            inSubShapeIDOfShape1.GetValue(),
+                                            ToShape(inShape2),
+                                            inSubShapeIDOfShape2.GetValue());
             }
 
             return true;
         }
+
+        void *userData{};
+        const JPH_ShapeFilter_Impl *impl{};
 };
 
-const JPH_ShapeFilter_Impl *ManagedShapeFilter::s_Impl = nullptr;
-
-void JPH_ShapeFilter_SetImpl(const JPH_ShapeFilter_Impl *impl)
+JPH_ShapeFilter *JPH_ShapeFilter_Create(void *userData, const JPH_ShapeFilter_Impl *impl)
 {
-    ManagedShapeFilter::s_Impl = impl;
-}
-
-JPH_ShapeFilter *JPH_ShapeFilter_Create(void *userData)
-{
-    ManagedShapeFilter *const filter = new ManagedShapeFilter(userData);
+    ManagedShapeFilter *const filter = new ManagedShapeFilter(userData, impl);
     return reinterpret_cast<JPH_ShapeFilter *>(filter);
 }
 
 void JPH_ShapeFilter_Destroy(JPH_ShapeFilter *filter)
 {
-    if (filter != nullptr)
-    {
-        delete reinterpret_cast<ManagedShapeFilter *>(filter);
-    }
+    delete reinterpret_cast<ManagedShapeFilter *>(filter);
+}
+
+void JPH_ShapeFilter_SetUserData(JPH_ShapeFilter *filter, void *userData)
+{
+    JPH_ASSERT(filter);
+    reinterpret_cast<ManagedShapeFilter *>(filter)->userData = userData;
+}
+
+void JPH_ShapeFilter_SetImpl(JPH_ShapeFilter *filter, const JPH_ShapeFilter_Impl *impl)
+{
+    JPH_ASSERT(filter);
+    reinterpret_cast<ManagedShapeFilter *>(filter)->impl = impl;
 }
 
 JPH_BodyId JPH_ShapeFilter_GetBodyID2(JPH_ShapeFilter *filter)
@@ -7479,7 +7493,7 @@ void JPH_Body_SetUserData(JPH_Body *body, const uint64_t userData)
     AsBody(body)->SetUserData(userData);
 }
 
-uint64_t JPH_Body_GetUserData(JPH_Body *body)
+uint64_t JPH_Body_GetUserData(const JPH_Body *body)
 {
     return AsBody(body)->GetUserData();
 }
