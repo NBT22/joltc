@@ -1181,8 +1181,8 @@ JPH_CAPI void JPH_Quat_FromEulerAngles(const Vector3 *angles, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_Add(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_Subtract(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_Multiply(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result);
-JPH_CAPI void JPH_Quat_MultiplyScalar(const JPH_Quat *q, float scalar, JPH_Quat *result);
-JPH_CAPI void JPH_Quat_DivideScalar(const JPH_Quat *q, float scalar, JPH_Quat *result);
+JPH_CAPI void JPH_Quat_MultiplyScalar(const JPH_Quat *quat, float scalar, JPH_Quat *result);
+JPH_CAPI void JPH_Quat_DivideScalar(const JPH_Quat *quat, float scalar, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_Dot(const JPH_Quat *q1, const JPH_Quat *q2, float *result);
 
 JPH_CAPI void JPH_Quat_Conjugated(const JPH_Quat *quat, JPH_Quat *result);
@@ -1190,10 +1190,14 @@ JPH_CAPI void JPH_Quat_GetTwist(const JPH_Quat *quat, const Vector3 *axis, JPH_Q
 JPH_CAPI void JPH_Quat_GetSwingTwist(const JPH_Quat *quat, JPH_Quat *outSwing, JPH_Quat *outTwist);
 JPH_CAPI void JPH_Quat_Lerp(const JPH_Quat *from, const JPH_Quat *to, float fraction, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_Slerp(const JPH_Quat *from, const JPH_Quat *to, float fraction, JPH_Quat *result);
-JPH_CAPI void JPH_Quat_Rotate(const JPH_Quat *quat, const Vector3 *vec, Vector3 *result);
-JPH_CAPI void JPH_Quat_InverseRotate(const JPH_Quat *quat, const Vector3 *vec, Vector3 *result);
+JPH_CAPI void JPH_Quat_Rotate(const JPH_Quat *quat, const Vector3 *vector, Vector3 *result);
+JPH_CAPI void JPH_Quat_InverseRotate(const JPH_Quat *quat, const Vector3 *vector, Vector3 *result);
 
-JPH_CAPI bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistSq);
+JPH_CAPI float JPH_Quat_LengthSq(const JPH_Quat *quat);
+JPH_CAPI float JPH_Quat_Length(const JPH_Quat *quat);
+JPH_CAPI void JPH_Quat_Normalized(const JPH_Quat *quat, JPH_Quat *result);
+
+JPH_CAPI bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistanceSquared);
 /**
  * Test if vector is near zero
  * @param vector The vector to check
@@ -1201,26 +1205,26 @@ JPH_CAPI bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDis
  * @return True if the vector has a magnitude which is nearly zero
  */
 JPH_CAPI bool Vector3_IsNearZero(const Vector3 *vector, float maxDistSq);
-JPH_CAPI bool Vector3_IsNormalized(const Vector3 *v, float tolerance);
-JPH_CAPI bool Vector3_IsNaN(const Vector3 *v);
+JPH_CAPI bool Vector3_IsNormalized(const Vector3 *vector, float tolerance);
+JPH_CAPI bool Vector3_IsNaN(const Vector3 *vector);
 
-JPH_CAPI void Vector3_Negate(const Vector3 *v, Vector3 *result);
-JPH_CAPI void Vector3_Normalized(const Vector3 *v, Vector3 *result);
+JPH_CAPI void Vector3_Negate(const Vector3 *vector, Vector3 *result);
+JPH_CAPI void Vector3_Normalized(const Vector3 *vector, Vector3 *result);
 JPH_CAPI void Vector3_Cross(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
-JPH_CAPI void Vector3_Abs(const Vector3 *v, Vector3 *result);
+JPH_CAPI void Vector3_Abs(const Vector3 *vector, Vector3 *result);
 
-JPH_CAPI float Vector3_Length(const Vector3 *v);
-JPH_CAPI float Vector3_LengthSquared(const Vector3 *v);
+JPH_CAPI float Vector3_Length(const Vector3 *vector);
+JPH_CAPI float Vector3_LengthSquared(const Vector3 *vector);
 
 JPH_CAPI void Vector3_DotProduct(const Vector3 *v1, const Vector3 *v2, float *result);
-JPH_CAPI void Vector3_Normalize(const Vector3 *v, Vector3 *result);
+JPH_CAPI void Vector3_Normalize(const Vector3 *vector, Vector3 *result);
 
 JPH_CAPI void Vector3_Add(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
 JPH_CAPI void Vector3_Subtract(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
 JPH_CAPI void Vector3_Multiply(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
-JPH_CAPI void Vector3_MultiplyScalar(const Vector3 *v, float scalar, Vector3 *result);
+JPH_CAPI void Vector3_MultiplyScalar(const Vector3 *vector, float scalar, Vector3 *result);
 JPH_CAPI void Vector3_Divide(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
-JPH_CAPI void Vector3_DivideScalar(const Vector3 *v, float scalar, Vector3 *result);
+JPH_CAPI void Vector3_DivideScalar(const Vector3 *vector, float scalar, Vector3 *result);
 
 JPH_CAPI void JPH_Matrix4x4_Add(const JPH_Matrix4x4 *m1, const JPH_Matrix4x4 *m2, JPH_Matrix4x4 *result);
 JPH_CAPI void JPH_Matrix4x4_Subtract(const JPH_Matrix4x4 *m1, const JPH_Matrix4x4 *m2, JPH_Matrix4x4 *result);

@@ -1468,17 +1468,17 @@ void JPH_Quat_Multiply(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
     FromJolt(ToJolt(q1) * ToJolt(q2), result);
 }
 
-void JPH_Quat_MultiplyScalar(const JPH_Quat *q, float scalar, JPH_Quat *result)
+void JPH_Quat_MultiplyScalar(const JPH_Quat *quat, float scalar, JPH_Quat *result)
 {
-    JPH_ASSERT(q && result);
-    FromJolt(ToJolt(q) * scalar, result);
+    JPH_ASSERT(quat && result);
+    FromJolt(ToJolt(quat) * scalar, result);
 }
 
-void JPH_Quat_DivideScalar(const JPH_Quat *q, float scalar, JPH_Quat *result)
+void JPH_Quat_DivideScalar(const JPH_Quat *quat, float scalar, JPH_Quat *result)
 {
-    JPH_ASSERT(q && result);
+    JPH_ASSERT(quat && result);
     JPH_ASSERT(scalar != 0.0f);
-    FromJolt(ToJolt(q) / scalar, result);
+    FromJolt(ToJolt(quat) / scalar, result);
 }
 
 void JPH_Quat_Dot(const JPH_Quat *q1, const JPH_Quat *q2, float *result)
@@ -1521,24 +1521,43 @@ void JPH_Quat_Slerp(const JPH_Quat *from, const JPH_Quat *to, float fraction, JP
     FromJolt(ToJolt(from).SLERP(ToJolt(to), fraction), result);
 }
 
-void JPH_Quat_Rotate(const JPH_Quat *quat, const Vector3 *vec, Vector3 *result)
+void JPH_Quat_Rotate(const JPH_Quat *quat, const Vector3 *vector, Vector3 *result)
 {
-    JPH_ASSERT(quat && vec && result);
-    FromJolt(ToJolt(quat) * ToJolt(vec), result);
+    JPH_ASSERT(quat && vector && result);
+    FromJolt(ToJolt(quat) * ToJolt(vector), result);
 }
 
-void JPH_Quat_InverseRotate(const JPH_Quat *quat, const Vector3 *vec, Vector3 *result)
+void JPH_Quat_InverseRotate(const JPH_Quat *quat, const Vector3 *vector, Vector3 *result)
 {
-    JPH_ASSERT(quat && vec && result);
-    FromJolt(ToJolt(quat).InverseRotate(ToJolt(vec)), result);
+    JPH_ASSERT(quat && vector && result);
+    FromJolt(ToJolt(quat).InverseRotate(ToJolt(vector)), result);
 }
 
-bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistSq)
+float JPH_Quat_LengthSq(const JPH_Quat *quat)
+{
+    JPH_ASSERT(quat);
+    return ToJolt(quat).LengthSq();
+}
+
+float JPH_Quat_Length(const JPH_Quat *quat)
+{
+    JPH_ASSERT(quat);
+    return ToJolt(quat).Length();
+}
+
+void JPH_Quat_Normalized(const JPH_Quat *quat, JPH_Quat *result)
+{
+    JPH_ASSERT(quat);
+    JPH_ASSERT(result);
+    FromJolt(ToJolt(quat).Normalized(), result);
+}
+
+bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistanceSquared)
 {
     JPH_ASSERT(v1 != nullptr);
     JPH_ASSERT(v2 != nullptr);
 
-    return ToJolt(v1).IsClose(ToJolt(v2), maxDistSq);
+    return ToJolt(v1).IsClose(ToJolt(v2), maxDistanceSquared);
 }
 
 bool Vector3_IsNearZero(const Vector3 *vector, float maxDistSq)
@@ -1548,34 +1567,34 @@ bool Vector3_IsNearZero(const Vector3 *vector, float maxDistSq)
     return ToJolt(vector).IsNearZero(maxDistSq);
 }
 
-bool Vector3_IsNormalized(const Vector3 *v, float tolerance)
+bool Vector3_IsNormalized(const Vector3 *vector, float tolerance)
 {
-    JPH_ASSERT(v != nullptr);
+    JPH_ASSERT(vector != nullptr);
 
-    return ToJolt(v).IsNormalized(tolerance);
+    return ToJolt(vector).IsNormalized(tolerance);
 }
 
-bool Vector3_IsNaN(const Vector3 *v)
+bool Vector3_IsNaN(const Vector3 *vector)
 {
-    JPH_ASSERT(v != nullptr);
+    JPH_ASSERT(vector != nullptr);
 
-    return ToJolt(v).IsNaN();
+    return ToJolt(vector).IsNaN();
 }
 
-void Vector3_Negate(const Vector3 *v, Vector3 *result)
+void Vector3_Negate(const Vector3 *vector, Vector3 *result)
 {
-    JPH_ASSERT(v != nullptr);
+    JPH_ASSERT(vector != nullptr);
     JPH_ASSERT(result != nullptr);
 
-    FromJolt(-ToJolt(v), result);
+    FromJolt(-ToJolt(vector), result);
 }
 
-void Vector3_Normalized(const Vector3 *v, Vector3 *result)
+void Vector3_Normalized(const Vector3 *vector, Vector3 *result)
 {
-    JPH_ASSERT(v != nullptr);
+    JPH_ASSERT(vector != nullptr);
     JPH_ASSERT(result != nullptr);
 
-    FromJolt(ToJolt(v).Normalized(), result);
+    FromJolt(ToJolt(vector).Normalized(), result);
 }
 
 void Vector3_Cross(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
@@ -1587,26 +1606,26 @@ void Vector3_Cross(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
     FromJolt(ToJolt(v1).Cross(ToJolt(v2)), result);
 }
 
-void Vector3_Abs(const Vector3 *v, Vector3 *result)
+void Vector3_Abs(const Vector3 *vector, Vector3 *result)
 {
-    JPH_ASSERT(v != nullptr);
+    JPH_ASSERT(vector != nullptr);
     JPH_ASSERT(result != nullptr);
 
-    FromJolt(ToJolt(v).Abs(), result);
+    FromJolt(ToJolt(vector).Abs(), result);
 }
 
-float Vector3_Length(const Vector3 *v)
+float Vector3_Length(const Vector3 *vector)
 {
-    JPH_ASSERT(v);
+    JPH_ASSERT(vector);
 
-    return ToJolt(v).Length();
+    return ToJolt(vector).Length();
 }
 
-float Vector3_LengthSquared(const Vector3 *v)
+float Vector3_LengthSquared(const Vector3 *vector)
 {
-    JPH_ASSERT(v);
+    JPH_ASSERT(vector);
 
-    return ToJolt(v).LengthSq();
+    return ToJolt(vector).LengthSq();
 }
 
 void Vector3_Multiply(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
@@ -1616,11 +1635,11 @@ void Vector3_Multiply(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
     FromJolt(ToJolt(v1) * ToJolt(v2), result);
 }
 
-void Vector3_MultiplyScalar(const Vector3 *v, float scalar, Vector3 *result)
+void Vector3_MultiplyScalar(const Vector3 *vector, float scalar, Vector3 *result)
 {
-    JPH_ASSERT(v && result);
+    JPH_ASSERT(vector && result);
 
-    FromJolt(ToJolt(v) * scalar, result);
+    FromJolt(ToJolt(vector) * scalar, result);
 }
 
 void Vector3_Divide(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
@@ -1630,12 +1649,12 @@ void Vector3_Divide(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
     FromJolt(ToJolt(v1) / ToJolt(v2), result);
 }
 
-void Vector3_DivideScalar(const Vector3 *v, float scalar, Vector3 *result)
+void Vector3_DivideScalar(const Vector3 *vector, float scalar, Vector3 *result)
 {
-    JPH_ASSERT(v && result);
+    JPH_ASSERT(vector && result);
     JPH_ASSERT(scalar != 0.0f);
 
-    FromJolt(ToJolt(v) / scalar, result);
+    FromJolt(ToJolt(vector) / scalar, result);
 }
 
 void Vector3_DotProduct(const Vector3 *v1, const Vector3 *v2, float *result)
@@ -1645,11 +1664,11 @@ void Vector3_DotProduct(const Vector3 *v1, const Vector3 *v2, float *result)
     *result = ToJolt(v1).Dot(ToJolt(v2));
 }
 
-void Vector3_Normalize(const Vector3 *v, Vector3 *result)
+void Vector3_Normalize(const Vector3 *vector, Vector3 *result)
 {
-    JPH_ASSERT(v && result);
+    JPH_ASSERT(vector && result);
 
-    FromJolt(ToJolt(v).Normalized(), result);
+    FromJolt(ToJolt(vector).Normalized(), result);
 }
 
 void Vector3_Add(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
