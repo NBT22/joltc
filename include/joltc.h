@@ -1430,6 +1430,9 @@ JPH_CAPI JPH_ConvexHullShapeSettings *JPH_ConvexHullShapeSettings_Create(const V
                                                                          uint32_t pointsCount,
                                                                          float maxConvexRadius);
 JPH_CAPI JPH_ConvexHullShape *JPH_ConvexHullShapeSettings_CreateShape(const JPH_ConvexHullShapeSettings *settings);
+JPH_CAPI JPH_ConvexHullShape *JPH_ConvexHullShape_Create(const Vector3 *points,
+                                                         uint32_t pointsCount,
+                                                         float maxConvexRadius);
 JPH_CAPI uint32_t JPH_ConvexHullShape_GetNumPoints(const JPH_ConvexHullShape *shape);
 JPH_CAPI void JPH_ConvexHullShape_GetPoint(const JPH_ConvexHullShape *shape, uint32_t index, Vector3 *result);
 JPH_CAPI uint32_t JPH_ConvexHullShape_GetNumFaces(const JPH_ConvexHullShape *shape);

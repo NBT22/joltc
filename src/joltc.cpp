@@ -2626,14 +2626,29 @@ JPH_ConvexHullShapeSettings *JPH_ConvexHullShapeSettings_Create(const Vector3 *p
 
 JPH_ConvexHullShape *JPH_ConvexHullShapeSettings_CreateShape(const JPH_ConvexHullShapeSettings *settings)
 {
-    const JPH::ConvexHullShapeSettings
-            *jolt_settings = reinterpret_cast<const JPH::ConvexHullShapeSettings *>(settings);
-    const JPH::Result<JPH::Ref<JPH::Shape>> shape_res = jolt_settings->Create();
-
-    const JPH::Shape *shape = shape_res.Get().GetPtr();
+    JPH::Shape *shape = reinterpret_cast<const JPH::ConvexHullShapeSettings *>(settings)->Create().Get().GetPtr();
     shape->AddRef();
 
-    return const_cast<JPH_ConvexHullShape *>(reinterpret_cast<const JPH_ConvexHullShape *>(shape));
+    return reinterpret_cast<JPH_ConvexHullShape *>(shape);
+}
+
+JPH_ConvexHullShape *JPH_ConvexHullShape_Create(const Vector3 *points,
+                                                const uint32_t pointsCount,
+                                                const float maxConvexRadius)
+{
+    JPH::Array<JPH::Vec3> joltPoints;
+    joltPoints.reserve(pointsCount);
+
+    for (uint32_t i = 0; i < pointsCount; i++)
+    {
+        joltPoints.push_back(ToJolt(&points[i]));
+    }
+
+    const JPH::ConvexHullShapeSettings settings(joltPoints, maxConvexRadius);
+    JPH::Shape *shape = settings.Create().Get().GetPtr();
+    shape->AddRef();
+
+    return reinterpret_cast<JPH_ConvexHullShape *>(shape);
 }
 
 uint32_t JPH_ConvexHullShape_GetNumPoints(const JPH_ConvexHullShape *shape)
