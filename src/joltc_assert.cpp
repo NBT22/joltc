@@ -1,6 +1,7 @@
 // Copyright (c) Amer Koleci and Contributors.
 // Licensed under the MIT License (MIT). See LICENSE in the repository root for more information.
 
+#include "../include/joltc/joltc.h"
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/Body/BodyCreationSettings.h"
 #include "Jolt/Physics/Character/CharacterBase.h"
@@ -10,7 +11,6 @@
 #include "Jolt/Physics/Constraints/SixDOFConstraint.h"
 #include "Jolt/Physics/PhysicsSystem.h"
 #include "Jolt/Physics/Vehicle/VehicleTransmission.h"
-#include "joltc.h"
 
 #ifdef JPH_DEBUG_RENDERER
 #include <Jolt/Renderer/DebugRendererSimple.h>

@@ -3,7 +3,7 @@
 
 // ReSharper disable CppDFATimeOver
 
-#include "joltc.h"
+#include "../include/joltc/joltc.h"
 #include <cstdarg>
 #include <iostream>
 #include <Jolt/Jolt.h>
@@ -57,6 +57,11 @@
 #include <Jolt/Physics/Vehicle/MotorcycleController.h>
 #include <Jolt/Physics/Vehicle/TrackedVehicleController.h>
 #include <Jolt/RegisterTypes.h>
+#include <Math/Mat44.hpp>
+#include <Math/Quat.hpp>
+#include <Math/RVec3.hpp> // NOLINT(*-include-cleaner)
+#include <Math/Transform.hpp>
+#include <Math/Vector3.hpp>
 
 // NOLINTBEGIN(*-macro-parentheses)
 #define DEF_MAP_DECL(JoltType, c_type) \
@@ -211,26 +216,6 @@ static bool AssertFailedImpl(const char *inExpression, const char *inMessage, co
 // TODO: The functions in this region could use with optimization from std::copy_n
 #pragma region FromJoltFunctions
 
-static inline void FromJolt(const JPH::Vec3 &vec, Vector3 *result)
-{
-    result->x = vec.GetX();
-    result->y = vec.GetY();
-    result->z = vec.GetZ();
-}
-
-static inline Vector3 FromJolt(const JPH::Vec3 &vec)
-{
-    return {vec.GetX(), vec.GetY(), vec.GetZ()};
-}
-
-static inline void FromJolt(const JPH::Quat &quat, JPH_Quat *result)
-{
-    result->x = quat.GetX();
-    result->y = quat.GetY();
-    result->z = quat.GetZ();
-    result->w = quat.GetW();
-}
-
 static inline void FromJolt(const JPH::Plane &value, JPH_Plane *result)
 {
     FromJolt(value.GetNormal(), &result->normal);
@@ -243,53 +228,13 @@ static inline void FromJolt(const JPH::AABox &value, JPH_AABox *result)
     FromJolt(value.mMax, &result->max);
 }
 
-static inline void FromJolt(const JPH::Mat44 &matrix, JPH_Matrix4x4 *result)
-{
-    const JPH::Vec4 column0 = matrix.GetColumn4(0);
-    const JPH::Vec4 column1 = matrix.GetColumn4(1);
-    const JPH::Vec4 column2 = matrix.GetColumn4(2);
-    const JPH::Vec3 translation = matrix.GetTranslation();
-
-    result->m11 = column0.GetX();
-    result->m12 = column0.GetY();
-    result->m13 = column0.GetZ();
-    result->m14 = column0.GetW();
-
-    result->m21 = column1.GetX();
-    result->m22 = column1.GetY();
-    result->m23 = column1.GetZ();
-    result->m24 = column1.GetW();
-
-    result->m31 = column2.GetX();
-    result->m32 = column2.GetY();
-    result->m33 = column2.GetZ();
-    result->m34 = column2.GetW();
-
-    result->m41 = translation.GetX();
-    result->m42 = translation.GetY();
-    result->m43 = translation.GetZ();
-    result->m44 = 1.0;
-}
-
 #ifdef JPH_DOUBLE_PRECISION
-static inline void FromJolt(const RVec3 &vec, JPH_RVec3 *result)
-{
-    result->x = vec.GetX();
-    result->y = vec.GetY();
-    result->z = vec.GetZ();
-}
-
-static inline JPH_RVec3 FromJolt(const RVec3 &vec)
-{
-    return {vec.GetX(), vec.GetY(), vec.GetZ()};
-}
-
 static inline void FromJolt(const DMat44 &matrix, JPH_RMatrix4x4 *result)
 {
     Vec4 column0 = matrix.GetColumn4(0);
     Vec4 column1 = matrix.GetColumn4(1);
     Vec4 column2 = matrix.GetColumn4(2);
-    DVec3 translation = matrix.GetTranslation();
+    JPH_RVec3 translation = matrix.GetTranslation();
 
     result->m11 = column0.GetX();
     result->m12 = column0.GetY();
@@ -415,51 +360,9 @@ static inline void FromJolt(const JPH::CollisionGroup &jolt, JPH_CollisionGroup 
 // TODO: The functions in this region could use with optimization from std::copy_n
 #pragma region ToJoltFunctions
 
-static inline JPH::Vec3 ToJolt(const Vector3 &vec)
-{
-    return {vec.x, vec.y, vec.z};
-}
-
-static inline JPH::Vec3 ToJolt(const Vector3 *vec)
-{
-    return {vec->x, vec->y, vec->z};
-}
-
-// static inline JPH::Vec3 ToJolt(const float value[3])
-// {
-//     return {value[0], value[1], value[2]};
-// }
-
-static inline JPH::Quat ToJolt(const JPH_Quat *quat)
-{
-    return {quat->x, quat->y, quat->z, quat->w};
-}
-
-static inline void ToJolt(const Transform *transform, JPH::Vec3 &position, JPH::Vec3 &rotationEulerAngles)
-{
-    position = ToJolt(transform->position);
-    rotationEulerAngles = ToJolt(transform->rotation);
-}
-
-static inline void ToJolt(const Transform *transform, JPH::Vec3 &position, JPH::Quat &rotation)
-{
-    position = ToJolt(transform->position);
-    rotation = JPH::Quat::sEulerAngles(ToJolt(transform->rotation));
-}
-
 static inline JPH::Plane ToJolt(const JPH_Plane *value)
 {
     return {ToJolt(value->normal), value->distance};
-}
-
-static inline JPH::Mat44 ToJolt(const JPH_Matrix4x4 *matrix)
-{
-    JPH::Mat44 result{};
-    result.SetColumn4(0, JPH::Vec4(matrix->m11, matrix->m12, matrix->m13, matrix->m14));
-    result.SetColumn4(1, JPH::Vec4(matrix->m21, matrix->m22, matrix->m23, matrix->m24));
-    result.SetColumn4(2, JPH::Vec4(matrix->m31, matrix->m32, matrix->m33, matrix->m34));
-    result.SetColumn4(3, JPH::Vec4(matrix->m41, matrix->m42, matrix->m43, matrix->m44));
-    return result;
 }
 
 static inline JPH::Float3 ToJoltFloat3(const Vector3 &vec)
@@ -473,16 +376,6 @@ static inline JPH::AABox ToJolt(const JPH_AABox *value)
 }
 
 #ifdef JPH_DOUBLE_PRECISION
-static inline JPH::RVec3 ToJolt(const JPH_RVec3 &vec)
-{
-    return JPH::RVec3(vec.x, vec.y, vec.z);
-}
-
-static inline JPH::RVec3 ToJolt(const JPH_RVec3 *vec)
-{
-    return JPH::RVec3(vec->x, vec->y, vec->z);
-}
-
 static inline JPH::RMat44 ToJolt(const JPH_RMatrix4x4 *matrix)
 {
     JPH::RMat44 result{};
@@ -556,7 +449,7 @@ static inline JPH::CollisionGroup ToJolt(const JPH_CollisionGroup *group)
 #pragma endregion ToJoltFunctions
 
 void JPH_MassProperties_DecomposePrincipalMomentsOfInertia(const JPH_MassProperties *properties,
-                                                           JPH_Matrix4x4 *rotation,
+                                                           JPH_Mat44 *rotation,
                                                            Vector3 *diagonal)
 {
     JPH::Mat44 joltRotation;
@@ -1364,390 +1257,6 @@ void JPH_SimShapeFilter_Destroy(JPH_SimShapeFilter *filter)
 }
 
 /* Math */
-void JPH_Quaternion_FromTo(const Vector3 *from, const Vector3 *to, JPH_Quat *quat)
-{
-    FromJolt(JPH::Quat::sFromTo(ToJolt(from), ToJolt(to)), quat);
-}
-
-void JPH_Quat_GetAxisAngle(const JPH_Quat *quat, Vector3 *outAxis, float *outAngle)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(outAxis);
-    JPH_ASSERT(outAngle);
-
-    JPH::Vec3 joltAxis;
-    float angle;
-    const JPH::Quat joltQuat = ToJolt(quat);
-    joltQuat.GetAxisAngle(joltAxis, angle);
-    FromJolt(joltAxis, outAxis);
-    *outAngle = angle;
-}
-
-void JPH_Quat_GetEulerAngles(const JPH_Quat *quat, Vector3 *result)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(quat).GetEulerAngles(), result);
-}
-
-void JPH_Quat_RotateAxisX(const JPH_Quat *quat, Vector3 *result)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(quat).RotateAxisX(), result);
-}
-
-void JPH_Quat_RotateAxisY(const JPH_Quat *quat, Vector3 *result)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(quat).RotateAxisY(), result);
-}
-
-void JPH_Quat_RotateAxisZ(const JPH_Quat *quat, Vector3 *result)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(quat).RotateAxisZ(), result);
-}
-
-void JPH_Quat_Inversed(const JPH_Quat *quat, JPH_Quat *result)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(quat).Inversed(), result);
-}
-
-void JPH_Quat_GetPerpendicular(const JPH_Quat *quat, JPH_Quat *result)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(quat).GetPerpendicular(), result);
-}
-
-float JPH_Quat_GetRotationAngle(const JPH_Quat *quat, const Vector3 *axis)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(axis);
-
-    return ToJolt(quat).GetRotationAngle(ToJolt(axis));
-}
-
-void JPH_Quat_Rotation(const Vector3 *inAxis, float inAngle, JPH_Quat *result)
-{
-    JPH_ASSERT(inAxis && result);
-    FromJolt(JPH::Quat::sRotation(ToJolt(inAxis), inAngle), result);
-}
-
-void JPH_Quat_FromEulerAngles(const Vector3 *angles, JPH_Quat *result)
-{
-    JPH_ASSERT(angles && result);
-    FromJolt(JPH::Quat::sEulerAngles(ToJolt(angles)), result);
-}
-void JPH_Quat_Add(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
-{
-    JPH_ASSERT(q1 && q2 && result);
-    FromJolt(ToJolt(q1) + ToJolt(q2), result);
-}
-
-void JPH_Quat_Subtract(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
-{
-    JPH_ASSERT(q1 && q2 && result);
-    FromJolt(ToJolt(q1) - ToJolt(q2), result);
-}
-
-void JPH_Quat_Multiply(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
-{
-    JPH_ASSERT(q1 && q2 && result);
-    FromJolt(ToJolt(q1) * ToJolt(q2), result);
-}
-
-void JPH_Quat_MultiplyScalar(const JPH_Quat *quat, float scalar, JPH_Quat *result)
-{
-    JPH_ASSERT(quat && result);
-    FromJolt(ToJolt(quat) * scalar, result);
-}
-
-void JPH_Quat_DivideScalar(const JPH_Quat *quat, float scalar, JPH_Quat *result)
-{
-    JPH_ASSERT(quat && result);
-    JPH_ASSERT(scalar != 0.0f);
-    FromJolt(ToJolt(quat) / scalar, result);
-}
-
-void JPH_Quat_Dot(const JPH_Quat *q1, const JPH_Quat *q2, float *result)
-{
-    JPH_ASSERT(q1 && q2 && result);
-    *result = ToJolt(q1).Dot(ToJolt(q2));
-}
-
-void JPH_Quat_Conjugated(const JPH_Quat *quat, JPH_Quat *result)
-{
-    JPH_ASSERT(quat && result);
-    FromJolt(ToJolt(quat).Conjugated(), result);
-}
-
-void JPH_Quat_GetTwist(const JPH_Quat *quat, const Vector3 *axis, JPH_Quat *result)
-{
-    JPH_ASSERT(quat && axis && result);
-    FromJolt(ToJolt(quat).GetTwist(ToJolt(axis)), result);
-}
-
-void JPH_Quat_GetSwingTwist(const JPH_Quat *quat, JPH_Quat *outSwing, JPH_Quat *outTwist)
-{
-    JPH_ASSERT(quat && outSwing && outTwist);
-    JPH::Quat swing;
-    JPH::Quat twist;
-    ToJolt(quat).GetSwingTwist(swing, twist);
-    FromJolt(swing, outSwing);
-    FromJolt(twist, outTwist);
-}
-
-void JPH_Quat_Lerp(const JPH_Quat *from, const JPH_Quat *to, float fraction, JPH_Quat *result)
-{
-    JPH_ASSERT(from && to && result);
-    FromJolt(ToJolt(from).LERP(ToJolt(to), fraction), result);
-}
-
-void JPH_Quat_Slerp(const JPH_Quat *from, const JPH_Quat *to, float fraction, JPH_Quat *result)
-{
-    JPH_ASSERT(from && to && result);
-    FromJolt(ToJolt(from).SLERP(ToJolt(to), fraction), result);
-}
-
-void JPH_Quat_Rotate(const JPH_Quat *quat, const Vector3 *vector, Vector3 *result)
-{
-    JPH_ASSERT(quat && vector && result);
-    FromJolt(ToJolt(quat) * ToJolt(vector), result);
-}
-
-void JPH_Quat_InverseRotate(const JPH_Quat *quat, const Vector3 *vector, Vector3 *result)
-{
-    JPH_ASSERT(quat && vector && result);
-    FromJolt(ToJolt(quat).InverseRotate(ToJolt(vector)), result);
-}
-
-float JPH_Quat_LengthSq(const JPH_Quat *quat)
-{
-    JPH_ASSERT(quat);
-    return ToJolt(quat).LengthSq();
-}
-
-float JPH_Quat_Length(const JPH_Quat *quat)
-{
-    JPH_ASSERT(quat);
-    return ToJolt(quat).Length();
-}
-
-void JPH_Quat_Normalized(const JPH_Quat *quat, JPH_Quat *result)
-{
-    JPH_ASSERT(quat);
-    JPH_ASSERT(result);
-    FromJolt(ToJolt(quat).Normalized(), result);
-}
-
-bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistanceSquared)
-{
-    JPH_ASSERT(v1 != nullptr);
-    JPH_ASSERT(v2 != nullptr);
-
-    return ToJolt(v1).IsClose(ToJolt(v2), maxDistanceSquared);
-}
-
-bool Vector3_IsNearZero(const Vector3 *vector, float maxDistSq)
-{
-    JPH_ASSERT(vector != nullptr);
-
-    return ToJolt(vector).IsNearZero(maxDistSq);
-}
-
-bool Vector3_IsNormalized(const Vector3 *vector, float tolerance)
-{
-    JPH_ASSERT(vector != nullptr);
-
-    return ToJolt(vector).IsNormalized(tolerance);
-}
-
-bool Vector3_IsNaN(const Vector3 *vector)
-{
-    JPH_ASSERT(vector != nullptr);
-
-    return ToJolt(vector).IsNaN();
-}
-
-void Vector3_Negate(const Vector3 *vector, Vector3 *result)
-{
-    JPH_ASSERT(vector != nullptr);
-    JPH_ASSERT(result != nullptr);
-
-    FromJolt(-ToJolt(vector), result);
-}
-
-void Vector3_Normalized(const Vector3 *vector, Vector3 *result)
-{
-    JPH_ASSERT(vector != nullptr);
-    JPH_ASSERT(result != nullptr);
-
-    FromJolt(ToJolt(vector).Normalized(), result);
-}
-
-void Vector3_Cross(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
-{
-    JPH_ASSERT(v1 != nullptr);
-    JPH_ASSERT(v2 != nullptr);
-    JPH_ASSERT(result != nullptr);
-
-    FromJolt(ToJolt(v1).Cross(ToJolt(v2)), result);
-}
-
-void Vector3_Abs(const Vector3 *vector, Vector3 *result)
-{
-    JPH_ASSERT(vector != nullptr);
-    JPH_ASSERT(result != nullptr);
-
-    FromJolt(ToJolt(vector).Abs(), result);
-}
-
-float Vector3_Length(const Vector3 *vector)
-{
-    JPH_ASSERT(vector);
-
-    return ToJolt(vector).Length();
-}
-
-float Vector3_LengthSquared(const Vector3 *vector)
-{
-    JPH_ASSERT(vector);
-
-    return ToJolt(vector).LengthSq();
-}
-
-void Vector3_Multiply(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
-{
-    JPH_ASSERT(v1 && v2 && result);
-
-    FromJolt(ToJolt(v1) * ToJolt(v2), result);
-}
-
-void Vector3_MultiplyScalar(const Vector3 *vector, float scalar, Vector3 *result)
-{
-    JPH_ASSERT(vector && result);
-
-    FromJolt(ToJolt(vector) * scalar, result);
-}
-
-void Vector3_Divide(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
-{
-    JPH_ASSERT(v1 && v2 && result);
-
-    FromJolt(ToJolt(v1) / ToJolt(v2), result);
-}
-
-void Vector3_DivideScalar(const Vector3 *vector, float scalar, Vector3 *result)
-{
-    JPH_ASSERT(vector && result);
-    JPH_ASSERT(scalar != 0.0f);
-
-    FromJolt(ToJolt(vector) / scalar, result);
-}
-
-void Vector3_DotProduct(const Vector3 *v1, const Vector3 *v2, float *result)
-{
-    JPH_ASSERT(v1 && v2 && result);
-
-    *result = ToJolt(v1).Dot(ToJolt(v2));
-}
-
-void Vector3_Normalize(const Vector3 *vector, Vector3 *result)
-{
-    JPH_ASSERT(vector && result);
-
-    FromJolt(ToJolt(vector).Normalized(), result);
-}
-
-void Vector3_Add(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
-{
-    JPH_ASSERT(v1 && v2 && result);
-
-    FromJolt(ToJolt(v1) + ToJolt(v2), result);
-}
-
-void Vector3_Subtract(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
-{
-    JPH_ASSERT(v1 && v2 && result);
-
-    FromJolt(ToJolt(v1) - ToJolt(v2), result);
-}
-
-void JPH_Matrix4x4_Add(const JPH_Matrix4x4 *m1, const JPH_Matrix4x4 *m2, JPH_Matrix4x4 *result)
-{
-    JPH_ASSERT(m1 && m2 && result);
-    FromJolt(ToJolt(m1) + ToJolt(m2), result);
-}
-
-void JPH_Matrix4x4_Subtract(const JPH_Matrix4x4 *m1, const JPH_Matrix4x4 *m2, JPH_Matrix4x4 *result)
-{
-    JPH_ASSERT(m1 && m2 && result);
-    FromJolt(ToJolt(m1) - ToJolt(m2), result);
-}
-
-void JPH_Matrix4x4_Multiply(const JPH_Matrix4x4 *m1, const JPH_Matrix4x4 *m2, JPH_Matrix4x4 *result)
-{
-    JPH_ASSERT(m1 && m2 && result);
-    FromJolt(ToJolt(m1) * ToJolt(m2), result);
-}
-
-void JPH_Matrix4x4_MultiplyScalar(const JPH_Matrix4x4 *m, float scalar, JPH_Matrix4x4 *result)
-{
-    JPH_ASSERT(m && result);
-    FromJolt(ToJolt(m) * scalar, result);
-}
-
-void JPH_Matrix4x4_Rotation(JPH_Matrix4x4 *result, const JPH_Quat *rotation)
-{
-    FromJolt(JPH::Mat44::sRotation(ToJolt(rotation)), result);
-}
-
-void JPH_Matrix4x4_Translation(JPH_Matrix4x4 *result, const Vector3 *translation)
-{
-    FromJolt(JPH::Mat44::sTranslation(ToJolt(translation)), result);
-}
-
-void JPH_Matrix4x4_RotationTranslation(JPH_Matrix4x4 *result, const JPH_Quat *rotation, const Vector3 *translation)
-{
-    FromJolt(JPH::Mat44::sRotationTranslation(ToJolt(rotation), ToJolt(translation)), result);
-}
-
-void JPH_Matrix4x4_InverseRotationTranslation(JPH_Matrix4x4 *result,
-                                              const JPH_Quat *rotation,
-                                              const Vector3 *translation)
-{
-    FromJolt(JPH::Mat44::sInverseRotationTranslation(ToJolt(rotation), ToJolt(translation)), result);
-}
-
-void JPH_Matrix4x4_Scale(JPH_Matrix4x4 *result, const Vector3 *scale)
-{
-    FromJolt(JPH::Mat44::sScale(ToJolt(scale)), result);
-}
-
-void JPH_Matrix4x4_Transposed(const JPH_Matrix4x4 *m, JPH_Matrix4x4 *result)
-{
-    JPH_ASSERT(m && result);
-    FromJolt(ToJolt(m).Transposed(), result);
-}
-
-void JPH_Matrix4x4_Inversed(const JPH_Matrix4x4 *m, JPH_Matrix4x4 *result)
-{
-    JPH_ASSERT(m && result);
-    FromJolt(ToJolt(m).Inversed(), result);
-}
-
 void JPH_RMatrix4x4_Zero(JPH_RMatrix4x4 *result)
 {
     FromJolt(JPH::RMat44::sZero(), result);
@@ -1789,41 +1298,6 @@ void JPH_RMatrix4x4_Inversed(const JPH_RMatrix4x4 *matrix, JPH_RMatrix4x4 *resul
 {
     JPH_ASSERT(matrix && result);
     FromJolt(ToJolt(matrix).Inversed(), result);
-}
-
-void JPH_Matrix4x4_GetAxisX(const JPH_Matrix4x4 *matrix, Vector3 *result)
-{
-    JPH_ASSERT(matrix);
-    JPH_ASSERT(result);
-    FromJolt(ToJolt(matrix).GetAxisX(), result);
-}
-
-void JPH_Matrix4x4_GetAxisY(const JPH_Matrix4x4 *matrix, Vector3 *result)
-{
-    JPH_ASSERT(matrix);
-    JPH_ASSERT(result);
-    FromJolt(ToJolt(matrix).GetAxisY(), result);
-}
-
-void JPH_Matrix4x4_GetAxisZ(const JPH_Matrix4x4 *matrix, Vector3 *result)
-{
-    JPH_ASSERT(matrix);
-    JPH_ASSERT(result);
-    FromJolt(ToJolt(matrix).GetAxisZ(), result);
-}
-
-void JPH_Matrix4x4_GetTranslation(const JPH_Matrix4x4 *matrix, Vector3 *result)
-{
-    JPH_ASSERT(matrix);
-    JPH_ASSERT(result);
-    FromJolt(ToJolt(matrix).GetTranslation(), result);
-}
-
-void JPH_Matrix4x4_GetQuaternion(const JPH_Matrix4x4 *matrix, JPH_Quat *result)
-{
-    JPH_ASSERT(matrix);
-    JPH_ASSERT(result);
-    FromJolt(ToJolt(matrix).GetQuaternion(), result);
 }
 
 /* Material */
@@ -2018,7 +1492,7 @@ void JPH_Shape_GetSupportingFace(const JPH_Shape *shape,
                                  const JPH_SubShapeId subShapeID,
                                  const Vector3 *direction,
                                  const Vector3 *scale,
-                                 const JPH_Matrix4x4 *centerOfMassTransform,
+                                 const JPH_Mat44 *centerOfMassTransform,
                                  JPH_SupportingFace *outVertices)
 {
     JPH_ASSERT(shape);
@@ -3842,13 +3316,13 @@ JPH_Body *JPH_TwoBodyConstraint_GetBody2(const JPH_TwoBodyConstraint *constraint
     return const_cast<JPH_Body *>(reinterpret_cast<const JPH_Body *>(joltBody));
 }
 
-void JPH_TwoBodyConstraint_GetConstraintToBody1Matrix(const JPH_TwoBodyConstraint *constraint, JPH_Matrix4x4 *result)
+void JPH_TwoBodyConstraint_GetConstraintToBody1Matrix(const JPH_TwoBodyConstraint *constraint, JPH_Mat44 *result)
 {
     const JPH::Mat44 joltMatrix = AsTwoBodyConstraint(constraint)->GetConstraintToBody1Matrix();
     FromJolt(joltMatrix, result);
 }
 
-void JPH_TwoBodyConstraint_GetConstraintToBody2Matrix(const JPH_TwoBodyConstraint *constraint, JPH_Matrix4x4 *result)
+void JPH_TwoBodyConstraint_GetConstraintToBody2Matrix(const JPH_TwoBodyConstraint *constraint, JPH_Mat44 *result)
 {
     const JPH::Mat44 joltMatrix = AsTwoBodyConstraint(constraint)->GetConstraintToBody2Matrix();
     FromJolt(joltMatrix, result);
@@ -6019,7 +5493,7 @@ JPH_MotionQuality JPH_BodyInterface_GetMotionQuality(JPH_BodyInterface *interfac
     return static_cast<JPH_MotionQuality>(AsBodyInterface(interface)->GetMotionQuality(JPH::BodyID(bodyId)));
 }
 
-void JPH_BodyInterface_GetInverseInertia(JPH_BodyInterface *interface, const JPH_BodyId bodyId, JPH_Matrix4x4 *result)
+void JPH_BodyInterface_GetInverseInertia(JPH_BodyInterface *interface, const JPH_BodyId bodyId, JPH_Mat44 *result)
 {
     const JPH::Mat44 &mat = AsBodyInterface(interface)->GetInverseInertia(JPH::BodyID(bodyId));
     FromJolt(mat, result);
@@ -6662,7 +6136,7 @@ bool JPH_NarrowPhaseQuery_CastRay2_GAME(const JPH_NarrowPhaseQuery *query,
         result->fraction = collector.mHit.mFraction;
         result->bodyID = collector.mHit.mBodyID.GetIndexAndSequenceNumber();
         result->subShapeID2 = collector.mHit.mSubShapeID2.GetValue();
-        *hitPointOffset = FromJolt(-JPH::Vec3::sAxisZ() * collector.mHit.mFraction * maxDistance);
+        FromJolt(-JPH::Vec3::sAxisZ() * collector.mHit.mFraction * maxDistance, hitPointOffset);
     }
 
     return collector.HadHit();
@@ -7496,7 +6970,7 @@ void JPH_Body_ResetMotion(JPH_Body *body)
     AsBody(body)->ResetMotion();
 }
 
-void JPH_Body_GetInverseInertia(JPH_Body *body, JPH_Matrix4x4 *result)
+void JPH_Body_GetInverseInertia(JPH_Body *body, JPH_Mat44 *result)
 {
     FromJolt(AsBody(body)->GetInverseInertia(), result);
 }
@@ -8230,8 +7704,10 @@ void JPH_CharacterVirtualSettings_Init(JPH_CharacterVirtualSettings *settings)
     settings->ID = settings->ID == 0 ? joltSettings.mID.GetValue() : settings->ID;
     settings->mass = settings->mass == 0 ? joltSettings.mMass : settings->mass;
     settings->maxStrength = settings->maxStrength == 0 ? joltSettings.mMaxStrength : settings->maxStrength;
-    settings->shapeOffset = Vector3_IsNearZero(&settings->shapeOffset, 1.0e-12f) ? FromJolt(joltSettings.mShapeOffset)
-                                                                                 : settings->shapeOffset;
+    if (Vector3_IsNearZero(&settings->shapeOffset, 1.0e-12f))
+    {
+        FromJolt(joltSettings.mShapeOffset, &settings->shapeOffset);
+    }
     settings->backFaceMode = settings->backFaceMode == 0 ? static_cast<JPH_BackFaceMode>(joltSettings.mBackFaceMode)
                                                          : settings->backFaceMode;
     settings->predictiveContactDistance = settings->predictiveContactDistance == 0
@@ -9081,8 +8557,8 @@ bool JPH_CollisionDispatch_CollideShapeVsShape(const JPH_Shape *shape1,
                                                const JPH_Shape *shape2,
                                                const Vector3 *scale1,
                                                const Vector3 *scale2,
-                                               const JPH_Matrix4x4 *centerOfMassTransform1,
-                                               const JPH_Matrix4x4 *centerOfMassTransform2,
+                                               const JPH_Mat44 *centerOfMassTransform1,
+                                               const JPH_Mat44 *centerOfMassTransform2,
                                                const JPH_CollideShapeSettings *collideShapeSettings,
                                                JPH_CollideShapeCollectorCallback *callback,
                                                void *userData,
@@ -9110,8 +8586,8 @@ bool JPH_CollisionDispatch_CastShapeVsShapeLocalSpace(const Vector3 *direction,
                                                       const JPH_Shape *shape2,
                                                       const Vector3 *scale1InShape2LocalSpace,
                                                       const Vector3 *scale2,
-                                                      const JPH_Matrix4x4 *centerOfMassTransform1InShape2LocalSpace,
-                                                      const JPH_Matrix4x4 *centerOfMassWorldTransform2,
+                                                      const JPH_Mat44 *centerOfMassTransform1InShape2LocalSpace,
+                                                      const JPH_Mat44 *centerOfMassWorldTransform2,
                                                       const JPH_ShapeCastSettings *shapeCastSettings,
                                                       JPH_CastShapeCollectorCallback *callback,
                                                       void *userData,
@@ -9142,8 +8618,8 @@ bool JPH_CollisionDispatch_CastShapeVsShapeWorldSpace(const Vector3 *direction,
                                                       const JPH_Shape *shape2,
                                                       const Vector3 *scale1,
                                                       const Vector3 *scale2,
-                                                      const JPH_Matrix4x4 *centerOfMassWorldTransform1,
-                                                      const JPH_Matrix4x4 *centerOfMassWorldTransform2,
+                                                      const JPH_Mat44 *centerOfMassWorldTransform1,
+                                                      const JPH_Mat44 *centerOfMassWorldTransform2,
                                                       const JPH_ShapeCastSettings *shapeCastSettings,
                                                       JPH_CastShapeCollectorCallback *callback,
                                                       void *userData,
@@ -9705,7 +9181,7 @@ bool JPH_RagdollSettings_Stabilize(JPH_RagdollSettings *settings)
 }
 
 void JPH_RagdollSettings_DisableParentChildCollisions(JPH_RagdollSettings *settings,
-                                                      const JPH_Matrix4x4 *jointMatrices,
+                                                      const JPH_Mat44 *jointMatrices,
                                                       const float minSeparationDistance)
 {
     if (jointMatrices != nullptr)
@@ -10566,7 +10042,7 @@ void JPH_VehicleConstraint_GetWheelLocalTransform(JPH_VehicleConstraint *constra
                                                   const uint32_t wheelIndex,
                                                   const Vector3 *wheelRight,
                                                   const Vector3 *wheelUp,
-                                                  JPH_Matrix4x4 *result)
+                                                  JPH_Mat44 *result)
 {
     const JPH::Mat44 joltResult = AsVehicleConstraint(constraint)
                                           ->GetWheelLocalTransform(wheelIndex, ToJolt(wheelRight), ToJolt(wheelUp));

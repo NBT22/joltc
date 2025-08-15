@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h> // malloc, free
 #include <string.h> // memset
-#include "joltc.h"
+#include "../../include/joltc/joltc.h"
 // STL includes
 #include <iostream>
 

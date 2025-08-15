@@ -1,19 +1,10 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-project(joltc CXX)
+project(joltc C CXX)
 
-# Use solution folders to organize projects
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-# Requires C++ 17
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INSTALL_MESSAGE LAZY)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-set(CMAKE_OSX_DEPLOYMENT_TARGET "11" CACHE STRING "Minimum OS X deployment version")
-set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for OS X")
 
 # Determine if engine is built as a subproject (using add_subdirectory)
 # or if it is the master project.
@@ -30,6 +21,18 @@ if (JPH_MASTER_PROJECT)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+endif ()
+
+if (DEFINED JPH_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE ${JPH_BUILD_TYPE})
+endif ()
+
+# Set the default CMAKE_BUILD_TYPE to Release.
+# This should be done before the project command since the latter can set
+# CMAKE_BUILD_TYPE itself (it does so for nmake).
+if (JPH_MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Distribution" CACHE STRING "The default build type" FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
 endif ()
 
 if (MSVC AND JPH_MASTER_PROJECT)
@@ -134,14 +137,6 @@ option(JPH_SAMPLES "Build samples" ${JPH_MASTER_PROJECT})
 
 # Define standard configurations (Debug, Release, Distribution)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;Distribution")
-
-# Set the default CMAKE_BUILD_TYPE to Release.
-# This should be done before the project command since the latter can set
-# CMAKE_BUILD_TYPE itself (it does so for nmake).
-if (JPH_MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Distribution" CACHE STRING "The default build type" FORCE)
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
-endif ()
 
 # Search for local JoltPhysics first
 if (JPH_MASTER_PROJECT AND EXISTS "${CMAKE_SOURCE_DIR}/../JoltPhysics/Build/CMakeLists.txt")
@@ -285,15 +280,6 @@ set(CMAKE_SHARED_LINKER_FLAGS_DISTRIBUTION "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}
 
 SET_INTERPROCEDURAL_OPTIMIZATION()
 
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Disable shared library when building Jolt" FORCE)
-
-# Options
-if (IOS OR EMSCRIPTEN)
-    set(JPH_BUILD_SHARED OFF CACHE BOOL "Always Disable shared library on (IOS, WEB)" FORCE)
-else ()
-    option(JPH_BUILD_SHARED "Build a shared library" ${JPH_MASTER_PROJECT})
-endif ()
-
 # Setup joltc library
 # Define target name
 if (DOUBLE_PRECISION)
@@ -303,22 +289,32 @@ else ()
 endif ()
 
 set(SOURCE_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/joltc.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc_assert.cpp
+        include/joltc/joltc.h
+        include/joltc/Math/RVec3.h
+        include/joltc/Math/Vector3.h
+        include/joltc/Math/Transform.h
+        include/joltc/Math/Quat.h
+        include/joltc/Math/Mat44.h
+        src/include/Math/Vector3.hpp
+        src/include/Math/RVec3.hpp
+        src/include/Math/Quat.hpp
+        src/include/Math/Mat44.hpp
+        src/include/Math/Transform.hpp
+        src/Math/Vector3.cpp
+        src/Math/RVec3.cpp
+        src/Math/Quat.cpp
+        src/Math/Mat44.cpp
+        src/joltc.cpp
+        src/joltc_assert.cpp
 )
 
-if (JPH_BUILD_SHARED)
-    add_library(${TARGET_NAME} SHARED ${SOURCE_FILES})
-else ()
-    add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
-endif ()
+add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
 
-if (JPH_BUILD_SHARED)
-    target_compile_definitions(${TARGET_NAME} PRIVATE JPH_SHARED_LIBRARY_BUILD=1)
-endif ()
+set(JPH_CAPI_VALUE "extern __attribute__((visibility(\"default\")))")
+target_compile_definitions(${TARGET_NAME} PUBLIC JPH_CAPI=${JPH_CAPI_VALUE} JPH_API_CALL=$<$<BOOL:${WIN32}>:__cdecl>)
 
 target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>)
 target_link_libraries(${TARGET_NAME} PRIVATE Jolt)
 
 if (MSVC)
@@ -363,14 +359,6 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/joltc.h
 if (JPH_SAMPLES)
     add_subdirectory(samples)
 endif ()
-
-if (JPH_BUILD_SHARED)
-    message(STATUS "  Library         SHARED")
-else ()
-    message(STATUS "  Library         STATIC")
-endif ()
-
-message(STATUS "  Samples         ${JPH_SAMPLES}")
 
 if (CMAKE_GENERATOR_PLATFORM)
     message(STATUS "CMAKE_GENERATOR_PLATFORM: ${CMAKE_GENERATOR_PLATFORM}")
