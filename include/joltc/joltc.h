@@ -11,6 +11,7 @@ extern "C"
 #endif
 
 #include <joltc/enums.h>
+#include <joltc/Geometry/AABox.h>
 #include <joltc/Math/Mat44.h>
 #include <joltc/Math/Quat.h>
 #include <joltc/Math/RMat44.h>
@@ -19,13 +20,11 @@ extern "C"
 #include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/Body.h>
 #include <joltc/Physics/Body/BodyInterface.h>
-#include <joltc/Physics/Body/MassProperties.h>
-#include <joltc/Physics/Collision/CollisionGroup.h>
 #include <joltc/Physics/Collision/PhysicsMaterial.h>
+#include <joltc/Physics/Collision/RayCast.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
 #include <joltc/Physics/Collision/ShapeFilter.h>
 #include <joltc/types.h>
-#include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

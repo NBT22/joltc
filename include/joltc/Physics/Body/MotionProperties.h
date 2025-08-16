@@ -11,6 +11,8 @@ extern "C"
 #endif
 
 #include <joltc/enums.h>
+#include <joltc/Math/Quat.h>
+#include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/MassProperties.h>
 
 typedef struct JPH_MotionProperties JPH_MotionProperties;

@@ -2,9 +2,12 @@
 // Created by NBT22 on 8/15/25.
 //
 
-#include <Physics/Collision/PhysicsMaterial.hpp>
+#include <cstdint>
+#include <joltc/Physics/Collision/PhysicsMaterial.h>
 #include <Jolt/Jolt.h>
+#include <Jolt/Core/Color.h>
 #include <Jolt/Physics/Collision/PhysicsMaterialSimple.h>
+#include <Physics/Collision/PhysicsMaterial.hpp>
 
 JPH_PhysicsMaterial *JPH_PhysicsMaterial_Create(const char *name, const uint32_t color)
 {

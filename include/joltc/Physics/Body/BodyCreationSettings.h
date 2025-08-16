@@ -14,8 +14,11 @@ extern "C"
 #include <joltc/Math/Quat.h>
 #include <joltc/Math/RVec3.h>
 #include <joltc/Math/Transform.h>
+#include <joltc/Math/Vector3.h>
+#include <joltc/Physics/Body/MassProperties.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
 #include <joltc/types.h>
+#include <stdint.h>
 
 typedef struct JPH_BodyCreationSettings JPH_BodyCreationSettings;
 

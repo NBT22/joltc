@@ -1,25 +1,41 @@
 // Copyright (c) Amer Koleci and Contributors.
 // Licensed under the MIT License (MIT). See LICENSE in the repository root for more information.
 
+#include <cstdint>
 #include <joltc/constants.h>
-#include <joltc/joltc.h>
+#include <joltc/enums.h>
+#include <joltc/types.h>
 #include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/AllowedDOFs.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Body/BodyType.h>
+#include <Jolt/Physics/Body/MotionQuality.h>
+#include <Jolt/Physics/Body/MotionType.h>
 #include <Jolt/Physics/Character/CharacterBase.h>
 #include <Jolt/Physics/Character/CharacterID.h>
-#include <Jolt/Physics/Collision/CollideShape.h>
-#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/ActiveEdgeMode.h>
+#include <Jolt/Physics/Collision/BackFaceMode.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Physics/Collision/CollectFacesMode.h>
+#include <Jolt/Physics/Collision/CollisionGroup.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeIDPair.h>
+#include <Jolt/Physics/Constraints/Constraint.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/SwingTwistConstraintPart.h>
+#include <Jolt/Physics/Constraints/MotorSettings.h>
 #include <Jolt/Physics/Constraints/SixDOFConstraint.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Physics/Vehicle/VehicleTransmission.h>
+#include <Jolt/Physics/Constraints/SpringSettings.h>
+#include <Jolt/Physics/EActivation.h>
+#include <Jolt/Physics/EPhysicsUpdateError.h>
+#include <Jolt/Physics/PhysicsSettings.h>
 
 #ifdef JPH_DEBUG_RENDERER
 #include <Jolt/Renderer/DebugRendererSimple.h>
 #endif // JPH_DEBUG_RENDERER
-
-#define ENSURE_SIZE_ALIGN(type0, type1) \
-    static_assert(sizeof(type0) == sizeof(type1)); \
-    static_assert(alignof(type0) == alignof(type1))
 
 // Ensure that we use 32-bit object layers
 static_assert(sizeof(JPH::ObjectLayer) == 4);

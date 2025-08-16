@@ -2,28 +2,30 @@
 // Created by NBT22 on 8/15/25.
 //
 
+#include <joltc/Physics/Collision/ShapeFilter.h>
 #include <joltc/types.h>
 #include <Jolt/Jolt.h>
+#include <Jolt/Core/IssueReporting.h>
 #include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Physics/Collision/ShapeFilter.h>
 #include <Physics/Collision/Shape/Shape.hpp>
-#include <Physics/Collision/ShapeFilter.hpp>
 
 class ManagedShapeFilter final: public JPH::ShapeFilter
 {
     public:
-        static inline const ManagedShapeFilter *ToManagedShapeFilter(const JPH_ShapeFilter *filter)
+        static const ManagedShapeFilter *ToManagedShapeFilter(const JPH_ShapeFilter *filter)
         {
             return reinterpret_cast<const ManagedShapeFilter *>(filter);
         }
-        static inline ManagedShapeFilter *ToManagedShapeFilter(JPH_ShapeFilter *filter)
+        static ManagedShapeFilter *ToManagedShapeFilter(JPH_ShapeFilter *filter)
         {
             return reinterpret_cast<ManagedShapeFilter *>(filter);
         }
-        static inline const JPH_ShapeFilter *FromManagedShapeFilter(const ManagedShapeFilter *filter)
+        static const JPH_ShapeFilter *FromManagedShapeFilter(const ManagedShapeFilter *filter)
         {
             return reinterpret_cast<const JPH_ShapeFilter *>(filter);
         }
-        static inline JPH_ShapeFilter *FromManagedShapeFilter(ManagedShapeFilter *filter)
+        static JPH_ShapeFilter *FromManagedShapeFilter(ManagedShapeFilter *filter)
         {
             return reinterpret_cast<JPH_ShapeFilter *>(filter);
         }

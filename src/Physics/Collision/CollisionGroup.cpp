@@ -2,6 +2,8 @@
 // Created by NBT22 on 8/15/25.
 //
 
+#include <joltc/Physics/Body/BodyCreationSettings.h>
+#include <joltc/Physics/Collision/CollisionGroup.h>
 #include <Physics/Body/BodyCreationSettings.hpp>
 #include <Physics/Collision/CollisionGroup.hpp>
 

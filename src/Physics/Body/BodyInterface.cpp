@@ -4,20 +4,34 @@
 
 #include <cstdint>
 #include <joltc/enums.h>
+#include <joltc/Math/Mat44.h>
 #include <joltc/Math/Quat.h>
+#include <joltc/Math/RMat44.h>
 #include <joltc/Math/RVec3.h>
 #include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/Body.h>
+#include <joltc/Physics/Body/BodyCreationSettings.h>
 #include <joltc/Physics/Body/BodyInterface.h>
+#include <joltc/Physics/Collision/CollisionGroup.h>
+#include <joltc/Physics/Collision/PhysicsMaterial.h>
+#include <joltc/Physics/Collision/Shape/Shape.h>
+#include <joltc/Physics/SoftBody/SoftBodyCreationSettings.h>
 #include <joltc/types.h>
 #include <Jolt/Jolt.h>
+#include <Jolt/Core/IssueReporting.h>
+#include <Jolt/Math/Mat44.h>
 #include <Jolt/Math/Quat.h>
 #include <Jolt/Math/Real.h>
+#include <Jolt/Math/Vec3.h>
+#include <Jolt/Physics/Body/BodyID.h>
 #include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Body/MotionQuality.h>
+#include <Jolt/Physics/Body/MotionType.h>
 #include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Physics/EActivation.h>
 #include <Math/Mat44.hpp>
 #include <Math/Quat.hpp>
-#include <Math/RMat44.hpp>
+#include <Math/RMat44.hpp> // NOLINT(*-include-cleaner)
 #include <Math/Vector3.hpp>
 #include <Physics/Body/Body.hpp>
 #include <Physics/Body/BodyCreationSettings.hpp>

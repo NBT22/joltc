@@ -2,11 +2,24 @@
 // Created by NBT22 on 8/15/25.
 //
 
+#include <cstdint>
+#include <joltc/enums.h>
+#include <joltc/Geometry/AABox.h>
+#include <joltc/Math/Mat44.h>
+#include <joltc/Math/Quat.h>
+#include <joltc/Math/RMat44.h>
+#include <joltc/Math/RVec3.h>
 #include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/Body.h>
+#include <joltc/Physics/Body/MotionProperties.h>
+#include <joltc/Physics/Collision/CollisionGroup.h>
+#include <joltc/Physics/Collision/Shape/Shape.h>
 #include <joltc/types.h>
 #include <Jolt/Jolt.h>
 #include <Geometry/AABox.hpp>
+#include <Jolt/Math/Vec3.h>
+#include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeID.h>
 #include <Math/Mat44.hpp>
 #include <Math/Quat.hpp>
 #include <Math/Vector3.hpp>

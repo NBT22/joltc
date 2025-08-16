@@ -11,6 +11,7 @@ extern "C"
 #endif
 
 #include <joltc/enums.h>
+#include <stdbool.h>
 
 typedef struct JPH_RayCastSettings
 {

@@ -5,7 +5,8 @@
 #include <joltc/Math/RVec3.h>
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/IssueReporting.h>
-#include <Math/RVec3.hpp>
+#include <Math/RVec3.hpp> // NOLINT(*-include-cleaner)
+#include <Math/Vector3.hpp>
 
 bool JPH_RVec3_IsClose(const JPH_RVec3 *v1, const JPH_RVec3 *v2, const float maxDistanceSquared)
 {

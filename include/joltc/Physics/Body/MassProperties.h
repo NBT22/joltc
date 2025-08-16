@@ -11,6 +11,7 @@ extern "C"
 #endif
 
 #include <joltc/Math/Mat44.h>
+#include <joltc/Math/Vector3.h>
 
 typedef struct JPH_MassProperties
 {

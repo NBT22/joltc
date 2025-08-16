@@ -10,7 +10,6 @@ extern "C"
 {
 #endif
 
-#include <joltc/enums.h>
 #include <joltc/Geometry/AABox.h>
 #include <joltc/Math/Mat44.h>
 #include <joltc/Math/Quat.h>
@@ -21,6 +20,7 @@ extern "C"
 #include <joltc/Physics/Collision/CollisionGroup.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
 #include <joltc/types.h>
+#include <joltc/enums.h>
 #include <stdbool.h>
 #include <stdint.h>
 

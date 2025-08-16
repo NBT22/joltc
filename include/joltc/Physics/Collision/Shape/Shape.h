@@ -13,6 +13,7 @@ extern "C"
 #include <joltc/enums.h>
 #include <joltc/Geometry/AABox.h>
 #include <joltc/Math/RMat44.h>
+#include <joltc/Math/Mat44.h>
 #include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/MassProperties.h>
 #include <joltc/Physics/Collision/PhysicsMaterial.h>

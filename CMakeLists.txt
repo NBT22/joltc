@@ -6,6 +6,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Determine if engine is built as a subproject (using add_subdirectory)
 # or if it is the master project.
 if (NOT DEFINED JPH_MASTER_PROJECT)
@@ -280,14 +282,6 @@ set(CMAKE_SHARED_LINKER_FLAGS_DISTRIBUTION "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}
 
 SET_INTERPROCEDURAL_OPTIMIZATION()
 
-# Setup joltc library
-# Define target name
-if (DOUBLE_PRECISION)
-    set(TARGET_NAME joltc_double)
-else ()
-    set(TARGET_NAME joltc)
-endif ()
-
 set(SOURCE_FILES
         include/joltc/constants.h
         include/joltc/enums.h
@@ -351,45 +345,45 @@ set(SOURCE_FILES
         src/Physics/Body/MotionProperties.cpp
 )
 
-add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
+add_library(joltc STATIC ${SOURCE_FILES})
 
 set(JPH_CAPI_VALUE "extern __attribute__((visibility(\"default\")))")
-target_compile_definitions(${TARGET_NAME} PUBLIC JPH_CAPI=${JPH_CAPI_VALUE} JPH_API_CALL=$<$<BOOL:${WIN32}>:__cdecl>)
+target_compile_definitions(joltc PUBLIC JPH_CAPI=${JPH_CAPI_VALUE} JPH_API_CALL=$<$<BOOL:${WIN32}>:__cdecl>)
 
-target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>)
-target_link_libraries(${TARGET_NAME} PRIVATE Jolt)
+target_include_directories(joltc PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(joltc PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>)
+target_link_libraries(joltc PRIVATE Jolt)
 
 if (MSVC)
     # Debug information
-    target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:Debug>:/Zi>)
+    target_compile_options(joltc PRIVATE $<$<CONFIG:Debug>:/Zi>)
 
     # Enable full optimization in dev/release
-    target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:Debug>:/Od> $<$<NOT:$<CONFIG:Debug>>:/Ox>)
+    target_compile_options(joltc PRIVATE $<$<CONFIG:Debug>:/Od> $<$<NOT:$<CONFIG:Debug>>:/Ox>)
 
     # Inline function expansion
-    target_compile_options(${TARGET_NAME} PRIVATE /Ob2)
+    target_compile_options(joltc PRIVATE /Ob2)
 
     # Enable intrinsic functions in dev/release
-    target_compile_options(${TARGET_NAME} PRIVATE $<$<NOT:$<CONFIG:Debug>>:/Oi>)
+    target_compile_options(joltc PRIVATE $<$<NOT:$<CONFIG:Debug>>:/Oi>)
 
     # Favor fast code
-    target_compile_options(${TARGET_NAME} PRIVATE /Ot)
+    target_compile_options(joltc PRIVATE /Ot)
 
     # Enable fiber-safe optimizations in dev/release
-    target_compile_options(${TARGET_NAME} PRIVATE $<$<NOT:$<CONFIG:Debug>>:/GT>)
+    target_compile_options(joltc PRIVATE $<$<NOT:$<CONFIG:Debug>>:/GT>)
 
     # Enable string pooling
-    target_compile_options(${TARGET_NAME} PRIVATE /GF)
+    target_compile_options(joltc PRIVATE /GF)
 
     # Use security checks only in debug
-    target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:DEBUG>:/sdl> $<$<NOT:$<CONFIG:DEBUG>>:/sdl->)
+    target_compile_options(joltc PRIVATE $<$<CONFIG:DEBUG>:/sdl> $<$<NOT:$<CONFIG:DEBUG>>:/sdl->)
 else ()
 
 endif ()
 
-install(TARGETS ${TARGET_NAME}
-        EXPORT ${TARGET_NAME}
+install(TARGETS joltc
+        EXPORT joltc
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

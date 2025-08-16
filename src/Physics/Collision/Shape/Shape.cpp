@@ -2,15 +2,33 @@
 // Created by NBT22 on 8/15/25.
 //
 
+#include <cstdint>
+#include <joltc/enums.h>
+#include <joltc/Geometry/AABox.h>
+#include <joltc/Math/Mat44.h>
+#include <joltc/Math/RMat44.h>
+#include <joltc/Math/Vector3.h>
+#include <joltc/Physics/Body/MassProperties.h>
+#include <joltc/Physics/Collision/PhysicsMaterial.h>
+#include <joltc/Physics/Collision/RayCast.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
+#include <joltc/Physics/Collision/ShapeFilter.h>
+#include <joltc/types.h>
 #include <Jolt/Jolt.h>
 #include <Geometry/AABox.hpp>
+#include <Jolt/Core/IssueReporting.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/Result.h>
+#include <Jolt/Geometry/AABox.h>
+#include <Jolt/Math/Vec3.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/CollidePointResult.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
 #include <Jolt/Physics/Collision/Shape/SubShapeID.h>
-#include <Math/RMat44.hpp>
+#include <Math/Mat44.hpp>
+#include <Math/RMat44.hpp> // NOLINT(*-include-cleaner)
 #include <Math/Vector3.hpp>
 #include <Physics/Body/MassProperties.hpp>
 #include <Physics/Collision/PhysicsMaterial.hpp>

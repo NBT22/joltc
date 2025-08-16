@@ -6,6 +6,7 @@
 
 #include <joltc/Physics/Collision/RayCast.h>
 #include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/BackFaceMode.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 
 static inline JPH::RayCastSettings ToJolt(const JPH_RayCastSettings *settings)

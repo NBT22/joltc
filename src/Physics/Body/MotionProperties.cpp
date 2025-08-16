@@ -3,11 +3,16 @@
 //
 
 #include <joltc/enums.h>
+#include <joltc/Math/Quat.h>
+#include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/MassProperties.h>
+#include <joltc/Physics/Body/MotionProperties.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/AllowedDOFs.h>
+#include <Jolt/Physics/Body/MotionProperties.h>
 #include <Math/Quat.hpp>
 #include <Math/Vector3.hpp>
 #include <Physics/Body/MassProperties.hpp>
-#include <Physics/Body/MotionProperties.hpp>
 
 JPH_AllowedDOFs JPH_MotionProperties_GetAllowedDOFs(const JPH_MotionProperties *properties)
 {

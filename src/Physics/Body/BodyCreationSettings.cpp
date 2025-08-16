@@ -2,13 +2,28 @@
 // Created by NBT22 on 8/15/25.
 //
 
+#include <cstdint>
 #include <joltc/enums.h>
 #include <joltc/Math/Quat.h>
 #include <joltc/Math/RVec3.h>
 #include <joltc/Math/Transform.h>
+#include <joltc/Math/Vector3.h>
+#include <joltc/Physics/Body/BodyCreationSettings.h>
+#include <joltc/Physics/Body/MassProperties.h>
+#include <joltc/Physics/Collision/Shape/Shape.h>
 #include <joltc/types.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Core/IssueReporting.h>
+#include <Jolt/Math/Quat.h>
+#include <Jolt/Math/Vec3.h>
+#include <Jolt/Physics/Body/AllowedDOFs.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/MotionQuality.h>
+#include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
 #include <Math/Quat.hpp>
 #include <Math/Transform.hpp>
+#include <Math/Vector3.hpp>
 #include <Physics/Body/BodyCreationSettings.hpp>
 #include <Physics/Body/MassProperties.hpp>
 #include <Physics/Collision/Shape/Shape.hpp>

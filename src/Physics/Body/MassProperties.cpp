@@ -2,8 +2,12 @@
 // Created by NBT22 on 8/15/25.
 //
 
+#include <joltc/Math/Mat44.h>
+#include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/MassProperties.h>
 #include <Jolt/Jolt.h>
+#include <Jolt/Math/Mat44.h>
+#include <Jolt/Math/Vec3.h>
 #include <Jolt/Physics/Body/MassProperties.h>
 #include <Math/Mat44.hpp>
 #include <Math/Vector3.hpp>
