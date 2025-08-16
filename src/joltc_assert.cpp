@@ -1,16 +1,17 @@
 // Copyright (c) Amer Koleci and Contributors.
 // Licensed under the MIT License (MIT). See LICENSE in the repository root for more information.
 
-#include "../include/joltc/joltc.h"
-#include "Jolt/Jolt.h"
-#include "Jolt/Physics/Body/BodyCreationSettings.h"
-#include "Jolt/Physics/Character/CharacterBase.h"
-#include "Jolt/Physics/Character/CharacterID.h"
-#include "Jolt/Physics/Collision/CollideShape.h"
-#include "Jolt/Physics/Collision/Shape/MeshShape.h"
-#include "Jolt/Physics/Constraints/SixDOFConstraint.h"
-#include "Jolt/Physics/PhysicsSystem.h"
-#include "Jolt/Physics/Vehicle/VehicleTransmission.h"
+#include <joltc/constants.h>
+#include <joltc/joltc.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Character/CharacterBase.h>
+#include <Jolt/Physics/Character/CharacterID.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Constraints/SixDOFConstraint.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Vehicle/VehicleTransmission.h>
 
 #ifdef JPH_DEBUG_RENDERER
 #include <Jolt/Renderer/DebugRendererSimple.h>
@@ -31,14 +32,14 @@ static_assert(sizeof(JPH::CharacterID) == sizeof(JPH_CharacterId));
 static_assert(sizeof(JPH::CollisionGroup::GroupID) == sizeof(JPH_CollisionGroupId));
 static_assert(sizeof(JPH::CollisionGroup::SubGroupID) == sizeof(JPH_CollisionSubGroupId));
 
-static_assert(JPH_DEFAULT_COLLISION_TOLERANCE == JPH::cDefaultCollisionTolerance);
-static_assert(JPH_DEFAULT_PENETRATION_TOLERANCE == JPH::cDefaultPenetrationTolerance);
-static_assert(JPH_DEFAULT_CONVEX_RADIUS == JPH::cDefaultConvexRadius);
-static_assert(JPH_CAPSULE_PROJECTION_SLOP == JPH::cCapsuleProjectionSlop);
-static_assert(JPH_MAX_PHYSICS_JOBS == JPH::cMaxPhysicsJobs);
-static_assert(JPH_MAX_PHYSICS_BARRIERS == JPH::cMaxPhysicsBarriers);
-static_assert(JPH_INVALID_COLLISION_GROUP_ID == JPH::CollisionGroup::cInvalidGroup);
-static_assert(JPH_INVALID_COLLISION_SUBGROUP_ID == JPH::CollisionGroup::cInvalidSubGroup);
+static_assert(JPH_DefaultCollisionTolerance == JPH::cDefaultCollisionTolerance);
+static_assert(JPH_DefaultPenetrationTolerance == JPH::cDefaultPenetrationTolerance);
+static_assert(JPH_DefaultConvexRadius == JPH::cDefaultConvexRadius);
+static_assert(JPH_CapsuleProjectionSlop == JPH::cCapsuleProjectionSlop);
+static_assert(JPH_MaxPhysicsJobs == JPH::cMaxPhysicsJobs);
+static_assert(JPH_MaxPhysicsBarriers == JPH::cMaxPhysicsBarriers);
+static_assert(JPH_CollisionGroup_InvalidGroup == JPH::CollisionGroup::cInvalidGroup);
+static_assert(JPH_CollisionGroup_InvalidSubGroup == JPH::CollisionGroup::cInvalidSubGroup);
 
 static_assert(JPH_BodyId_InvalidBodyID == JPH::BodyID::cInvalidBodyID);
 static_assert(JPH_ObjectLayerInvalid == JPH::cObjectLayerInvalid);

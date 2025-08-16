@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(joltc C CXX)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
 # Determine if engine is built as a subproject (using add_subdirectory)
@@ -289,23 +289,66 @@ else ()
 endif ()
 
 set(SOURCE_FILES
+        include/joltc/constants.h
+        include/joltc/enums.h
         include/joltc/joltc.h
-        include/joltc/Math/RVec3.h
-        include/joltc/Math/Vector3.h
-        include/joltc/Math/Transform.h
-        include/joltc/Math/Quat.h
+        include/joltc/types.h
         include/joltc/Math/Mat44.h
-        src/include/Math/Vector3.hpp
-        src/include/Math/RVec3.hpp
-        src/include/Math/Quat.hpp
+        include/joltc/Math/Quat.h
+        include/joltc/Math/RMat44.h
+        include/joltc/Math/RVec3.h
+        include/joltc/Math/Transform.h
+        include/joltc/Math/Vector3.h
+        include/joltc/Physics/Body/Body.h
+        include/joltc/Physics/Body/BodyInterface.h
         src/include/Math/Mat44.hpp
+        src/include/Math/Quat.hpp
+        src/include/Math/RMat44.hpp
+        src/include/Math/RVec3.hpp
         src/include/Math/Transform.hpp
+        src/include/Math/Vector3.hpp
+        src/include/Physics/Body/BodyInterface.hpp
         src/Math/Vector3.cpp
         src/Math/RVec3.cpp
         src/Math/Quat.cpp
         src/Math/Mat44.cpp
         src/joltc.cpp
         src/joltc_assert.cpp
+        src/Math/RMat44.cpp
+        src/include/Physics/Body/Body.hpp
+        src/Physics/Body/Body.cpp
+        src/Physics/Body/BodyInterface.cpp
+        src/include/Physics/Collision/CollisionGroup.hpp
+        include/joltc/Physics/Collision/CollisionGroup.h
+        include/joltc/Physics/Collision/GroupFilter.h
+        src/include/Physics/Collision/GroupFilter.hpp
+        src/Physics/Collision/GroupFilter.cpp
+        src/Physics/Collision/CollisionGroup.cpp
+        src/Physics/Body/BodyCreationSettings.cpp
+        src/include/Physics/Body/BodyCreationSettings.hpp
+        include/joltc/Physics/Body/BodyCreationSettings.h
+        include/joltc/Physics/Collision/Shape/Shape.h
+        src/include/Physics/Collision/Shape/Shape.hpp
+        src/Physics/Collision/Shape/Shape.cpp
+        include/joltc/Geometry/AABox.h
+        src/include/Geometry/AABox.hpp
+        include/joltc/Physics/Body/MassProperties.h
+        src/include/Physics/Body/MassProperties.hpp
+        src/Physics/Body/MassProperties.cpp
+        src/include/Physics/Collision/PhysicsMaterial.hpp
+        include/joltc/Physics/Collision/PhysicsMaterial.h
+        src/Physics/Collision/PhysicsMaterial.cpp
+        include/joltc/Physics/Collision/ShapeFilter.h
+        src/include/Physics/Collision/ShapeFilter.hpp
+        src/Physics/Collision/ShapeFilter.cpp
+        src/include/Physics/Collision/RayCast.hpp
+        include/joltc/Physics/Collision/RayCast.h
+        include/joltc/Physics/SoftBody/SoftBodyCreationSettings.h
+        src/include/Physics/SoftBody/SoftBodyCreationSettings.hpp
+        src/Physics/SoftBody/SoftBodyCreationSettings.cpp
+        include/joltc/Physics/Body/MotionProperties.h
+        src/include/Physics/Body/MotionProperties.hpp
+        src/Physics/Body/MotionProperties.cpp
 )
 
 add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})

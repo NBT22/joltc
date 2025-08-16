@@ -4,12 +4,13 @@
 
 #ifndef JOLTC_QUAT_H
 #define JOLTC_QUAT_H
-#include "Vector3.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+#include <joltc/Math/Vector3.h>
 
 typedef struct JPH_Quat
 {

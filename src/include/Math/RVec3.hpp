@@ -5,9 +5,9 @@
 #pragma once
 
 #ifdef JPH_DOUBLE_PRECISION
+#include <joltc/Math/RVec3.h>
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/Real.h>
-#include <joltc/Math/RVec3.h>
 
 static inline JPH::RVec3 ToJolt(const JPH_RVec3 &vec)
 {

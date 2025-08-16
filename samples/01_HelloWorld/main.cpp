@@ -1,12 +1,13 @@
 // Copyright (c) Amer Koleci and Contributors.
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
+#include <joltc/constants.h>
+#include <joltc/joltc.h>
+// STL includes
+#include <iostream>
 #include <stdbool.h>
 #include <stdlib.h> // malloc, free
 #include <string.h> // memset
-#include "../../include/joltc/joltc.h"
-// STL includes
-#include <iostream>
 
 static void TraceImpl(const char *message)
 {
@@ -89,7 +90,7 @@ int main()
         // Create the settings for the collision volume (the shape).
         // Note that for simple shapes (like boxes) you can also directly construct a BoxShape.
         Vector3 boxHalfExtents = {100.0f, 1.0f, 100.0f};
-        JPH_BoxShape *floorShape = JPH_BoxShape_Create(&boxHalfExtents, JPH_DEFAULT_CONVEX_RADIUS);
+        JPH_BoxShape *floorShape = JPH_BoxShape_Create(&boxHalfExtents, JPH_DefaultConvexRadius);
 
         Vector3 floorPosition = {0.0f, -1.0f, 0.0f};
         JPH_BodyCreationSettings *floorSettings = JPH_BodyCreationSettings_Create3((const JPH_Shape *)floorShape,
