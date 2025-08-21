@@ -143,6 +143,10 @@
 #include <Physics/Collision/Shape/Shape.hpp>
 #include <Physics/Collision/ShapeFilter.hpp>
 
+#ifdef JPH_DEBUG_RENDERER
+#include <Geometry/AABox.hpp>
+#endif
+
 // NOLINTBEGIN(*-macro-parentheses)
 #define DEF_MAP_DECL(JoltType, c_type) \
     static inline const JPH::JoltType &As##JoltType(const c_type &t) \

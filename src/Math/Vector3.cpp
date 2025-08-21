@@ -127,14 +127,6 @@ void Vector3_DotProduct(const Vector3 *v1, const Vector3 *v2, float *result)
     *result = ToJolt(v1).Dot(ToJolt(v2));
 }
 
-void Vector3_Normalize(const Vector3 *vector, Vector3 *result)
-{
-    JPH_ASSERT(vector);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(vector).Normalized(), result);
-}
-
 void Vector3_Add(const Vector3 *v1, const Vector3 *v2, Vector3 *result)
 {
     JPH_ASSERT(v1);

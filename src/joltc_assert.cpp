@@ -34,6 +34,9 @@
 #include <Jolt/Physics/PhysicsSettings.h>
 
 #ifdef JPH_DEBUG_RENDERER
+#include <Jolt/Physics/Body/BodyManager.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Vehicle/VehicleTransmission.h>
 #include <Jolt/Renderer/DebugRendererSimple.h>
 #endif // JPH_DEBUG_RENDERER
 

@@ -48,7 +48,6 @@ JPH_CAPI float Vector3_Length(const Vector3 *vector);
 JPH_CAPI float Vector3_LengthSquared(const Vector3 *vector);
 
 JPH_CAPI void Vector3_DotProduct(const Vector3 *v1, const Vector3 *v2, float *result);
-JPH_CAPI void Vector3_Normalize(const Vector3 *vector, Vector3 *result);
 
 JPH_CAPI void Vector3_Add(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
 JPH_CAPI void Vector3_Subtract(const Vector3 *v1, const Vector3 *v2, Vector3 *result);
