@@ -10,13 +10,10 @@
 
 static inline JPH::Quat ToJolt(const JPH_Quat *quat)
 {
-    return {quat->x, quat->y, quat->z, quat->w};
+    return {(*quat)[0], (*quat)[1], (*quat)[2], (*quat)[3]};
 }
 
 static inline void FromJolt(const JPH::Quat &quat, JPH_Quat *result)
 {
-    result->x = quat.GetX();
-    result->y = quat.GetY();
-    result->z = quat.GetZ();
-    result->w = quat.GetW();
+    memcpy(*result, quat.mValue.mF32, sizeof(JPH_Quat));
 }

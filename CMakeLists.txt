@@ -115,6 +115,8 @@ option(TRACK_NARROWPHASE_STATS "Track Narrowphase Stats" OFF)
 # Enable the debug renderer in the Debug and Release builds. Note that DEBUG_RENDERER_IN_DISTRIBUTION will override this setting.
 option(DEBUG_RENDERER_IN_DEBUG_AND_RELEASE "Enable debug renderer in Debug and Release builds" OFF)
 
+add_compile_definitions(JPH_DEBUG_RENDERER) # Enables the Jolt debug renderer
+
 # Setting to enable the debug renderer in all builds.
 # Note that enabling this reduces the performance of the library even if you're not drawing anything.
 option(DEBUG_RENDERER_IN_DISTRIBUTION "Enable debug renderer in all builds" OFF)

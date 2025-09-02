@@ -10,12 +10,13 @@ extern "C"
 {
 #endif
 
+#include <joltc/Math/Quat.h>
 #include <joltc/Math/Vector3.h>
 
 typedef struct Transform
 {
         Vector3 position;
-        Vector3 rotation;
+        JPH_Quat rotation;
 } Transform;
 
 #ifdef __cplusplus
