@@ -13,6 +13,11 @@ static inline JPH::Quat ToJolt(const JPH_Quat *quat)
     return {(*quat)[0], (*quat)[1], (*quat)[2], (*quat)[3]};
 }
 
+static inline JPH::Quat ToJolt(const JPH_Quat &quat)
+{
+    return {quat[0], quat[1], quat[2], quat[3]};
+}
+
 static inline void FromJolt(const JPH::Quat &quat, JPH_Quat *result)
 {
     memcpy(*result, quat.mValue.mF32, sizeof(JPH_Quat));

@@ -4520,7 +4520,7 @@ bool JPH_NarrowPhaseQuery_CastRay_GAME(const JPH_NarrowPhaseQuery *query,
     JPH_ASSERT(broadPhaseLayerFilter);
     JPH_ASSERT(objectLayerFilter);
     const JPH::RRayCast ray(ToJolt(transform->position),
-                            ToJolt(&transform->rotation) * -JPH::Vec3::sAxisZ() * maxDistance);
+                            ToJolt(transform->rotation) * -JPH::Vec3::sAxisZ() * maxDistance);
     constexpr JPH::RayCastSettings raySettings{};
     JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector{};
     const JPH::BodyFilter bodyFilter{};
