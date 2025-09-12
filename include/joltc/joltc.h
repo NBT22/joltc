@@ -1672,6 +1672,7 @@ JPH_CAPI JPH_CharacterVirtual *JPH_CharacterVirtual_Create(const JPH_CharacterVi
                                                            const JPH_Quat *rotation,
                                                            uint64_t userData,
                                                            JPH_PhysicsSystem *system);
+JPH_CAPI void JPH_CharacterVirtual_Destroy(JPH_CharacterVirtual *characterVirtual);
 
 JPH_CAPI JPH_CharacterId JPH_CharacterVirtual_GetID(const JPH_CharacterVirtual *character);
 JPH_CAPI void JPH_CharacterVirtual_SetListener(JPH_CharacterVirtual *character, JPH_CharacterContactListener *listener);

@@ -5861,6 +5861,13 @@ JPH_CharacterVirtual *JPH_CharacterVirtual_Create(const JPH_CharacterVirtualSett
 
     return ToCharacterVirtual(joltCharacter);
 }
+JPH_CAPI void JPH_CharacterVirtual_Destroy(JPH_CharacterVirtual *characterVirtual)
+{
+    if (characterVirtual != nullptr)
+    {
+        reinterpret_cast<JPH::CharacterVirtual *>(characterVirtual)->Release();
+    }
+}
 
 JPH_CharacterId JPH_CharacterVirtual_GetID(const JPH_CharacterVirtual *character)
 {
