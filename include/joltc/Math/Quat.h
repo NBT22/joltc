@@ -12,7 +12,13 @@ extern "C"
 
 #include <joltc/Math/Vector3.h>
 
-typedef float JPH_Quat[4];
+typedef struct JPH_Quat
+{
+        float x;
+        float y;
+        float z;
+        float w;
+} JPH_Quat;
 
 static const JPH_Quat JPH_Quat_Zero = {0.0f, 0.0f, 0.0f, 0.0f};
 static const JPH_Quat JPH_Quat_Identity = {0.0f, 0.0f, 0.0f, 1.0f};
