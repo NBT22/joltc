@@ -367,11 +367,6 @@ void JPH_BodyInterface_ActivateBody(JPH_BodyInterface *bodyInterface, const JPH_
     AsBodyInterface(bodyInterface)->ActivateBody(JPH::BodyID(bodyId));
 }
 
-void JPH_BodyInterface_DeactivateBody(JPH_BodyInterface *bodyInterface, const JPH_BodyID bodyId)
-{
-    AsBodyInterface(bodyInterface)->DeactivateBody(JPH::BodyID(bodyId));
-}
-
 void JPH_BodyInterface_ActivateBodies(JPH_BodyInterface *bodyInterface, const JPH_BodyID *bodyIDs, const int count)
 {
     JPH::Array<JPH::BodyID> joltBodyIDs;
@@ -392,6 +387,28 @@ void JPH_BodyInterface_ActivateBodiesInAABox(JPH_BodyInterface *bodyInterface,
 {
     AsBodyInterface(bodyInterface)
             ->ActivateBodiesInAABox(ToJolt(box), ToJolt(broadPhaseLayerFilter), ToJolt(objectLayerFilter));
+}
+
+void JPH_BodyInterface_DeactivateBody(JPH_BodyInterface *bodyInterface, const JPH_BodyID bodyId)
+{
+    AsBodyInterface(bodyInterface)->DeactivateBody(JPH::BodyID(bodyId));
+}
+
+void JPH_BodyInterface_DeactivateBodies(JPH_BodyInterface *bodyInterface, const JPH_BodyID *bodyIDs, const int count)
+{
+    JPH::Array<JPH::BodyID> joltBodyIDs;
+
+    for (int i = 0; i < count; ++i)
+    {
+        joltBodyIDs.push_back(JPH::BodyID(bodyIDs[i]));
+    }
+
+    AsBodyInterface(bodyInterface)->DeactivateBodies(joltBodyIDs.data(), count);
+}
+
+void JPH_BodyInterface_ResetSleepTimer(JPH_BodyInterface *bodyInterface, const JPH_BodyID bodyID)
+{
+    AsBodyInterface(bodyInterface)->ResetSleepTimer(JPH::BodyID(bodyID));
 }
 
 JPH_ObjectLayer JPH_BodyInterface_GetObjectLayer(JPH_BodyInterface *bodyInterface, const JPH_BodyID bodyId)
@@ -608,6 +625,16 @@ void JPH_BodyInterface_SetUserData(JPH_BodyInterface *bodyInterface, const JPH_B
 uint64_t JPH_BodyInterface_GetUserData(JPH_BodyInterface *bodyInterface, const JPH_BodyID bodyId)
 {
     return AsBodyInterface(bodyInterface)->GetUserData(JPH::BodyID(bodyId));
+}
+
+void JPH_BodyInterface_SetIsSensor(JPH_BodyInterface *bodyInterface, const JPH_BodyID bodyId, const bool value)
+{
+    AsBodyInterface(bodyInterface)->SetIsSensor(JPH::BodyID(bodyId), value);
+}
+
+bool JPH_BodyInterface_IsSensor(JPH_BodyInterface *bodyInterface, const JPH_BodyID bodyId)
+{
+    return AsBodyInterface(bodyInterface)->IsSensor(JPH::BodyID(bodyId));
 }
 
 const JPH_PhysicsMaterial *JPH_BodyInterface_GetMaterial(JPH_BodyInterface *bodyInterface,

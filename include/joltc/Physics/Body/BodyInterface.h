@@ -149,10 +149,9 @@ JPH_CAPI void JPH_BodyInterface_ActivateBodiesInAABox(JPH_BodyInterface *bodyInt
                                                       const JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                                       const JPH_ObjectLayerFilter *objectLayerFilter);
 JPH_CAPI void JPH_BodyInterface_DeactivateBody(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyId);
-// TODO (merge): Implementations
 JPH_CAPI void JPH_BodyInterface_DeactivateBodies(JPH_BodyInterface *bodyInterface,
                                                  const JPH_BodyID *bodyIDs,
-                                                 uint32_t count);
+                                                 int count);
 JPH_CAPI void JPH_BodyInterface_ResetSleepTimer(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyID);
 
 JPH_CAPI JPH_ObjectLayer JPH_BodyInterface_GetObjectLayer(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyId);
@@ -252,7 +251,6 @@ JPH_CAPI bool JPH_BodyInterface_GetUseManifoldReduction(JPH_BodyInterface *bodyI
 JPH_CAPI void JPH_BodyInterface_SetUserData(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyId, uint64_t userData);
 JPH_CAPI uint64_t JPH_BodyInterface_GetUserData(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyId);
 
-// TODO (merge): Implementations
 JPH_CAPI void JPH_BodyInterface_SetIsSensor(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyId, bool value);
 JPH_CAPI bool JPH_BodyInterface_IsSensor(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyId);
 
