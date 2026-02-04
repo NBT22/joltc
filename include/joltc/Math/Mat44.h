@@ -33,8 +33,10 @@ JPH_CAPI void JPH_Mat44_Add(const JPH_Mat44 *m1, const JPH_Mat44 *m2, JPH_Mat44 
 JPH_CAPI void JPH_Mat44_Subtract(const JPH_Mat44 *m1, const JPH_Mat44 *m2, JPH_Mat44 *result);
 JPH_CAPI void JPH_Mat44_Multiply(const JPH_Mat44 *m1, const JPH_Mat44 *m2, JPH_Mat44 *result);
 JPH_CAPI void JPH_Mat44_MultiplyScalar(const JPH_Mat44 *matrix, float scalar, JPH_Mat44 *result);
+JPH_CAPI void JPH_Mat44_MultiplyVector3(const JPH_Mat44 *left, const Vector3 *right, Vector3 *result);
 
 JPH_CAPI void JPH_Mat44_Rotation(const JPH_Quat *rotation, JPH_Mat44 *result);
+JPH_CAPI void JPH_Mat4_RotationAxisAngle(const Vector3* axis, float angle, JPH_Mat44* result);
 JPH_CAPI void JPH_Mat44_Translation(const Vector3 *translation, JPH_Mat44 *result);
 JPH_CAPI void JPH_Mat44_RotationTranslation(const JPH_Quat *rotation, const Vector3 *translation, JPH_Mat44 *result);
 JPH_CAPI void JPH_Mat44_InverseRotationTranslation(const JPH_Quat *rotation,

@@ -10,7 +10,7 @@
 #include <Jolt/Math/Real.h>
 #include <Math/Mat44.hpp>
 #include <Math/Quat.hpp>
-#include <Math/RMat44.hpp> // NOLINT(*-include-cleaner)
+#include <Math/RMat44.hpp>
 #include <Math/Vector3.hpp>
 
 void JPH_RMat44_Add(const JPH_RMat44 *m1, const JPH_RMat44 *m2, JPH_RMat44 *result)

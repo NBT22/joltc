@@ -12,16 +12,31 @@ extern "C"
 
 #include <joltc/enums.h>
 #include <joltc/Geometry/AABox.h>
-#include <joltc/Math/RMat44.h>
 #include <joltc/Math/Mat44.h>
+#include <joltc/Math/RMat44.h>
 #include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/MassProperties.h>
+#include <joltc/Physics/Collision/CastResult.h>
+#include <joltc/Physics/Collision/CollidePointResult.h>
+#include <joltc/Physics/Collision/CollideShape.h>
 #include <joltc/Physics/Collision/PhysicsMaterial.h>
 #include <joltc/Physics/Collision/RayCast.h>
+#include <joltc/Physics/Collision/Shape/SubShapeID.h>
+#include <joltc/Physics/Collision/ShapeCast.h>
 #include <joltc/Physics/Collision/ShapeFilter.h>
-#include <joltc/types.h>
 #include <stdbool.h>
 #include <stdint.h>
+
+typedef struct JPH_SupportingFace
+{
+        uint32_t count;
+        Vector3 vertices[32];
+} JPH_SupportingFace;
+
+typedef float JPH_CastRayCollectorCallback(void *context, const JPH_RayCastResult *result);
+typedef float JPH_CastShapeCollectorCallback(void *context, const JPH_ShapeCastResult *result);
+typedef float JPH_CollidePointCollectorCallback(void *context, const JPH_CollidePointResult *result);
+typedef float JPH_CollideShapeCollectorCallback(void *context, const JPH_CollideShapeResult *result);
 
 typedef struct JPH_ShapeSettings JPH_ShapeSettings;
 typedef struct JPH_Shape JPH_Shape;
@@ -46,15 +61,15 @@ JPH_CAPI void JPH_Shape_GetWorldSpaceBounds(const JPH_Shape *shape,
 JPH_CAPI float JPH_Shape_GetInnerRadius(const JPH_Shape *shape);
 JPH_CAPI void JPH_Shape_GetMassProperties(const JPH_Shape *shape, JPH_MassProperties *result);
 JPH_CAPI const JPH_Shape *JPH_Shape_GetLeafShape(const JPH_Shape *shape,
-                                                 JPH_SubShapeId subShapeID,
-                                                 JPH_SubShapeId *remainder);
-JPH_CAPI const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, JPH_SubShapeId subShapeID);
+                                                 JPH_SubShapeID subShapeID,
+                                                 JPH_SubShapeID *remainder);
+JPH_CAPI const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, JPH_SubShapeID subShapeID);
 JPH_CAPI void JPH_Shape_GetSurfaceNormal(const JPH_Shape *shape,
-                                         JPH_SubShapeId subShapeID,
+                                         JPH_SubShapeID subShapeID,
                                          const Vector3 *localPosition,
                                          Vector3 *normal);
 JPH_CAPI void JPH_Shape_GetSupportingFace(const JPH_Shape *shape,
-                                          JPH_SubShapeId subShapeID,
+                                          JPH_SubShapeID subShapeID,
                                           const Vector3 *direction,
                                           const Vector3 *scale,
                                           const JPH_Mat44 *centerOfMassTransform,

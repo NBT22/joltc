@@ -25,9 +25,6 @@ static constexpr int JPH_MaxPhysicsJobs = 2048;
 static constexpr int JPH_MaxPhysicsBarriers = 8;
 static constexpr uint32_t JPH_CollisionGroup_InvalidGroup = ~0u;
 static constexpr uint32_t JPH_CollisionGroup_InvalidSubGroup = ~0u;
-static constexpr JPH_BodyId JPH_BodyId_InvalidBodyID = 0xffffffff;
-static constexpr JPH_ObjectLayer JPH_ObjectLayerInvalid = ~0u;
-static constexpr JPH_BroadPhaseLayer JPH_BroadPhaseLayerInvalid = 0xff;
 
 #ifdef __cplusplus
 }

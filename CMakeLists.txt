@@ -2,11 +2,23 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 project(joltc C CXX)
 
+# Use solution folders to organize projects
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INSTALL_MESSAGE LAZY)
-
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_DEBUG_POSTFIX "d")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for OS X")
+
+# Set default symbol visibility to hidden. This prevents all Jolt's symbols to be exported on macOS. This can cause crashes if a program loads multiple shared libraries with different versions of Jolt.
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 # Determine if engine is built as a subproject (using add_subdirectory)
 # or if it is the master project.
@@ -115,7 +127,7 @@ option(TRACK_NARROWPHASE_STATS "Track Narrowphase Stats" OFF)
 # Enable the debug renderer in the Debug and Release builds. Note that DEBUG_RENDERER_IN_DISTRIBUTION will override this setting.
 option(DEBUG_RENDERER_IN_DEBUG_AND_RELEASE "Enable debug renderer in Debug and Release builds" OFF)
 
-add_compile_definitions(JPH_DEBUG_RENDERER) # Enables the Jolt debug renderer
+# add_compile_definitions(JPH_DEBUG_RENDERER) # Enables the Jolt debug renderer
 
 # Setting to enable the debug renderer in all builds.
 # Note that enabling this reduces the performance of the library even if you're not drawing anything.
@@ -137,6 +149,7 @@ option(USE_STD_VECTOR "Use std::vector instead of own Array class" OFF)
 # Setting this option will compile the ObjectStream class and RTTI attribute information
 option(ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute information" OFF)
 
+#option(JPH_INSTALL "Install target" ${JPH_MASTER_PROJECT}) # TODO: Fix install
 option(JPH_SAMPLES "Build samples" ${JPH_MASTER_PROJECT})
 
 # Define standard configurations (Debug, Release, Distribution)
@@ -157,7 +170,7 @@ else ()
     FetchContent_Declare(
             JoltPhysics
             GIT_REPOSITORY "https://github.com/jrouwe/JoltPhysics"
-            GIT_TAG v5.3.0
+            GIT_TAG v5.5.0
             SOURCE_SUBDIR "Build"
     )
 endif ()
@@ -284,7 +297,11 @@ set(CMAKE_SHARED_LINKER_FLAGS_DISTRIBUTION "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}
 
 SET_INTERPROCEDURAL_OPTIMIZATION()
 
-set(SOURCE_FILES
+set(PHYSICS_REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/joltc)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Disable shared library when building Jolt" FORCE)
+set(JPH_BUILD_SHARED OFF CACHE BOOL "Disable shared library when building Jolt" FORCE)
+
+add_library(joltc STATIC
         include/joltc/constants.h
         include/joltc/enums.h
         include/joltc/joltc.h
@@ -345,15 +362,38 @@ set(SOURCE_FILES
         include/joltc/Physics/Body/MotionProperties.h
         src/include/Physics/Body/MotionProperties.hpp
         src/Physics/Body/MotionProperties.cpp
+        include/joltc/Physics/Collision/ObjectLayer.h
+        include/joltc/Physics/Collision/BroadPhase/BroadPhaseLayer.h
+        include/joltc/Physics/Collision/BroadPhase/BroadPhaseQuery.h
+        include/joltc/Physics/Collision/NarrowPhaseQuery.h
+        include/joltc/Physics/Body/BodyFilter.h
+        include/joltc/Physics/Body/BodyID.h
+        include/joltc/Physics/Collision/Shape/SubShapeIDPair.h
+        include/joltc/Physics/Collision/Shape/SubShapeID.h
+        include/joltc/Physics/Collision/CastResult.h
+        include/joltc/Physics/Collision/CollidePointResult.h
+        include/joltc/Physics/Collision/ShapeCast.h
+        include/joltc/Physics/Collision/CollideShape.h
+        src/Physics/Collision/BroadPhase/BroadPhaseQuery.cpp
+        src/include/Physics/Collision/BroadPhase/BroadPhaseLayer.hpp
+        src/include/Physics/Collision/BroadPhase/BroadPhaseQuery.hpp
+        src/include/Physics/Collision/ObjectLayer.hpp
+        src/Physics/Collision/NarrowPhaseQuery.cpp
+        src/include/Physics/Body/BodyFilter.hpp
+        src/include/Physics/Collision/NarrowPhaseQuery.hpp
+        include/joltc/Physics/Collision/CollisionDispatch.h
+        src/Physics/Collision/CollisionDispatch.cpp
+        src/include/Physics/Collision/CollideShape.hpp
+        src/include/Physics/Collision/ShapeCast.hpp
+        src/Physics/Collision/ShapeCast.cpp
+        src/Physics/Collision/CollideShape.cpp
 )
-
-add_library(joltc STATIC ${SOURCE_FILES})
 
 set(JPH_CAPI_VALUE "extern __attribute__((visibility(\"default\")))")
 target_compile_definitions(joltc PUBLIC JPH_CAPI=${JPH_CAPI_VALUE} JPH_API_CALL=$<$<BOOL:${WIN32}>:__cdecl>)
 
-target_include_directories(joltc PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_include_directories(joltc PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>)
+target_include_directories(joltc PUBLIC include)
+target_include_directories(joltc PRIVATE src/include)
 target_link_libraries(joltc PRIVATE Jolt)
 
 if (MSVC)
@@ -384,16 +424,26 @@ else ()
 
 endif ()
 
-install(TARGETS joltc
-        EXPORT joltc
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+if (JPH_INSTALL)
+    message(FATAL_ERROR "Install not currently supported!")
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/joltc.h
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Jolt
-)
+    # TODO: Who knows if this works or not ¯\_(ツ)_/¯
+    install(
+            DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/joltc
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Jolt
+    )
+
+    install(TARGETS joltc
+            EXPORT joltc
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+
+    if (MSVC)
+        install(FILES $<TARGET_PDB_FILE:joltc> DESTINATION bin OPTIONAL)
+    endif ()
+endif ()
 
 if (JPH_SAMPLES)
     add_subdirectory(samples)

@@ -4,8 +4,15 @@
 #include <cstdint>
 #include <joltc/constants.h>
 #include <joltc/enums.h>
+#include <joltc/Math/Mat44.h>
+#include <joltc/Physics/Body/BodyID.h>
+#include <joltc/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <joltc/Physics/Collision/ObjectLayer.h>
+#include <joltc/Physics/Collision/Shape/SubShapeID.h>
+#include <joltc/Physics/Collision/Shape/SubShapeIDPair.h>
 #include <joltc/types.h>
 #include <Jolt/Jolt.h>
+#include <Jolt/Math/Mat44.h>
 #include <Jolt/Physics/Body/AllowedDOFs.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyID.h>
@@ -45,8 +52,8 @@ static_assert(sizeof(JPH::ObjectLayer) == 4);
 
 static_assert(sizeof(JPH::ObjectLayer) == sizeof(JPH_ObjectLayer));
 static_assert(sizeof(JPH::BroadPhaseLayer) == sizeof(JPH_BroadPhaseLayer));
-static_assert(sizeof(JPH::BodyID) == sizeof(JPH_BodyId));
-static_assert(sizeof(JPH::SubShapeID) == sizeof(JPH_SubShapeId));
+static_assert(sizeof(JPH::BodyID) == sizeof(JPH_BodyID));
+static_assert(sizeof(JPH::SubShapeID) == sizeof(JPH_SubShapeID));
 static_assert(sizeof(JPH::CharacterID) == sizeof(JPH_CharacterId));
 static_assert(sizeof(JPH::CollisionGroup::GroupID) == sizeof(JPH_CollisionGroupId));
 static_assert(sizeof(JPH::CollisionGroup::SubGroupID) == sizeof(JPH_CollisionSubGroupId));
@@ -64,6 +71,7 @@ static_assert(JPH_BodyId_InvalidBodyID == JPH::BodyID::cInvalidBodyID);
 static_assert(JPH_ObjectLayerInvalid == JPH::cObjectLayerInvalid);
 static_assert(JPH::BroadPhaseLayer(JPH_BroadPhaseLayerInvalid) == JPH::cBroadPhaseLayerInvalid);
 
+static_assert(sizeof(JPH::Mat44) == sizeof(JPH_Mat44));
 
 // EPhysicsUpdateError
 static_assert(sizeof(JPH_PhysicsUpdateError) == sizeof(JPH::EPhysicsUpdateError));

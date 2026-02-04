@@ -30,11 +30,11 @@ static const Vector3 Vector3_Forward = {0.0f, 0.0f, -1.0f};
 
 JPH_CAPI bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistanceSquared);
 /**
-     * Test if vector is near zero
-     * @param vector The vector to check
-     * @param maxDistSq Defaults to 1.0e-12f in Jolt
-     * @return True if the vector has a magnitude which is nearly zero
-     */
+ * Test if vector is near zero
+ * @param vector The vector to check
+ * @param maxDistSq Defaults to 1.0e-12f in Jolt
+ * @return True if the vector has a magnitude which is nearly zero
+ */
 JPH_CAPI bool Vector3_IsNearZero(const Vector3 *vector, float maxDistSq);
 JPH_CAPI bool Vector3_IsNormalized(const Vector3 *vector, float tolerance);
 JPH_CAPI bool Vector3_IsNaN(const Vector3 *vector);

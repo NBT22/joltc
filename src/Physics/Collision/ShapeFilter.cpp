@@ -78,12 +78,12 @@ void JPH_ShapeFilter_SetImpl(JPH_ShapeFilter *filter, const JPH_ShapeFilter_Impl
     reinterpret_cast<ManagedShapeFilter *>(filter)->impl = impl;
 }
 
-JPH_BodyId JPH_ShapeFilter_GetBodyID2(JPH_ShapeFilter *filter)
+JPH_BodyID JPH_ShapeFilter_GetBodyID2(JPH_ShapeFilter *filter)
 {
     return reinterpret_cast<ManagedShapeFilter *>(filter)->mBodyID2.GetIndexAndSequenceNumber();
 }
 
-void JPH_ShapeFilter_SetBodyID2(JPH_ShapeFilter *filter, const JPH_BodyId id)
+void JPH_ShapeFilter_SetBodyID2(JPH_ShapeFilter *filter, const JPH_BodyID id)
 {
     reinterpret_cast<ManagedShapeFilter *>(filter)->mBodyID2 = JPH::BodyID(id);
 }

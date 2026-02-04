@@ -10,23 +10,26 @@ extern "C"
 {
 #endif
 
+#include <joltc/enums.h>
 #include <joltc/Geometry/AABox.h>
 #include <joltc/Math/Mat44.h>
 #include <joltc/Math/Quat.h>
 #include <joltc/Math/RMat44.h>
 #include <joltc/Math/RVec3.h>
 #include <joltc/Math/Vector3.h>
+#include <joltc/Physics/Body/BodyID.h>
 #include <joltc/Physics/Body/MotionProperties.h>
+#include <joltc/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <joltc/Physics/Collision/CollisionGroup.h>
+#include <joltc/Physics/Collision/ObjectLayer.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
 #include <joltc/types.h>
-#include <joltc/enums.h>
 #include <stdbool.h>
 #include <stdint.h>
 
 typedef struct JPH_Body JPH_Body;
 
-JPH_CAPI JPH_BodyId JPH_Body_GetID(const JPH_Body *body);
+JPH_CAPI JPH_BodyID JPH_Body_GetID(const JPH_Body *body);
 JPH_CAPI JPH_BodyType JPH_Body_GetBodyType(const JPH_Body *body);
 JPH_CAPI bool JPH_Body_IsRigidBody(const JPH_Body *body);
 JPH_CAPI bool JPH_Body_IsSoftBody(const JPH_Body *body);
@@ -122,7 +125,7 @@ JPH_CAPI void JPH_Body_GetInverseCenterOfMassTransform(const JPH_Body *body, JPH
 
 JPH_CAPI void JPH_Body_GetWorldSpaceBounds(const JPH_Body *body, JPH_AABox *result);
 JPH_CAPI void JPH_Body_GetWorldSpaceSurfaceNormal(const JPH_Body *body,
-                                                  JPH_SubShapeId subShapeID,
+                                                  JPH_SubShapeID subShapeID,
                                                   const JPH_RVec3 *position,
                                                   Vector3 *normal);
 

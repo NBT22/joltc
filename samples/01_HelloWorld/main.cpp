@@ -84,7 +84,7 @@ int main()
     JPH_PhysicsSystem *system = JPH_PhysicsSystem_Create(&settings);
     JPH_BodyInterface *bodyInterface = JPH_PhysicsSystem_GetBodyInterface(system);
 
-    JPH_BodyId floorId = {};
+    JPH_BodyID floorId = {};
     {
         // Next we can create a rigid body to serve as the floor, we make a large box
         // Create the settings for the collision volume (the shape).
@@ -105,7 +105,7 @@ int main()
     }
 
     // Sphere
-    JPH_BodyId sphereId = {};
+    JPH_BodyID sphereId = {};
     {
         JPH_SphereShape *sphereShape = JPH_SphereShape_Create(50.0f);
         Vector3 spherePosition = {0.0f, 2.0f, 0.0f};

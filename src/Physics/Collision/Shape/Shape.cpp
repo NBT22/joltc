@@ -9,11 +9,13 @@
 #include <joltc/Math/RMat44.h>
 #include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/MassProperties.h>
+#include <joltc/Physics/Collision/CastResult.h>
+#include <joltc/Physics/Collision/CollidePointResult.h>
 #include <joltc/Physics/Collision/PhysicsMaterial.h>
 #include <joltc/Physics/Collision/RayCast.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
+#include <joltc/Physics/Collision/Shape/SubShapeID.h>
 #include <joltc/Physics/Collision/ShapeFilter.h>
-#include <joltc/types.h>
 #include <Jolt/Jolt.h>
 #include <Geometry/AABox.hpp>
 #include <Jolt/Core/IssueReporting.h>
@@ -28,7 +30,7 @@
 #include <Jolt/Physics/Collision/Shape/Shape.h>
 #include <Jolt/Physics/Collision/Shape/SubShapeID.h>
 #include <Math/Mat44.hpp>
-#include <Math/RMat44.hpp> // NOLINT(*-include-cleaner)
+#include <Math/RMat44.hpp>
 #include <Math/Vector3.hpp>
 #include <Physics/Body/MassProperties.hpp>
 #include <Physics/Collision/PhysicsMaterial.hpp>
@@ -121,8 +123,8 @@ void JPH_Shape_GetMassProperties(const JPH_Shape *shape, JPH_MassProperties *res
 }
 
 const JPH_Shape *JPH_Shape_GetLeafShape(const JPH_Shape *shape,
-                                        const JPH_SubShapeId subShapeID,
-                                        JPH_SubShapeId *remainder)
+                                        const JPH_SubShapeID subShapeID,
+                                        JPH_SubShapeID *remainder)
 {
     JPH::SubShapeID joltSubShapeID = JPH::SubShapeID();
     joltSubShapeID.SetValue(subShapeID);
@@ -132,7 +134,7 @@ const JPH_Shape *JPH_Shape_GetLeafShape(const JPH_Shape *shape,
     return reinterpret_cast<const JPH_Shape *>(leaf);
 }
 
-const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, const JPH_SubShapeId subShapeID)
+const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, const JPH_SubShapeID subShapeID)
 {
     JPH::SubShapeID joltSubShapeID = JPH::SubShapeID();
     joltSubShapeID.SetValue(subShapeID);
@@ -140,7 +142,7 @@ const JPH_PhysicsMaterial *JPH_Shape_GetMaterial(const JPH_Shape *shape, const J
 }
 
 void JPH_Shape_GetSurfaceNormal(const JPH_Shape *shape,
-                                const JPH_SubShapeId subShapeID,
+                                const JPH_SubShapeID subShapeID,
                                 const Vector3 *localPosition,
                                 Vector3 *normal)
 {
@@ -151,7 +153,7 @@ void JPH_Shape_GetSurfaceNormal(const JPH_Shape *shape,
 }
 
 void JPH_Shape_GetSupportingFace(const JPH_Shape *shape,
-                                 const JPH_SubShapeId subShapeID,
+                                 const JPH_SubShapeID subShapeID,
                                  const Vector3 *direction,
                                  const Vector3 *scale,
                                  const JPH_Mat44 *centerOfMassTransform,
@@ -179,7 +181,7 @@ void JPH_Shape_GetSupportingFace(const JPH_Shape *shape,
 
     for (uint32_t i = 0; i < outVertices->count && i < 32; ++i)
     {
-        FromJolt(joltFace[i], &outVertices->vertices[i]);
+        FromJolt(joltFace.at(i), &outVertices->vertices[i]);
     }
 }
 

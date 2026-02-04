@@ -10,6 +10,6 @@
 
 static inline const JPH::ShapeFilter &ToJolt(const JPH_ShapeFilter *filter)
 {
-    static const JPH::ShapeFilter defaultBodyFilter = {};
-    return filter != nullptr ? *reinterpret_cast<const JPH::ShapeFilter *>(filter) : defaultBodyFilter;
+    static const JPH::ShapeFilter defaultFilter{};
+    return filter != nullptr ? *reinterpret_cast<const JPH::ShapeFilter *>(filter) : defaultFilter;
 }

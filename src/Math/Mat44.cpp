@@ -46,12 +46,29 @@ void JPH_Mat44_MultiplyScalar(const JPH_Mat44 *matrix, float scalar, JPH_Mat44 *
     FromJolt(ToJolt(matrix) * scalar, result);
 }
 
+void JPH_Mat44_MultiplyVector3(const JPH_Mat44 *left, const Vector3 *right, Vector3 *result)
+{
+    JPH_ASSERT(left);
+    JPH_ASSERT(right);
+    JPH_ASSERT(result);
+
+    FromJolt(ToJolt(left) * ToJolt(right), result);
+}
+
 void JPH_Mat44_Rotation(const JPH_Quat *rotation, JPH_Mat44 *result)
 {
     JPH_ASSERT(rotation);
     JPH_ASSERT(result);
 
     FromJolt(JPH::Mat44::sRotation(ToJolt(rotation)), result);
+}
+
+void JPH_Mat4_RotationAxisAngle(const Vector3 *axis, float angle, JPH_Mat44 *result)
+{
+    JPH_ASSERT(axis);
+    JPH_ASSERT(result);
+
+    FromJolt(JPH::Mat44::sRotation(ToJolt(axis), angle), result);
 }
 
 void JPH_Mat44_Translation(const Vector3 *translation, JPH_Mat44 *result)

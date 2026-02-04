@@ -28,7 +28,7 @@
 #include <Physics/Collision/CollisionGroup.hpp>
 #include <Physics/Collision/Shape/Shape.hpp>
 
-JPH_BodyId JPH_Body_GetID(const JPH_Body *body)
+JPH_BodyID JPH_Body_GetID(const JPH_Body *body)
 {
     return AsBody(body)->GetID().GetIndexAndSequenceNumber();
 }
@@ -381,7 +381,7 @@ void JPH_Body_GetWorldSpaceBounds(const JPH_Body *body, JPH_AABox *result)
 }
 
 void JPH_Body_GetWorldSpaceSurfaceNormal(const JPH_Body *body,
-                                         const JPH_SubShapeId subShapeID,
+                                         const JPH_SubShapeID subShapeID,
                                          const JPH_RVec3 *position,
                                          Vector3 *normal)
 {
