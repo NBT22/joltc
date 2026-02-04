@@ -10,6 +10,10 @@ extern "C"
 {
 #endif
 
+#if !defined(__cpp_constexpr) && __STDC_VERSION__ < 202311L
+#define constexpr const
+#endif
+
 #include <stdint.h>
 
 typedef uint32_t JPH_ObjectLayer;

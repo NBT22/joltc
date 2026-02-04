@@ -10,6 +10,10 @@ extern "C"
 {
 #endif
 
+#if !defined(__cpp_constexpr) && __STDC_VERSION__ < 202311L
+#define constexpr const
+#endif
+
 #include <joltc/Math/Vector3.h>
 
 #ifdef JPH_DOUBLE_PRECISION
@@ -22,23 +26,23 @@ typedef struct JPH_RVec3
         double z;
 } JPH_RVec3;
 
-static const JPH_RVec3 JPH_RVec3_Zero = {0.0, 0.0, 0.0};
-static const JPH_RVec3 JPH_RVec3_One = {1.0, 1.0, 1.0};
-static const JPH_RVec3 JPH_RVec3_NaN = {nan(), nan(), nan()};
-static const JPH_RVec3 JPH_RVec3_AxisX = {1.0f, 0.0f, 0.0f};
-static const JPH_RVec3 JPH_RVec3_AxisY = {0.0f, 1.0f, 0.0f};
-static const JPH_RVec3 JPH_RVec3_AxisZ = {0.0f, 0.0f, 1.0f};
-static const JPH_RVec3 JPH_RVec3_Forward = {0.0f, 0.0f, -1.0f};
+static constexpr JPH_RVec3 JPH_RVec3_Zero = {0.0, 0.0, 0.0};
+static constexpr JPH_RVec3 JPH_RVec3_One = {1.0, 1.0, 1.0};
+static constexpr JPH_RVec3 JPH_RVec3_NaN = {nan(), nan(), nan()};
+static constexpr JPH_RVec3 JPH_RVec3_AxisX = {1.0f, 0.0f, 0.0f};
+static constexpr JPH_RVec3 JPH_RVec3_AxisY = {0.0f, 1.0f, 0.0f};
+static constexpr JPH_RVec3 JPH_RVec3_AxisZ = {0.0f, 0.0f, 1.0f};
+static constexpr JPH_RVec3 JPH_RVec3_Forward = {0.0f, 0.0f, -1.0f};
 #else
 typedef Vector3 JPH_RVec3;
 
-static const JPH_RVec3 JPH_RVec3_Zero = Vector3_Zero;
-static const JPH_RVec3 JPH_RVec3_One = Vector3_One;
-static const JPH_RVec3 JPH_RVec3_NaN = Vector3_NaN;
-static const JPH_RVec3 JPH_RVec3_AxisX = Vector3_AxisX;
-static const JPH_RVec3 JPH_RVec3_AxisY = Vector3_AxisY;
-static const JPH_RVec3 JPH_RVec3_AxisZ = Vector3_AxisZ;
-static const JPH_RVec3 JPH_RVec3_Forward = Vector3_Forward;
+static constexpr JPH_RVec3 JPH_RVec3_Zero = Vector3_Zero;
+static constexpr JPH_RVec3 JPH_RVec3_One = Vector3_One;
+static constexpr JPH_RVec3 JPH_RVec3_NaN = Vector3_NaN;
+static constexpr JPH_RVec3 JPH_RVec3_AxisX = Vector3_AxisX;
+static constexpr JPH_RVec3 JPH_RVec3_AxisY = Vector3_AxisY;
+static constexpr JPH_RVec3 JPH_RVec3_AxisZ = Vector3_AxisZ;
+static constexpr JPH_RVec3 JPH_RVec3_Forward = Vector3_Forward;
 #endif
 
 JPH_CAPI bool JPH_RVec3_IsClose(const JPH_RVec3 *v1, const JPH_RVec3 *v2, float maxDistanceSquared);
@@ -61,7 +65,6 @@ JPH_CAPI float JPH_RVec3_Length(const JPH_RVec3 *vector);
 JPH_CAPI float JPH_RVec3_LengthSquared(const JPH_RVec3 *vector);
 
 JPH_CAPI void JPH_RVec3_DotProduct(const JPH_RVec3 *v1, const JPH_RVec3 *v2, float *result);
-JPH_CAPI void JPH_RVec3_Normalize(const JPH_RVec3 *vector, JPH_RVec3 *result);
 
 JPH_CAPI void JPH_RVec3_Add(const JPH_RVec3 *v1, const JPH_RVec3 *v2, JPH_RVec3 *result);
 JPH_CAPI void JPH_RVec3_Subtract(const JPH_RVec3 *v1, const JPH_RVec3 *v2, JPH_RVec3 *result);

@@ -15,8 +15,5 @@ JPH_SoftBodyCreationSettings *JPH_SoftBodyCreationSettings_Create()
 
 void JPH_SoftBodyCreationSettings_Destroy(JPH_SoftBodyCreationSettings *settings)
 {
-    if (settings != nullptr)
-    {
-        delete AsSoftBodyCreationSettings(settings);
-    }
+    delete AsSoftBodyCreationSettings(settings);
 }

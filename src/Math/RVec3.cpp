@@ -84,6 +84,33 @@ float JPH_RVec3_LengthSquared(const JPH_RVec3 *vector)
     return ToJolt(vector).LengthSq();
 }
 
+void JPH_RVec3_DotProduct(const JPH_RVec3 *v1, const JPH_RVec3 *v2, float *result)
+{
+    JPH_ASSERT(v1);
+    JPH_ASSERT(v2);
+    JPH_ASSERT(result);
+
+    *result = ToJolt(v1).Dot(ToJolt(v2));
+}
+
+void JPH_RVec3_Add(const JPH_RVec3 *v1, const JPH_RVec3 *v2, JPH_RVec3 *result)
+{
+    JPH_ASSERT(v1);
+    JPH_ASSERT(v2);
+    JPH_ASSERT(result);
+
+    FromJolt(ToJolt(v1) + ToJolt(v2), result);
+}
+
+void JPH_RVec3_Subtract(const JPH_RVec3 *v1, const JPH_RVec3 *v2, JPH_RVec3 *result)
+{
+    JPH_ASSERT(v1);
+    JPH_ASSERT(v2);
+    JPH_ASSERT(result);
+
+    FromJolt(ToJolt(v1) - ToJolt(v2), result);
+}
+
 void JPH_RVec3_Multiply(const JPH_RVec3 *v1, const JPH_RVec3 *v2, JPH_RVec3 *result)
 {
     JPH_ASSERT(v1);
@@ -117,39 +144,4 @@ void JPH_RVec3_DivideScalar(const JPH_RVec3 *vector, const float scalar, JPH_RVe
     JPH_ASSERT(result);
 
     FromJolt(ToJolt(vector) / scalar, result);
-}
-
-void JPH_RVec3_DotProduct(const JPH_RVec3 *v1, const JPH_RVec3 *v2, float *result)
-{
-    JPH_ASSERT(v1);
-    JPH_ASSERT(v2);
-    JPH_ASSERT(result);
-
-    *result = ToJolt(v1).Dot(ToJolt(v2));
-}
-
-void JPH_RVec3_Normalize(const JPH_RVec3 *vector, JPH_RVec3 *result)
-{
-    JPH_ASSERT(vector);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(vector).Normalized(), result);
-}
-
-void JPH_RVec3_Add(const JPH_RVec3 *v1, const JPH_RVec3 *v2, JPH_RVec3 *result)
-{
-    JPH_ASSERT(v1);
-    JPH_ASSERT(v2);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(v1) + ToJolt(v2), result);
-}
-
-void JPH_RVec3_Subtract(const JPH_RVec3 *v1, const JPH_RVec3 *v2, JPH_RVec3 *result)
-{
-    JPH_ASSERT(v1);
-    JPH_ASSERT(v2);
-    JPH_ASSERT(result);
-
-    FromJolt(ToJolt(v1) - ToJolt(v2), result);
 }

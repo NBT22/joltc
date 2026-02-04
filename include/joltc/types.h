@@ -14,10 +14,8 @@ extern "C"
 
 // TODO: This file should probably be a temporary holding place until things can be properly split into their own files
 
-typedef uint32_t JPH_Color;
-typedef uint32_t JPH_CollisionGroupId;
-typedef uint32_t JPH_CollisionSubGroupId;
-typedef uint32_t JPH_CharacterId;
+typedef uint32_t JPH_Color; // Only used for debug renderer
+typedef uint32_t JPH_CharacterID; // Only used for character virtual
 
 #ifdef __cplusplus
 }

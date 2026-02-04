@@ -10,6 +10,10 @@ extern "C"
 {
 #endif
 
+#if !defined(__cpp_constexpr) && __STDC_VERSION__ < 202311L
+#define constexpr const
+#endif
+
 #include <math.h>
 #include <stdbool.h>
 
@@ -20,13 +24,13 @@ typedef struct Vector3
         float z;
 } Vector3;
 
-static const Vector3 Vector3_Zero = {0.0f, 0.0f, 0.0f};
-static const Vector3 Vector3_One = {1.0f, 1.0f, 1.0f};
-static const Vector3 Vector3_NaN = {NAN, NAN, NAN};
-static const Vector3 Vector3_AxisX = {1.0f, 0.0f, 0.0f};
-static const Vector3 Vector3_AxisY = {0.0f, 1.0f, 0.0f};
-static const Vector3 Vector3_AxisZ = {0.0f, 0.0f, 1.0f};
-static const Vector3 Vector3_Forward = {0.0f, 0.0f, -1.0f};
+static constexpr Vector3 Vector3_Zero = {0.0f, 0.0f, 0.0f};
+static constexpr Vector3 Vector3_One = {1.0f, 1.0f, 1.0f};
+static constexpr Vector3 Vector3_NaN = {NAN, NAN, NAN};
+static constexpr Vector3 Vector3_AxisX = {1.0f, 0.0f, 0.0f};
+static constexpr Vector3 Vector3_AxisY = {0.0f, 1.0f, 0.0f};
+static constexpr Vector3 Vector3_AxisZ = {0.0f, 0.0f, 1.0f};
+static constexpr Vector3 Vector3_Forward = {0.0f, 0.0f, -1.0f};
 
 JPH_CAPI bool Vector3_IsClose(const Vector3 *v1, const Vector3 *v2, float maxDistanceSquared);
 /**

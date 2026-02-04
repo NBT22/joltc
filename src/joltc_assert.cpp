@@ -7,6 +7,7 @@
 #include <joltc/Math/Mat44.h>
 #include <joltc/Physics/Body/BodyID.h>
 #include <joltc/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <joltc/Physics/Collision/CollisionGroup.h>
 #include <joltc/Physics/Collision/ObjectLayer.h>
 #include <joltc/Physics/Collision/Shape/SubShapeID.h>
 #include <joltc/Physics/Collision/Shape/SubShapeIDPair.h>
@@ -54,9 +55,9 @@ static_assert(sizeof(JPH::ObjectLayer) == sizeof(JPH_ObjectLayer));
 static_assert(sizeof(JPH::BroadPhaseLayer) == sizeof(JPH_BroadPhaseLayer));
 static_assert(sizeof(JPH::BodyID) == sizeof(JPH_BodyID));
 static_assert(sizeof(JPH::SubShapeID) == sizeof(JPH_SubShapeID));
-static_assert(sizeof(JPH::CharacterID) == sizeof(JPH_CharacterId));
-static_assert(sizeof(JPH::CollisionGroup::GroupID) == sizeof(JPH_CollisionGroupId));
-static_assert(sizeof(JPH::CollisionGroup::SubGroupID) == sizeof(JPH_CollisionSubGroupId));
+static_assert(sizeof(JPH::CharacterID) == sizeof(JPH_CharacterID));
+static_assert(sizeof(JPH::CollisionGroup::GroupID) == sizeof(JPH_CollisionGroupID));
+static_assert(sizeof(JPH::CollisionGroup::SubGroupID) == sizeof(JPH_CollisionSubGroupID));
 
 static_assert(JPH_DefaultCollisionTolerance == JPH::cDefaultCollisionTolerance);
 static_assert(JPH_DefaultPenetrationTolerance == JPH::cDefaultPenetrationTolerance);

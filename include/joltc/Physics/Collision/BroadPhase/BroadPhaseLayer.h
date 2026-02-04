@@ -10,6 +10,12 @@ extern "C"
 {
 #endif
 
+#if !defined(__cpp_constexpr) && __STDC_VERSION__ < 202311L
+#define constexpr const
+#endif
+
+#include <stdint.h>
+
 typedef uint8_t JPH_BroadPhaseLayer;
 typedef struct JPH_BroadPhaseLayerFilter JPH_BroadPhaseLayerFilter;
 

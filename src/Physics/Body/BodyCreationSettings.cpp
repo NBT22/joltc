@@ -10,8 +10,8 @@
 #include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/BodyCreationSettings.h>
 #include <joltc/Physics/Body/MassProperties.h>
+#include <joltc/Physics/Collision/ObjectLayer.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
-#include <joltc/types.h>
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <Jolt/Math/Quat.h>

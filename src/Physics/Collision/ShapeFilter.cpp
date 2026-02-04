@@ -2,8 +2,8 @@
 // Created by NBT22 on 8/15/25.
 //
 
+#include <joltc/Physics/Body/BodyID.h>
 #include <joltc/Physics/Collision/ShapeFilter.h>
-#include <joltc/types.h>
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <Jolt/Physics/Collision/Shape/SubShapeID.h>
@@ -80,10 +80,12 @@ void JPH_ShapeFilter_SetImpl(JPH_ShapeFilter *filter, const JPH_ShapeFilter_Impl
 
 JPH_BodyID JPH_ShapeFilter_GetBodyID2(JPH_ShapeFilter *filter)
 {
+    JPH_ASSERT(filter);
     return reinterpret_cast<ManagedShapeFilter *>(filter)->mBodyID2.GetIndexAndSequenceNumber();
 }
 
 void JPH_ShapeFilter_SetBodyID2(JPH_ShapeFilter *filter, const JPH_BodyID id)
 {
+    JPH_ASSERT(filter);
     reinterpret_cast<ManagedShapeFilter *>(filter)->mBodyID2 = JPH::BodyID(id);
 }

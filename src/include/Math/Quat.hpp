@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <joltc/Math/Quat.h>
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/Quat.h>
@@ -20,5 +21,6 @@ static inline JPH::Quat ToJolt(const JPH_Quat &quat)
 
 static inline void FromJolt(const JPH::Quat &quat, JPH_Quat *result)
 {
+    // NOLINTNEXTLINE(*-pro-bounds-array-to-pointer-decay, *-pro-type-union-access)
     memcpy(result, quat.mValue.mF32, sizeof(JPH_Quat));
 }

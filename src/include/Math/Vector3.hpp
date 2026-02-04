@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include <joltc/Math/Vector3.h>
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/Vec3.h>
-#include <joltc/Math/Vector3.h>
 
 static inline JPH::Vec3 ToJolt(const Vector3 &vec)
 {

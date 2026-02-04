@@ -143,13 +143,13 @@ JPH_CAPI void JPH_BodyInterface_NotifyShapeChanged(JPH_BodyInterface *bodyInterf
                                                    JPH_Activation activationMode);
 
 JPH_CAPI void JPH_BodyInterface_ActivateBody(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyId);
-// TODO (merge): Implementations
 JPH_CAPI void JPH_BodyInterface_ActivateBodies(JPH_BodyInterface *bodyInterface, const JPH_BodyID *bodyIDs, int count);
 JPH_CAPI void JPH_BodyInterface_ActivateBodiesInAABox(JPH_BodyInterface *bodyInterface,
                                                       const JPH_AABox *box,
                                                       const JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                                       const JPH_ObjectLayerFilter *objectLayerFilter);
 JPH_CAPI void JPH_BodyInterface_DeactivateBody(JPH_BodyInterface *bodyInterface, JPH_BodyID bodyId);
+// TODO (merge): Implementations
 JPH_CAPI void JPH_BodyInterface_DeactivateBodies(JPH_BodyInterface *bodyInterface,
                                                  const JPH_BodyID *bodyIDs,
                                                  uint32_t count);

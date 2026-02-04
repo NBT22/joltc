@@ -387,6 +387,9 @@ add_library(joltc STATIC
         src/include/Physics/Collision/ShapeCast.hpp
         src/Physics/Collision/ShapeCast.cpp
         src/Physics/Collision/CollideShape.cpp
+        src/Physics/Collision/BroadPhase/BroadPhaseLayer.cpp
+        src/Physics/Collision/ObjectLayer.cpp
+        src/Physics/Body/BodyFilter.cpp
 )
 
 set(JPH_CAPI_VALUE "extern __attribute__((visibility(\"default\")))")

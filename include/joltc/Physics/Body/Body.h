@@ -23,7 +23,7 @@ extern "C"
 #include <joltc/Physics/Collision/CollisionGroup.h>
 #include <joltc/Physics/Collision/ObjectLayer.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
-#include <joltc/types.h>
+#include <joltc/Physics/Collision/Shape/SubShapeID.h>
 #include <stdbool.h>
 #include <stdint.h>
 

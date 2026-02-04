@@ -103,6 +103,7 @@ void JPH_Quat_FromEulerAngles(const Vector3 *angles, JPH_Quat *result)
 
     FromJolt(JPH::Quat::sEulerAngles(ToJolt(angles)), result);
 }
+
 void JPH_Quat_Add(const JPH_Quat *q1, const JPH_Quat *q2, JPH_Quat *result)
 {
     JPH_ASSERT(q1);

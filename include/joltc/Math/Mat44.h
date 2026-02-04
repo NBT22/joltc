@@ -10,6 +10,10 @@ extern "C"
 {
 #endif
 
+#if !defined(__cpp_constexpr) && __STDC_VERSION__ < 202311L
+#define constexpr const
+#endif
+
 #include <joltc/Math/Quat.h>
 #include <joltc/Math/Vector3.h>
 
@@ -21,8 +25,8 @@ typedef struct JPH_Mat44
         float m41, m42, m43, m44;
 } JPH_Mat44;
 
-static const JPH_Mat44 JPH_Mat44_Zero = {};
-static const JPH_Mat44 JPH_Mat44_Identity = {
+static constexpr JPH_Mat44 JPH_Mat44_Zero = {};
+static constexpr JPH_Mat44 JPH_Mat44_Identity = {
     .m11 = 1.0f,
     .m22 = 1.0f,
     .m33 = 1.0f,
@@ -36,7 +40,7 @@ JPH_CAPI void JPH_Mat44_MultiplyScalar(const JPH_Mat44 *matrix, float scalar, JP
 JPH_CAPI void JPH_Mat44_MultiplyVector3(const JPH_Mat44 *left, const Vector3 *right, Vector3 *result);
 
 JPH_CAPI void JPH_Mat44_Rotation(const JPH_Quat *rotation, JPH_Mat44 *result);
-JPH_CAPI void JPH_Mat4_RotationAxisAngle(const Vector3* axis, float angle, JPH_Mat44* result);
+JPH_CAPI void JPH_Mat4_RotationAxisAngle(const Vector3 *axis, float angle, JPH_Mat44 *result);
 JPH_CAPI void JPH_Mat44_Translation(const Vector3 *translation, JPH_Mat44 *result);
 JPH_CAPI void JPH_Mat44_RotationTranslation(const JPH_Quat *rotation, const Vector3 *translation, JPH_Mat44 *result);
 JPH_CAPI void JPH_Mat44_InverseRotationTranslation(const JPH_Quat *rotation,

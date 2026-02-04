@@ -67,11 +67,11 @@ int main()
     JPH_JobSystem *jobSystem = JPH_JobSystemThreadPool_Create(nullptr);
 
     JPH_ObjectLayerPairFilter *objectLayerPairFilter = JPH_ObjectLayerPairFilter_Create(&objectLayerPairFilterImpl);
-    JPH_BroadPhaseLayerInterface
-            *broadPhaseLayerInterface = JPH_BroadPhaseLayerInterface_Create(2, &broadPhaseLayerInterfaceImpl);
+    JPH_BroadPhaseLayerInterface *broadPhaseLayerInterface =
+            JPH_BroadPhaseLayerInterface_Create(2, &broadPhaseLayerInterfaceImpl);
 
-    JPH_ObjectVsBroadPhaseLayerFilter *objectVsBroadPhaseLayerFilter = JPH_ObjectVsBroadPhaseLayerFilter_Create(
-            &objectVsBroadPhaseLayerFilterImpl);
+    JPH_ObjectVsBroadPhaseLayerFilter *objectVsBroadPhaseLayerFilter =
+            JPH_ObjectVsBroadPhaseLayerFilter_Create(&objectVsBroadPhaseLayerFilterImpl);
 
     JPH_PhysicsSystemSettings settings = {};
     settings.maxBodies = 65536;
@@ -174,8 +174,8 @@ int main()
 
         JPH_BodyInterface_GetCenterOfMassPosition(bodyInterface, sphereId, &position);
         JPH_BodyInterface_GetLinearVelocity(bodyInterface, sphereId, &velocity);
-        std::cout
-                << "Step " << step << ": Position = (" << position.x << ", " << position.y << ", " << position.z << "), Velocity = (" << velocity.x << ", " << velocity.y << ", " << velocity.z << ")" << std::endl;
+        std::cout << "Step " << step << ": Position = (" << position.x << ", " << position.y << ", " << position.z
+                  << "), Velocity = (" << velocity.x << ", " << velocity.y << ", " << velocity.z << ")" << std::endl;
 
         // If you take larger steps than 1 / 60th of a second you need to do multiple collision steps in order to keep the simulation stable. Do 1 collision step per 1 / 60th of a second (round up).
         const int cCollisionSteps = 1;

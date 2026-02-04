@@ -10,6 +10,10 @@ extern "C"
 {
 #endif
 
+#if !defined(__cpp_constexpr) && __STDC_VERSION__ < 202311L
+#define constexpr const
+#endif
+
 #include <joltc/Math/Vector3.h>
 
 typedef struct JPH_Quat
@@ -20,8 +24,8 @@ typedef struct JPH_Quat
         float w;
 } JPH_Quat;
 
-static const JPH_Quat JPH_Quat_Zero = {0.0f, 0.0f, 0.0f, 0.0f};
-static const JPH_Quat JPH_Quat_Identity = {0.0f, 0.0f, 0.0f, 1.0f};
+static constexpr JPH_Quat JPH_Quat_Zero = {0.0f, 0.0f, 0.0f, 0.0f};
+static constexpr JPH_Quat JPH_Quat_Identity = {0.0f, 0.0f, 0.0f, 1.0f};
 
 JPH_CAPI void JPH_Quat_FromTo(const Vector3 *from, const Vector3 *to, JPH_Quat *result);
 JPH_CAPI void JPH_Quat_GetAxisAngle(const JPH_Quat *quat, Vector3 *outAxis, float *outAngle);

@@ -10,12 +10,11 @@ extern "C"
 {
 #endif
 
-#include <joltc/types.h>
-#include <stdint.h>
-
 #if !defined(__cpp_constexpr) && __STDC_VERSION__ < 202311L
 #define constexpr const
 #endif
+
+#include <stdint.h>
 
 static constexpr float JPH_DefaultCollisionTolerance = 1.0e-4f;
 static constexpr float JPH_DefaultPenetrationTolerance = 1.0e-4f;

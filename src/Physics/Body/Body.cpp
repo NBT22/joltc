@@ -11,10 +11,13 @@
 #include <joltc/Math/RVec3.h>
 #include <joltc/Math/Vector3.h>
 #include <joltc/Physics/Body/Body.h>
+#include <joltc/Physics/Body/BodyID.h>
 #include <joltc/Physics/Body/MotionProperties.h>
+#include <joltc/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <joltc/Physics/Collision/CollisionGroup.h>
+#include <joltc/Physics/Collision/ObjectLayer.h>
 #include <joltc/Physics/Collision/Shape/Shape.h>
-#include <joltc/types.h>
+#include <joltc/Physics/Collision/Shape/SubShapeID.h>
 #include <Jolt/Jolt.h>
 #include <Geometry/AABox.hpp>
 #include <Jolt/Math/Vec3.h>

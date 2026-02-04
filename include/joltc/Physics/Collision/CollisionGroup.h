@@ -10,14 +10,17 @@ extern "C"
 {
 #endif
 
-#include <joltc/types.h>
 #include <joltc/Physics/Body/BodyCreationSettings.h>
+#include <stdint.h>
+
+typedef uint32_t JPH_CollisionGroupID;
+typedef uint32_t JPH_CollisionSubGroupID;
 
 typedef struct JPH_CollisionGroup
 {
         const struct JPH_GroupFilter *groupFilter;
-        JPH_CollisionGroupId groupID;
-        JPH_CollisionSubGroupId subGroupID;
+        JPH_CollisionGroupID groupID;
+        JPH_CollisionSubGroupID subGroupID;
 } JPH_CollisionGroup;
 
 JPH_CAPI void JPH_BodyCreationSettings_GetCollisionGroup(const JPH_BodyCreationSettings *settings,

@@ -2,10 +2,10 @@
 // Created by NBT22 on 8/15/25.
 //
 
-#include <joltc/Physics/Collision/GroupFilter.h>
 #include <joltc/Physics/Collision/CollisionGroup.h>
-#include <Physics/Collision/GroupFilter.hpp>
+#include <joltc/Physics/Collision/GroupFilter.h>
 #include <Physics/Collision/CollisionGroup.hpp>
+#include <Physics/Collision/GroupFilter.hpp>
 
 void JPH_GroupFilter_Destroy(JPH_GroupFilter *groupFilter)
 {

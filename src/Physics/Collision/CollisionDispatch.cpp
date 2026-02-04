@@ -11,6 +11,7 @@
 #include <joltc/Physics/Collision/ShapeFilter.h>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/CollisionDispatch.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
 #include <Math/Mat44.hpp>
 #include <Math/Vector3.hpp>
 #include <Physics/Collision/CollideShape.hpp>
