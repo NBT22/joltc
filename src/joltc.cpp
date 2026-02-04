@@ -4976,7 +4976,7 @@ void JPH_CharacterVirtual_ExtendedUpdate(JPH_CharacterVirtual *character,
                                          float deltaTime,
                                          const JPH_ExtendedUpdateSettings *settings,
                                          JPH_ObjectLayer layer,
-                                         JPH_PhysicsSystem *system,
+                                         const JPH_PhysicsSystem *system,
                                          const JPH_BodyFilter *bodyFilter,
                                          const JPH_ShapeFilter *shapeFilter)
 {
@@ -7670,7 +7670,26 @@ float JPH_WheeledVehicleController_GetWheelSpeedAtClutch(const JPH_WheeledVehicl
 void JPH_WheeledVehicleController_SetTireMaxImpulseCallback(JPH_WheeledVehicleController *controller,
                                                             JPH_TireMaxImpulseCallback tireMaxImpulseCallback)
 {
-    AsWheeledVehicleController(controller)->SetTireMaxImpulseCallback(tireMaxImpulseCallback);
+    AsWheeledVehicleController(controller)
+            ->SetTireMaxImpulseCallback([&tireMaxImpulseCallback](const uint32_t inWheelIndex,
+                                                                  float &outLongitudinalImpulse,
+                                                                  float &outLateralImpulse,
+                                                                  const float inSuspensionImpulse,
+                                                                  const float inLongitudinalFriction,
+                                                                  const float inLateralFriction,
+                                                                  const float inLongitudinalSlip,
+                                                                  const float inLateralSlip,
+                                                                  const float inDeltaTime) -> void {
+                tireMaxImpulseCallback(inWheelIndex,
+                                       &outLongitudinalImpulse,
+                                       &outLateralImpulse,
+                                       inSuspensionImpulse,
+                                       inLongitudinalFriction,
+                                       inLateralFriction,
+                                       inLongitudinalSlip,
+                                       inLateralSlip,
+                                       inDeltaTime);
+            });
 }
 
 const JPH_VehicleEngine *JPH_WheeledVehicleController_GetEngine(const JPH_WheeledVehicleController *controller)
@@ -8117,7 +8136,7 @@ void JPH_LinearCurve_GetPoints(const JPH_LinearCurve *curve, JPH_Point *points, 
     }
     if (points != nullptr)
     {
-        for (int i = 0; i < joltPoints.size(); ++i)
+        for (size_t i = 0; i < joltPoints.size(); ++i)
         {
             const JPH::LinearCurve::Point &point = joltPoints.at(i);
             points[i] = JPH_Point{

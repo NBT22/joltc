@@ -519,8 +519,8 @@ typedef struct JPH_JobSystem JPH_JobSystem;
 
 /* Calculate max tire impulses by combining friction, slip, and suspension impulse. Note that the actual applied impulse may be lower (e.g. when the vehicle is stationary on a horizontal surface the actual impulse applied will be 0) */
 typedef void(JPH_API_CALL *JPH_TireMaxImpulseCallback)(uint32_t inWheelIndex,
-                                                       float &outLongitudinalImpulse,
-                                                       float &outLateralImpulse,
+                                                       float *outLongitudinalImpulse,
+                                                       float *outLateralImpulse,
                                                        float inSuspensionImpulse,
                                                        float inLongitudinalFriction,
                                                        float inLateralFriction,
@@ -1491,7 +1491,7 @@ JPH_CAPI void JPH_CharacterVirtual_ExtendedUpdate(JPH_CharacterVirtual *characte
                                                   float deltaTime,
                                                   const JPH_ExtendedUpdateSettings *settings,
                                                   JPH_ObjectLayer layer,
-                                                  JPH_PhysicsSystem *system,
+                                                  const JPH_PhysicsSystem *system,
                                                   const JPH_BodyFilter *bodyFilter,
                                                   const JPH_ShapeFilter *shapeFilter);
 JPH_CAPI void JPH_CharacterVirtual_RefreshContacts(JPH_CharacterVirtual *character,
