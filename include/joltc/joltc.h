@@ -1251,13 +1251,13 @@ JPH_CAPI JPH_BodyLockMultiRead *JPH_BodyLockInterface_LockMultiRead(const JPH_Bo
                                                                     const JPH_BodyID *bodyIDs,
                                                                     int count);
 JPH_CAPI void JPH_BodyLockMultiRead_Destroy(JPH_BodyLockMultiRead *ioLock);
-JPH_CAPI const JPH_Body *JPH_BodyLockMultiRead_GetBody(JPH_BodyLockMultiRead *ioLock, int bodyIndex);
+JPH_CAPI const JPH_Body *JPH_BodyLockMultiRead_GetBody(const JPH_BodyLockMultiRead *ioLock, int bodyIndex);
 
 JPH_CAPI JPH_BodyLockMultiWrite *JPH_BodyLockInterface_LockMultiWrite(const JPH_BodyLockInterface *lockInterface,
                                                                       const JPH_BodyID *bodyIDs,
                                                                       int count);
 JPH_CAPI void JPH_BodyLockMultiWrite_Destroy(JPH_BodyLockMultiWrite *ioLock);
-JPH_CAPI JPH_Body *JPH_BodyLockMultiWrite_GetBody(JPH_BodyLockMultiWrite *ioLock, int bodyIndex);
+JPH_CAPI JPH_Body *JPH_BodyLockMultiWrite_GetBody(const JPH_BodyLockMultiWrite *ioLock, int bodyIndex);
 
 //--------------------------------------------------------------------------------------------------
 // JPH_RayCast

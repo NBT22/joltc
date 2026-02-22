@@ -4098,7 +4098,7 @@ void JPH_BodyLockMultiRead_Destroy(JPH_BodyLockMultiRead *ioLock)
     }
 }
 
-const JPH_Body *JPH_BodyLockMultiRead_GetBody(JPH_BodyLockMultiRead *ioLock, const int bodyIndex)
+const JPH_Body *JPH_BodyLockMultiRead_GetBody(const JPH_BodyLockMultiRead *ioLock, const int bodyIndex)
 {
     JPH_ASSERT(ioLock && ioLock->joltLock);
     return ToBody(ioLock->joltLock->GetBody(bodyIndex));
@@ -4137,7 +4137,7 @@ void JPH_BodyLockMultiWrite_Destroy(JPH_BodyLockMultiWrite *ioLock)
     }
 }
 
-JPH_Body *JPH_BodyLockMultiWrite_GetBody(JPH_BodyLockMultiWrite *ioLock, const int bodyIndex)
+JPH_Body *JPH_BodyLockMultiWrite_GetBody(const JPH_BodyLockMultiWrite *ioLock, const int bodyIndex)
 {
     JPH_ASSERT(ioLock && ioLock->joltLock);
     return ToBody(ioLock->joltLock->GetBody(bodyIndex));
