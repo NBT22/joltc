@@ -399,11 +399,6 @@ static inline JPH::Float3 ToJoltFloat3(const Vector3 &vec)
     return {vec.x, vec.y, vec.z};
 }
 
-static inline JPH::AABox ToJolt(const JPH_AABox *value)
-{
-    return JPH::AABox{ToJolt(value->min), ToJolt(value->max)};
-}
-
 static inline JPH::SpringSettings ToJolt(const JPH_SpringSettings *settings)
 {
     JPH::SpringSettings result{};
