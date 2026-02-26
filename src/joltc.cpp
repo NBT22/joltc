@@ -37,6 +37,7 @@
 #include <new>
 #include <thread>
 #include <Jolt/Jolt.h>
+#include <Geometry/AABox.hpp>
 #include <Jolt/Core/Array.h>
 #include <Jolt/Core/Color.h>
 #include <Jolt/Core/Core.h>
@@ -154,10 +155,6 @@
 #include <Physics/Collision/Shape/Shape.hpp>
 #include <Physics/Collision/ShapeCast.hpp>
 #include <Physics/Collision/ShapeFilter.hpp>
-
-#ifdef JPH_DEBUG_RENDERER
-#include <Geometry/AABox.hpp>
-#endif
 
 // NOLINTBEGIN(*-macro-parentheses)
 #define DEF_MAP_DECL(JoltType, c_type) \
