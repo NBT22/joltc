@@ -141,7 +141,6 @@ bool JPH_NarrowPhaseQuery_CastRay2_GAME(const JPH_NarrowPhaseQuery *query,
                                         const JPH_BodyID bodyId,
                                         const float maxDistance,
                                         JPH_RayCastResult *result,
-                                        Vector3 *hitPointOffset,
                                         const JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                         const JPH_ObjectLayerFilter *objectLayerFilter,
                                         const JPH_BodyFilter *bodyFilter)
@@ -150,7 +149,6 @@ bool JPH_NarrowPhaseQuery_CastRay2_GAME(const JPH_NarrowPhaseQuery *query,
     JPH_ASSERT(bodyInterface);
     JPH_ASSERT(bodyId != JPH_BodyId_InvalidBodyID);
     JPH_ASSERT(result);
-    JPH_ASSERT(hitPointOffset);
     JPH_ASSERT(broadPhaseLayerFilter);
     JPH_ASSERT(objectLayerFilter);
 
@@ -176,7 +174,50 @@ bool JPH_NarrowPhaseQuery_CastRay2_GAME(const JPH_NarrowPhaseQuery *query,
         result->fraction = collector.mHit.mFraction;
         result->bodyID = collector.mHit.mBodyID.GetIndexAndSequenceNumber();
         result->subShapeID2 = collector.mHit.mSubShapeID2.GetValue();
-        FromJolt(-JPH::Vec3::sAxisZ() * collector.mHit.mFraction * maxDistance, hitPointOffset);
+    }
+
+    return collector.HadHit();
+}
+
+bool JPH_NarrowPhaseQuery_CastRay3_GAME(const JPH_NarrowPhaseQuery *query,
+                                        const JPH_BodyInterface *bodyInterface,
+                                        const JPH_BodyID bodyId,
+                                        const float minDistance,
+                                        const float maxDistance,
+                                        JPH_RayCastResult *result,
+                                        const JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
+                                        const JPH_ObjectLayerFilter *objectLayerFilter,
+                                        const JPH_BodyFilter *bodyFilter)
+{
+    JPH_ASSERT(query);
+    JPH_ASSERT(bodyInterface);
+    JPH_ASSERT(bodyId != JPH_BodyId_InvalidBodyID);
+    JPH_ASSERT(result);
+    JPH_ASSERT(broadPhaseLayerFilter);
+    JPH_ASSERT(objectLayerFilter);
+
+    JPH::RVec3 position{};
+    JPH::Quat rotation{};
+    AsBodyInterface(bodyInterface)->GetPositionAndRotation(JPH::BodyID(bodyId), position, rotation);
+    const JPH::RVec3 forward = rotation * -JPH::Vec3::sAxisZ();
+    const JPH::RRayCast ray(position + forward * minDistance, forward * (maxDistance - minDistance));
+    constexpr JPH::RayCastSettings raySettings{};
+    JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector{};
+    const JPH::ShapeFilter shapeFilter{};
+
+    ToJolt(query).CastRay(ray,
+                          raySettings,
+                          collector,
+                          ToJolt(broadPhaseLayerFilter),
+                          ToJolt(objectLayerFilter),
+                          ToJolt(bodyFilter),
+                          shapeFilter);
+
+    if (collector.HadHit())
+    {
+        result->fraction = collector.mHit.mFraction * (maxDistance - minDistance) / maxDistance;
+        result->bodyID = collector.mHit.mBodyID.GetIndexAndSequenceNumber();
+        result->subShapeID2 = collector.mHit.mSubShapeID2.GetValue();
     }
 
     return collector.HadHit();

@@ -42,7 +42,16 @@ JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay2_GAME(const JPH_NarrowPhaseQuery *que
                                                  JPH_BodyID bodyId,
                                                  float maxDistance,
                                                  JPH_RayCastResult *result,
-                                                 Vector3 *hitPointOffset,
+                                                 const JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
+                                                 const JPH_ObjectLayerFilter *objectLayerFilter,
+                                                 const JPH_BodyFilter *bodyFilter);
+
+JPH_CAPI bool JPH_NarrowPhaseQuery_CastRay3_GAME(const JPH_NarrowPhaseQuery *query,
+                                                 const JPH_BodyInterface *bodyInterface,
+                                                 JPH_BodyID bodyId,
+                                                 float minDistance,
+                                                 float maxDistance,
+                                                 JPH_RayCastResult *result,
                                                  const JPH_BroadPhaseLayerFilter *broadPhaseLayerFilter,
                                                  const JPH_ObjectLayerFilter *objectLayerFilter,
                                                  const JPH_BodyFilter *bodyFilter);
