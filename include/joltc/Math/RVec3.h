@@ -29,20 +29,20 @@ typedef struct JPH_RVec3
 static constexpr JPH_RVec3 JPH_RVec3_Zero = {0.0, 0.0, 0.0};
 static constexpr JPH_RVec3 JPH_RVec3_One = {1.0, 1.0, 1.0};
 static constexpr JPH_RVec3 JPH_RVec3_NaN = {nan(), nan(), nan()};
+static constexpr JPH_RVec3 JPH_RVec3_AxisX = {1.0, 0.0, 0.0};
+static constexpr JPH_RVec3 JPH_RVec3_AxisY = {0.0, 1.0, 0.0};
+static constexpr JPH_RVec3 JPH_RVec3_AxisZ = {0.0, 0.0, 1.0};
+static constexpr JPH_RVec3 JPH_RVec3_Forward = {0.0, 0.0, -1.0};
+#else
+typedef Vector3 JPH_RVec3;
+
+static constexpr JPH_RVec3 JPH_RVec3_Zero = {0.0f, 0.0f, 0.0f};
+static constexpr JPH_RVec3 JPH_RVec3_One = {1.0f, 1.0f, 1.0f};
+static constexpr JPH_RVec3 JPH_RVec3_NaN = {NAN, NAN, NAN};
 static constexpr JPH_RVec3 JPH_RVec3_AxisX = {1.0f, 0.0f, 0.0f};
 static constexpr JPH_RVec3 JPH_RVec3_AxisY = {0.0f, 1.0f, 0.0f};
 static constexpr JPH_RVec3 JPH_RVec3_AxisZ = {0.0f, 0.0f, 1.0f};
 static constexpr JPH_RVec3 JPH_RVec3_Forward = {0.0f, 0.0f, -1.0f};
-#else
-typedef Vector3 JPH_RVec3;
-
-static constexpr JPH_RVec3 JPH_RVec3_Zero = Vector3_Zero;
-static constexpr JPH_RVec3 JPH_RVec3_One = Vector3_One;
-static constexpr JPH_RVec3 JPH_RVec3_NaN = Vector3_NaN;
-static constexpr JPH_RVec3 JPH_RVec3_AxisX = Vector3_AxisX;
-static constexpr JPH_RVec3 JPH_RVec3_AxisY = Vector3_AxisY;
-static constexpr JPH_RVec3 JPH_RVec3_AxisZ = Vector3_AxisZ;
-static constexpr JPH_RVec3 JPH_RVec3_Forward = Vector3_Forward;
 #endif
 
 JPH_CAPI bool JPH_RVec3_IsClose(const JPH_RVec3 *v1, const JPH_RVec3 *v2, float maxDistanceSquared);
